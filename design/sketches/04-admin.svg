@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="460" viewBox="0 0 760 460">
+  <rect width="760" height="460" fill="#fff" stroke="#111" stroke-width="2"/>
+  <text x="24" y="34" font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="700">Kumba - review</text>
+  <text x="24" y="56" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#333">sketch 4 (admin)</text>
+
+  <rect x="24" y="80" width="712" height="150" fill="none" stroke="#111"/>
+  <text x="36" y="106" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="700">Cottage - Avondale - PENDING</text>
+  <text x="36" y="130" font-family="Helvetica, Arial, sans-serif" font-size="12">Advertiser: Mrs Dube</text>
+  <text x="36" y="152" font-family="Helvetica, Arial, sans-serif" font-size="12">Evidence: rates-bill.pdf, id.jpg</text>
+  <rect x="36" y="172" width="90" height="26" fill="none" stroke="#111"/>
+  <text x="52" y="190" font-family="Helvetica, Arial, sans-serif" font-size="12">Open files</text>
+  <rect x="140" y="172" width="80" height="26" fill="#111"/>
+  <text x="156" y="190" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#fff">Verify</text>
+  <rect x="232" y="172" width="80" height="26" fill="none" stroke="#111"/>
+  <text x="250" y="190" font-family="Helvetica, Arial, sans-serif" font-size="12">Reject</text>
+
+  <rect x="24" y="246" width="712" height="70" fill="none" stroke="#111"/>
+  <text x="36" y="274" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="700">House - Belvedere - VERIFIED</text>
+  <text x="36" y="296" font-family="Helvetica, Arial, sans-serif" font-size="12">If the proof turns out false:</text>
+  <rect x="280" y="272" width="80" height="26" fill="none" stroke="#111"/>
+  <text x="296" y="290" font-family="Helvetica, Arial, sans-serif" font-size="12">Revoke</text>
+
+  <text x="24" y="352" font-family="Helvetica, Arial, sans-serif" font-size="12">Verify puts a VERIFIED label on the public listing. Reject leaves it as NOT YET VERIFIED.</text>
+  <text x="24" y="376" font-family="Helvetica, Arial, sans-serif" font-size="12">advertiser can upload new proof after a rejection. Changing the listing's location clears VERIFIED.</text>
+</svg>

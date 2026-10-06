@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="540" viewBox="0 0 760 540">
+  <rect width="760" height="540" fill="#fff" stroke="#111" stroke-width="2"/>
+  <text x="24" y="34" font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="700">Kumba - listing</text>
+  <text x="24" y="56" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#333">Sketch 2. Tenant reads the full terms, then asks to be introduced.</text>
+  <text x="24" y="78" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#555"> -  Back to search</text>
+
+  <text x="24" y="110" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700">Cottage - Avondale, Harare</text>
+  <rect x="24" y="124" width="72" height="22" fill="none" stroke="#111"/>
+  <text x="34" y="140" font-family="Helvetica, Arial, sans-serif" font-size="11">VERIFIED</text>
+
+  <text x="24" y="172" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700">Terms, visible without paying</text>
+  <text x="24" y="194" font-family="Helvetica, Arial, sans-serif" font-size="12">Rent US$150 / month</text>
+  <text x="24" y="214" font-family="Helvetica, Arial, sans-serif" font-size="12">Deposit US$150</text>
+  <text x="24" y="234" font-family="Helvetica, Arial, sans-serif" font-size="12">Extras: water billed separately; no viewing fee</text>
+  <text x="24" y="254" font-family="Helvetica, Arial, sans-serif" font-size="12">Move-in from 12 Oct - one person - shared kitchen</text>
+
+  <rect x="24" y="280" width="240" height="36" fill="#111"/>
+  <text x="48" y="303" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#fff">Request introduction</text>
+  <text x="24" y="336" font-family="Helvetica, Arial, sans-serif" font-size="12">The number stays hidden until the landlord accepts. Kumba charges nothing.</text>
+
+  <rect x="420" y="110" width="312" height="210" fill="none" stroke="#111" stroke-dasharray="4 3"/>
+  <text x="436" y="136" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="700">Same page, after the landlord accepts</text>
+  <text x="436" y="164" font-family="Helvetica, Arial, sans-serif" font-size="12">Introduction accepted.</text>
+  <text x="436" y="188" font-family="Helvetica, Arial, sans-serif" font-size="12">Call: 0772 429 864</text>
+  <text x="436" y="220" font-family="Helvetica, Arial, sans-serif" font-size="12">If declined: "Landlord declined.</text>
+  <text x="436" y="240" font-family="Helvetica, Arial, sans-serif" font-size="12">No contact shared."</text>
+  <text x="436" y="272" font-family="Helvetica, Arial, sans-serif" font-size="12">One request per place, until it is relisted.</text>
+
+  <text x="24" y="400" font-family="Helvetica, Arial, sans-serif" font-size="12">The dashed panel is not a second screen. It replaces the button once accepted.</text>
+  <text x="24" y="424" font-family="Helvetica, Arial, sans-serif" font-size="12">Deposit and rent are paid between tenant and landlord, off Kumba.</text>
+</svg>

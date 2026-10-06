@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="760" viewBox="0 0 760 760">
+  <rect width="760" height="760" fill="#fff" stroke="#111" stroke-width="2"/>
+  <text x="24" y="36" font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="700">Kumba - my listings</text>
+  <text x="24" y="58" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#333">Sketch 3. Landlord: manage listings and answer introduction requests.</text>
+
+  <rect x="24" y="76" width="168" height="32" fill="#111"/>
+  <text x="40" y="97" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#fff">Create new listing</text>
+
+  <text x="24" y="140" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700">Your listings</text>
+
+  <rect x="24" y="156" width="712" height="168" fill="none" stroke="#111"/>
+  <text x="40" y="186" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="700">Cottage - Avondale</text>
+  <text x="250" y="186" font-family="Helvetica, Arial, sans-serif" font-size="13">OPEN</text>
+  <text x="40" y="212" font-family="Helvetica, Arial, sans-serif" font-size="13">US$150 / month, deposit US$150, extras listed</text>
+  <text x="40" y="234" font-family="Helvetica, Arial, sans-serif" font-size="13">VERIFIED. Confirm by 2 Nov or this listing is withdrawn.</text>
+  <rect x="40" y="256" width="190" height="36" fill="none" stroke="#111"/>
+  <text x="56" y="279" font-family="Helvetica, Arial, sans-serif" font-size="13">Confirm still available</text>
+  <rect x="246" y="256" width="120" height="36" fill="none" stroke="#111"/>
+  <text x="270" y="279" font-family="Helvetica, Arial, sans-serif" font-size="13">Mark as let</text>
+  <rect x="382" y="256" width="100" height="36" fill="none" stroke="#111"/>
+  <text x="404" y="279" font-family="Helvetica, Arial, sans-serif" font-size="13">Withdraw</text>
+
+  <rect x="24" y="344" width="712" height="128" fill="none" stroke="#111"/>
+  <text x="40" y="376" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="700">Room - Mbare</text>
+  <text x="200" y="376" font-family="Helvetica, Arial, sans-serif" font-size="13">LET</text>
+  <text x="40" y="404" font-family="Helvetica, Arial, sans-serif" font-size="13">Hidden from search. Relist if the tenant falls through.</text>
+  <rect x="40" y="420" width="96" height="32" fill="none" stroke="#111"/>
+  <text x="66" y="441" font-family="Helvetica, Arial, sans-serif" font-size="13">Relist</text>
+
+  <text x="24" y="496" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="700">Introduction requests</text>
+  <rect x="24" y="512" width="712" height="96" fill="none" stroke="#111"/>
+  <text x="40" y="544" font-family="Helvetica, Arial, sans-serif" font-size="13">Tinashe asked about Cottage - Avondale</text>
+  <text x="40" y="568" font-family="Helvetica, Arial, sans-serif" font-size="13">Accepting shares the number entered when the listing was created.</text>
+  <rect x="520" y="548" width="88" height="32" fill="#111"/>
+  <text x="538" y="569" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#fff">Accept</text>
+  <rect x="620" y="548" width="88" height="32" fill="none" stroke="#111"/>
+  <text x="636" y="569" font-family="Helvetica, Arial, sans-serif" font-size="13">Decline</text>
+
+  <text x="24" y="648" font-family="Helvetica, Arial, sans-serif" font-size="12">Create new listing (not drawn) asks for location, kind, rent, deposit, extras, move-in, a phone number,</text>
+  <text x="24" y="668" font-family="Helvetica, Arial, sans-serif" font-size="12">and proof (rates bill, title deed, or a letter from the owner). Relist keeps the VERIFIED label.</text>
+  <text x="24" y="700" font-family="Helvetica, Arial, sans-serif" font-size="12">The same account can also search under Find a place. There is no separate landlord role.</text>
+</svg>

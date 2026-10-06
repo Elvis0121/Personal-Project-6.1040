@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="520" viewBox="0 0 760 520">
+  <rect width="760" height="520" fill="#fff" stroke="#111" stroke-width="2"/>
+  <text x="24" y="34" font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="700">Kumba - find a place</text>
+  <text x="24" y="56" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#333">Sketch 1. Tenant search. No fees. Contact is not on this screen.</text>
+
+  <rect x="24" y="72" width="180" height="28" fill="none" stroke="#111"/>
+  <text x="32" y="91" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#555">Avondale, Harare</text>
+  <rect x="212" y="72" width="120" height="28" fill="none" stroke="#111"/>
+  <text x="220" y="91" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#555">max US$200</text>
+  <rect x="340" y="72" width="80" height="28" fill="#111"/>
+  <text x="358" y="91" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#fff">Search</text>
+
+  <rect x="24" y="116" width="348" height="196" fill="none" stroke="#111"/>
+  <text x="36" y="140" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="700">Cottage - Avondale</text>
+  <text x="36" y="164" font-family="Helvetica, Arial, sans-serif" font-size="12">Rent US$150 / month</text>
+  <text x="36" y="184" font-family="Helvetica, Arial, sans-serif" font-size="12">Deposit US$150</text>
+  <text x="36" y="204" font-family="Helvetica, Arial, sans-serif" font-size="12">Extras: water billed; no viewing fee</text>
+  <text x="36" y="224" font-family="Helvetica, Arial, sans-serif" font-size="12">Move-in from 12 Oct</text>
+  <rect x="36" y="240" width="72" height="22" fill="none" stroke="#111"/>
+  <text x="46" y="256" font-family="Helvetica, Arial, sans-serif" font-size="11">VERIFIED</text>
+  <text x="120" y="256" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#333">still open</text>
+
+  <rect x="388" y="116" width="348" height="196" fill="none" stroke="#111"/>
+  <text x="400" y="140" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="700">House - Belvedere</text>
+  <text x="400" y="164" font-family="Helvetica, Arial, sans-serif" font-size="12">Rent US$400 / month</text>
+  <text x="400" y="184" font-family="Helvetica, Arial, sans-serif" font-size="12">Deposit US$400</text>
+  <text x="400" y="204" font-family="Helvetica, Arial, sans-serif" font-size="12">Extras: US$30 levy</text>
+  <text x="400" y="224" font-family="Helvetica, Arial, sans-serif" font-size="12">Move-in from 1 Nov</text>
+  <rect x="400" y="240" width="130" height="22" fill="none" stroke="#111"/>
+  <text x="408" y="256" font-family="Helvetica, Arial, sans-serif" font-size="11">NOT YET VERIFIED</text>
+
+  <text x="24" y="348" font-family="Helvetica, Arial, sans-serif" font-size="12">Only listings that are OPEN and still current appear here.</text>
+  <text x="24" y="368" font-family="Helvetica, Arial, sans-serif" font-size="12">Let, withdrawn, and expired listings are absent, not shown as "taken".</text>
+  <text x="24" y="388" font-family="Helvetica, Arial, sans-serif" font-size="12">VERIFIED means Kumba checked the advertiser. The documents stay with the admin.</text>
+  <text x="24" y="420" font-family="Helvetica, Arial, sans-serif" font-size="12">Click a card to open Sketch 2. Login is omitted.</text>
+</svg>
