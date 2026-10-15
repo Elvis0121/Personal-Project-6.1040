@@ -1,0 +1,5 @@
+# P2 core user journey
+
+Mrs Dube has a cottage in Avondale to let. She registers on Kumba and creates a listing with the rent (US$150), deposit (US$150), extras (water billed separately, no viewing fee), the move-in date, and her phone number. Tinashe, whose lease is ending, registers separately and searches Avondale with a maximum rent of US$200. The cottage appears with its full terms but no phone number. He opens it and requests an introduction. Mrs Dube sees the request on her listings page and accepts it, and Tinashe's page then shows her number without a refresh. After they talk and agree, Mrs Dube marks the cottage as let, and it disappears from Tinashe's search results.
+
+The MVP covers registration and login, Listing, and Introducing. Verifying and Expiring are designed but come in P3.
