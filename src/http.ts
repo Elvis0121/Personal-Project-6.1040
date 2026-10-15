@@ -1,0 +1,37 @@
+import { httpPolicy } from "@mit-sdg/sync-engine-http/policy";
+
+export const policy = httpPolicy({
+  // The browser only ever talks to the frontend, which passes /api on to the backend.
+  publicOrigin: process.env.PUBLIC_ORIGIN ?? "http://127.0.0.1:8080",
+  basePath: "/api",
+  publicErrors: {
+    INVALID_USERNAME: "INVALID_REQUEST",
+    WEAK_PASSWORD: "INVALID_REQUEST",
+    USERNAME_TAKEN: "CONFLICT",
+    INVALID_CREDENTIALS: "UNAUTHORIZED",
+    UNKNOWN_SESSION: "UNAUTHORIZED",
+    INVALID_TERMS: "INVALID_REQUEST",
+    NEGATIVE_AMOUNT: "INVALID_REQUEST",
+    NO_SUCH_LISTING: "NOT_FOUND",
+    NOT_OWNER: "FORBIDDEN",
+    NOT_OPEN: "CONFLICT",
+    ALREADY_OPEN: "CONFLICT",
+    SELF_INTRODUCTION: "FORBIDDEN",
+    ALREADY_REQUESTED: "CONFLICT",
+    NO_SUCH_INTRODUCTION: "NOT_FOUND",
+    NOT_HOLDER: "FORBIDDEN",
+    ALREADY_ANSWERED: "CONFLICT",
+    MISSING_CONTACT: "INVALID_REQUEST",
+  },
+  cookies: {
+    session: {
+      name: "kumba-session",
+      input: "session",
+      issue: [
+        { path: "/auth/register", value: "session", expires: "expiresAt" },
+        { path: "/auth/sign-in", value: "session", expires: "expiresAt" },
+      ],
+      clear: ["/auth/sign-out"],
+    },
+  },
+});
