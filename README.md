@@ -18,7 +18,7 @@ This is being built as a real product for real tenants and landlords, starting i
 - Concept specs: [Authenticating](design/concepts/Authenticating.md), [Sessioning](design/concepts/Sessioning.md), [Listing](design/concepts/Listing.md), [Introducing](design/concepts/Introducing.md)
 - [Application types](design/types.md)
 - Compositions: [Sessions](design/compositions/Sessions.md), [Listings](design/compositions/Listings.md), [Introductions](design/compositions/Introductions.md)
-- Demo video: _link to come_
+- [Demo video](https://youtu.be/vbYU4Ed9J8E)
 
 ### Running locally
 
