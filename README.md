@@ -12,4 +12,26 @@ This is being built as a real product for real tenants and landlords, starting i
 - [UI sketches](design/ui-sketches.md)
 - [User journey](design/user-journey.md)
 
-design notebook is in private repo
+## P2: Alpha (MVP)
+
+- [Core user journey](p2/user-journey.md)
+- Concept specs: [Authenticating](design/concepts/Authenticating.md), [Sessioning](design/concepts/Sessioning.md), [Listing](design/concepts/Listing.md), [Introducing](design/concepts/Introducing.md)
+- [Application types](design/types.md)
+- Compositions: [Sessions](design/compositions/Sessions.md), [Listings](design/compositions/Listings.md), [Introductions](design/compositions/Introductions.md)
+- Demo video: _link to come_
+
+### Running locally
+
+Needs Bun and Podman.
+
+```sh
+bun install
+cp .env.example .env
+bun run dev      # MongoDB, backend on :3000, frontend on http://127.0.0.1:8080
+bun test         # concept tests
+bun run check    # design, generated files, and types
+```
+
+Open the app at exactly http://127.0.0.1:8080 (not localhost), so the session cookie works.
+
+design notebook in private repo
