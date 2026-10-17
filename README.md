@@ -48,6 +48,8 @@ Open the app at exactly [http://127.0.0.1:8080](http://127.0.0.1:8080) (not loca
 
 `bun run check` confirms that the code matches the specifications in `design/` and that the generated API types are current.
 
-Limitations**.** These tests cover the concepts on their own. The endpoints and the browser journey were checked by hand, over HTTP and in the browser, but there are no saved integration tests as of et.
+Integration. `tests/journey.test.ts` runs the user journey through the real endpoints, session cookie, and MongoDB. It covers access control (no session, a foreign website, acting on someone else's listing or request) and error cases.
+
+Limitations. The Vue pages are not tested automatically; the [demo video](https://youtu.be/vbYU4Ed9J8E) shows them working.
 
 design notebook in private repo
