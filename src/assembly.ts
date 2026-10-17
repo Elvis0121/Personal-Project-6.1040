@@ -1,4 +1,5 @@
 import { assemble } from "@mit-sdg/sync-engine/assembly";
+import type { Db } from "mongodb";
 import { composition as introductions } from "./compositions/Introductions.ts";
 import { composition as listings } from "./compositions/Listings.ts";
 import { composition as sessions } from "./compositions/Sessions.ts";
@@ -9,14 +10,15 @@ import { SessioningConcept } from "./concepts/Sessioning.ts";
 import { applicationConceptSet } from "./concepts.ts";
 import { db } from "./db.ts";
 
-export function assembleApplication() {
+/** Tests pass their own throwaway database; the server uses the one in .env. */
+export function assembleApplication(database: Db = db) {
   return assemble({
     conceptSet: applicationConceptSet,
     instances: {
-      Authenticating: new AuthenticatingConcept(db),
-      Sessioning: new SessioningConcept(db),
-      Listing: new ListingConcept(db),
-      Introducing: new IntroducingConcept(db),
+      Authenticating: new AuthenticatingConcept(database),
+      Sessioning: new SessioningConcept(database),
+      Listing: new ListingConcept(database),
+      Introducing: new IntroducingConcept(database),
     },
     composition: { Sessions: sessions, Listings: listings, Introductions: introductions },
     // Print what went wrong. Otherwise a failure only shows up as INTERNAL_ERROR.
