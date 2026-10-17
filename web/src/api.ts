@@ -1,7 +1,29 @@
 import { createHttpClient } from "@mit-sdg/sync-engine-http/client";
 import type { KumbaWireHttp } from "../../generated/wire.ts";
+import { account } from "./account.ts";
 
-export const api = createHttpClient<KumbaWireHttp>({ baseUrl: "/api" });
+const loginPaths = ["/auth/sign-in", "/auth/register"];
+
+function requestUrl(input: RequestInfo | URL): string {
+  if (typeof input === "string") return input;
+  if (input instanceof URL) return input.href;
+  return input.url;
+}
+
+export const api = createHttpClient<KumbaWireHttp>({
+  baseUrl: "/api",
+  fetch: ((input: RequestInfo | URL, init?: RequestInit) => {
+    return fetch(input, init).then((response) => {
+      const path = new URL(requestUrl(input), "http://127.0.0.1").pathname;
+      // A stale or missing session should drop the signed-in label. A wrong
+      // password on the login form is also UNAUTHORIZED, and that stays a form error.
+      if (response.status === 401 && !loginPaths.some((p) => path.endsWith(p))) {
+        account.value = null;
+      }
+      return response;
+    });
+  }) as typeof fetch,
+});
 
 export type Output<Path extends keyof KumbaWireHttp> = KumbaWireHttp[Path]["output"];
 
