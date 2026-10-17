@@ -41,12 +41,6 @@ export class SessioningConcept {
     return { ended: true };
   }
 
-  async _active({ session }: { session: string }) {
-    if (typeof session !== "string") return [];
-    const found = await this.sessions.findOne({ _id: session, expiresAt: { $gt: this.clock() } });
-    return found ? [{ subject: found.subject, expiresAt: found.expiresAt }] : [];
-  }
-
   /** The session cookie is `null` when the browser has none, so the type is checked here. */
   async #active(session: string): Promise<Session> {
     if (typeof session !== "string") throw new UnknownSession(UNKNOWN);

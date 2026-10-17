@@ -24,12 +24,10 @@ test("principle: a session resolves to its subject until it is ended", async () 
   const { session, expiresAt } = await sessioning.start({ subject: "tinashe" });
   expect(expiresAt.getTime()).toBe(now.getTime() + 24 * 60 * 60 * 1000);
   expect(await sessioning.current({ session })).toEqual({ subject: "tinashe" });
-  expect(await sessioning._active({ session })).toEqual([{ subject: "tinashe", expiresAt }]);
 
   expect(await sessioning.end({ session })).toEqual({ ended: true });
   await expect(sessioning.current({ session })).rejects.toBeInstanceOf(UnknownSession);
   await expect(sessioning.end({ session })).rejects.toBeInstanceOf(UnknownSession);
-  expect(await sessioning._active({ session })).toEqual([]);
 });
 
 test("an invented or missing session is refused", async () => {
@@ -41,7 +39,6 @@ test("an invented or missing session is refused", async () => {
 test("a session stops working once it expires", async () => {
   const { session } = await sessioning.start({ subject: "mrsdube" });
   now = new Date(now.getTime() + 24 * 60 * 60 * 1000 + 1);
-  expect(await sessioning._active({ session })).toEqual([]);
   await expect(sessioning.current({ session })).rejects.toBeInstanceOf(UnknownSession);
 });
 

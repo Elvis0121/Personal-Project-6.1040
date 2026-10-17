@@ -21,10 +21,6 @@ Defined in [Authenticating](../design/concepts/Authenticating.md), line 1.
 - `authenticate(username: String, password: String) : returns (account: Account)`
   - Refuses `INVALID_CREDENTIALS`: The username or password is incorrect.
 
-#### Queries
-
-- `_registered(username: String) : one (registered: Flag)`
-
 #### Instances
 
 - `Authenticating` — instance of `Authenticating` — [Kumba application types](../design/types.md), line 14.
@@ -113,10 +109,6 @@ Defined in [Sessioning](../design/concepts/Sessioning.md), line 1.
   - Refuses `UNKNOWN_SESSION`: You are not signed in, or your session has ended.
 - `end(session: Session) : returns (ended: Flag)`
   - Refuses `UNKNOWN_SESSION`: You are not signed in, or your session has ended.
-
-#### Queries
-
-- `_active(session: Session) : optional (subject: Subject, expiresAt: DateTime)`
 
 #### Instances
 

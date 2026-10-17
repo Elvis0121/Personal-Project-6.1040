@@ -57,6 +57,4 @@ authenticate (username: String, password: String) : returns (account: Account)
 ## Queries
 
 ```queries
-_registered (username: String) : one (registered: Flag)
-  answers true for a registered username and false for an unknown one
 ```

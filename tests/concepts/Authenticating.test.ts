@@ -27,7 +27,6 @@ afterAll(async () => {
 test("principle: a registered user authenticates with the right password only", async () => {
   const { account } = await authenticating.register({ username: "tinashe", password: "mbare-2026" });
   expect(account).toBe("tinashe");
-  expect(await authenticating._registered({ username: "tinashe" })).toEqual({ registered: true });
 
   await expect(
     authenticating.register({ username: "tinashe", password: "another-one" }),
@@ -44,7 +43,6 @@ test("an unknown username is refused the same way as a wrong password", async ()
   await expect(
     authenticating.authenticate({ username: "nobody", password: "whatever-1" }),
   ).rejects.toBeInstanceOf(InvalidCredentials);
-  expect(await authenticating._registered({ username: "nobody" })).toEqual({ registered: false });
 });
 
 test("usernames and passwords outside the allowed shape are refused", async () => {
@@ -57,7 +55,10 @@ test("usernames and passwords outside the allowed shape are refused", async () =
   await expect(
     authenticating.register({ username: "mrsdube", password: "short" }),
   ).rejects.toBeInstanceOf(WeakPassword);
-  expect(await authenticating._registered({ username: "mrsdube" })).toEqual({ registered: false });
+  // A refused registration creates no account, so the name is still free.
+  await expect(
+    authenticating.register({ username: "mrsdube", password: "long-enough" }),
+  ).resolves.toEqual({ account: "mrsdube" });
 });
 
 test("the password is not stored as written", async () => {

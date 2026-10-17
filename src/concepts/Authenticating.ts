@@ -49,9 +49,4 @@ export class AuthenticatingConcept {
     }
     return { account: found._id };
   }
-
-  async _registered({ username }: { username: string }) {
-    const count = await this.accounts.countDocuments({ _id: username }, { limit: 1 });
-    return { registered: count > 0 };
-  }
 }
