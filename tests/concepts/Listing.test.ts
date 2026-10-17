@@ -66,6 +66,9 @@ test("search filters by area and maximum rent, cheapest first", async () => {
   expect(await listings._search({ area: "borrowdale", maxRent: 500 })).toEqual([]);
   // Search text is matched literally, not as a pattern.
   expect(await listings._search({ area: ".*", maxRent: 500 })).toEqual([]);
+  // Bad types answer no rows instead of throwing.
+  expect(await listings._search({ area: 200 as unknown as string, maxRent: 500 })).toEqual([]);
+  expect(await listings._search({ area: "avondale", maxRent: "200" as unknown as number })).toEqual([]);
 });
 
 test("incomplete or negative terms are refused", async () => {

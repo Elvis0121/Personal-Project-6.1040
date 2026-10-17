@@ -113,6 +113,9 @@ export class ListingConcept {
   }
 
   async _search({ area, maxRent }: { area: string; maxRent: number }) {
+    // A query cannot refuse, so a non-text area or a non-number maxRent
+    // answers no rows instead of throwing (which would become INTERNAL_ERROR).
+    if (typeof area !== "string" || !Number.isFinite(maxRent)) return [];
     const filter: Record<string, unknown> = { status: "OPEN", rent: { $lte: maxRent } };
     if (area.trim() !== "") {
       filter.location = { $regex: escapeRegex(area.trim()), $options: "i" };

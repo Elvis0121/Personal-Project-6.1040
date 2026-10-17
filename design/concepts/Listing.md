@@ -128,6 +128,7 @@ relist (owner: User, listing: Listing) : returns (listing: Listing)
 _search (area: String, maxRent: Number) : many (listing: Listing, location: String, kind: String, currency: String, rent: Number, deposit: Number, extras: String, moveIn: Date)
   answers every OPEN listing whose location contains area, ignoring case, and whose rent is at most maxRent
   a blank area matches every location
+  a non-text area or a non-number maxRent answers no rows
   answers cheapest first, then in publication order, and never answers a contact
 _get (listing: Listing) : optional (owner: User, location: String, kind: String, currency: String, rent: Number, deposit: Number, extras: String, moveIn: Date, status: Status)
   answers no row for an unknown listing, and never answers its contact
