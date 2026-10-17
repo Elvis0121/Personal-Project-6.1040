@@ -1,5 +1,7 @@
 # Concept design
 
+> (please note, this is a P1 snapshot. The current specifications, which the code implements and `bun run check` verifies, are in `[concepts/](concepts/)`. The P2 design notes explain what changed and why)
+
 4 main concepts:
 
 - Listing
@@ -12,6 +14,8 @@ We will assume a standard UserAuthenticating concept (register and log in with a
 For reactions, `Requesting.x()` will stand for a request a logged-in user makes through the interface
 
 ## Concept specifications
+
+
 
 ### Listing
 
@@ -94,6 +98,8 @@ notes
   and the landlord does not have to submit proof again.
 ```
 
+
+
 ### Expiring
 
 ```
@@ -141,6 +147,8 @@ notes
 
   Durations are in seconds. The app uses 30 days.
 ```
+
+
 
 ### Verifying
 
@@ -220,6 +228,8 @@ notes
   verification is decided, keeping only the outcome
 ```
 
+
+
 ### Introducing
 
 ```
@@ -280,6 +290,8 @@ notes
   the contact
 ```
 
+
+
 ## Reactions
 
 Parts of a reaction
@@ -321,6 +333,8 @@ reaction resetIntroductionsOnRelist
   when Listing.relist (listing)
   then Introducing.reset (subject: listing)
 ```
+
+
 
 ### Verification
 
