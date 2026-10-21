@@ -20,7 +20,12 @@ This is being built as a real product for real tenants and landlords, starting i
 - Compositions: [Sessions](design/compositions/Sessions.md), [Listings](design/compositions/Listings.md), [Introductions](design/compositions/Introductions.md)
 - [Demo video](https://youtu.be/vbYU4Ed9J8E)
 
+## P3: Beta
 
+Visual study, 16:9:
+
+- Colour: [slide](design/visual-study/01-colour.png) · [page](design/visual-study/01-colour.html)
+- Type: [slide](design/visual-study/02-type.png) · [page](design/visual-study/02-type.html)
 
 ### Running locally
 

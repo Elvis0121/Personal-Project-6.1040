@@ -66,7 +66,7 @@ onUnmounted(() => clearInterval(poll));
       :lede="
         account
           ? 'You already know what you need. Costs sit on every card. Ask when it feels right.'
-          : 'Walk through the rooms. Compare without an account. The next place is allowed to take its time.'
+          : 'Walk through the rooms. Compare without an account. Take your time.'
       "
     />
     <SearchForm v-model:area="area" v-model:max-rent="maxRent" v-model:types="types" @search="search" />

@@ -7,5 +7,5 @@ function lifetimeFromEnv() {
   return Number.isFinite(ms) && ms > 0 ? ms : THIRTY_DAYS_MS;
 }
 
-/** How long a listing stays current unless the owner confirms it. Override with LISTING_LIFETIME_MS (30 min locally). */
+/** How long a listing stays current unless the owner confirms it. Override with LISTING_LIFETIME_MS. Default 30 days. */
 export const LISTING_LIFETIME_MS = lifetimeFromEnv();

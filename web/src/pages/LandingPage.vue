@@ -88,7 +88,7 @@ const faqs = [
     <section class="hero-full">
       <TypeBar />
       <div class="hero-copy">
-        <p class="eyebrow">A fairer way to find a place</p>
+        <p class="eyebrow">A fairer way to find a home</p>
         <h1>Finding a home is hard enough</h1>
         <p class="lede">
           You shouldn't have to chase people for prices, pay to find out an address, or arrive at a place that's already
@@ -130,7 +130,14 @@ const faqs = [
       <h2>Contact</h2>
       <p>Kumba · Zimbabwe</p>
       <div class="contact-actions">
-        <a class="as-button" href="mailto:hello@kumba.zw?subject=Hello%20Kumba">Email hello@kumba.zw</a>
+        <a
+          class="as-button"
+          href="https://mail.google.com/mail/?view=cm&fs=1&to=hello@kumba.zw&su=Hello%20Kumba"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Email hello@kumba.zw
+        </a>
         <a
           class="as-button ghost"
           href="https://wa.me/263771234567?text=Hello%20Kumba"

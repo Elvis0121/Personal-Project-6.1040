@@ -58,7 +58,16 @@ async function load() {
   listings.value = result.mine.listings;
 }
 
+function goSignIn() {
+  rememberNext("#/mine");
+  location.hash = "#/sign-in";
+}
+
 async function publish() {
+  if (!account.value) {
+    goSignIn();
+    return;
+  }
   publishError.value = "";
   notice.value = "";
   busy.value = true;
@@ -278,30 +287,22 @@ function thumbSrc(item: Mine[number]) {
 
 <template>
   <div class="mine-page">
-  <section v-if="!account" class="auth-gate card">
-    <h1>List a place</h1>
-    <p>
-      Your place, listed on your terms. Sign in to add a home, or to mark one let. Your number stays private until you
-      accept someone.
-    </p>
-    <div class="hero-actions">
-      <a class="as-button" href="#/sign-in" @click="rememberNext('#/mine')">Log in</a>
-      <a class="as-button secondary" href="#/sign-up" @click="rememberNext('#/mine')">Create an account</a>
-    </div>
-  </section>
-  <template v-else>
     <PageBand
       src="/stand-ins/house.jpg"
       eyebrow="Advertise"
       title="My homes"
-      lede="Show the place as you want it seen. Photos, the terms, your own pace. Your number stays private until you say yes."
+      :lede="
+        account
+          ? 'Show the place as you want it seen. Photos, the terms, your own pace. Your number stays private until you say yes.'
+          : 'Your place, listed on your terms. Sign in to add a home, or to mark one let. You choose who contacts you.'
+      "
     />
     <section class="card">
       <h2>List a place</h2>
       <p class="muted">
         People see the home clearly. They only get your number when you want them to.
       </p>
-      <form class="form-grid" @submit.prevent="publish">
+      <form class="form-grid" @submit.prevent="account ? publish() : goSignIn()">
         <label>Location<input v-model="draft.location" placeholder="Avondale, Harare" required /></label>
         <label>
           Type
@@ -328,13 +329,20 @@ function thumbSrc(item: Mine[number]) {
           <textarea v-model="draft.extras" rows="2" placeholder="Water billed separately. No viewing fee." />
         </label>
         <div class="row">
-          <button :disabled="busy">Publish</button>
-          <span v-if="notice" class="notice">{{ notice }}</span>
+          <template v-if="account">
+            <button :disabled="busy">Publish</button>
+            <span v-if="notice" class="notice">{{ notice }}</span>
+          </template>
+          <template v-else>
+            <a class="as-button" href="#/sign-in" @click="rememberNext('#/mine')">Log in</a>
+            <a class="as-button secondary" href="#/sign-up" @click="rememberNext('#/mine')">Create an account</a>
+          </template>
         </div>
       </form>
       <p v-if="publishError" class="error" role="alert">{{ publishError }}</p>
     </section>
 
+    <template v-if="account">
     <h2>Your listings</h2>
     <p v-if="notice" class="notice">{{ notice }}</p>
     <p v-if="listError" class="error" role="alert">{{ listError }}</p>
@@ -427,11 +435,14 @@ function thumbSrc(item: Mine[number]) {
         </button>
       </div>
 
-      <p v-if="item.proof === 'VERIFIED'" class="notice">VERIFIED — Kumba has checked this advertiser.</p>
-      <p v-else-if="item.proof === 'PENDING'" class="muted">
+      <p v-if="item.proof === 'PENDING'" class="muted">
         Proof submitted. Waiting for Kumba to check it; this page updates by itself.
       </p>
-      <form v-else-if="item.status === 'OPEN'" class="form-grid" @submit.prevent="submitProof(item.listing, $event)">
+      <form
+        v-else-if="item.status === 'OPEN' && item.proof !== 'VERIFIED'"
+        class="form-grid"
+        @submit.prevent="submitProof(item.listing, $event)"
+      >
         <label>
           Type of document
           <select name="kind" required>
@@ -489,6 +500,7 @@ function thumbSrc(item: Mine[number]) {
       </ul>
       </div>
     </article>
-  </template>
+    </template>
+    <p v-else class="muted">Your listings appear here once you are in.</p>
   </div>
 </template>
