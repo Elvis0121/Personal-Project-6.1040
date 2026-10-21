@@ -2,10 +2,20 @@
 import { onUnmounted, reactive, ref, watch } from "vue";
 import { api, explain, type Output } from "../api.ts";
 import ListingTerms from "../components/ListingTerms.vue";
+import PageBand from "../components/PageBand.vue";
 import { stamp } from "../format.ts";
+import type { GalleryShot } from "../gallery.ts";
+import { rememberNext } from "../auth-next.ts";
+import { standInFor } from "../place.ts";
+import { formatEvidence, PROOF_KINDS } from "../proof.ts";
 import { account } from "../session.ts";
 
-type Mine = Output<"/listings/mine">["mine"]["listings"];
+type Mine = (Output<"/listings/mine">["mine"]["listings"][number] & {
+  photos?: GalleryShot[];
+  displayPhoto?: string | null;
+})[];
+
+const MAX_PHOTOS = 8;
 
 const blank = () => ({
   location: "",
@@ -20,7 +30,6 @@ const blank = () => ({
 
 const draft = reactive(blank());
 const listings = ref<Mine>([]);
-const proofDraft = reactive<Record<string, string>>({});
 const editing = ref<string | null>(null);
 const editDraft = reactive(blank());
 const publishError = ref("");
@@ -68,23 +77,48 @@ async function publish() {
   await load();
 }
 
-async function submitProof(listing: string) {
+async function submitProof(listing: string, event: Event) {
   listError.value = "";
-  const result = await api.listings["submit-proof"]({
-    listing,
-    evidence: (proofDraft[listing] ?? "").trim(),
-  });
-  if ("error" in result) {
-    listError.value = explain(result.error, {
-      INVALID_REQUEST: "Proof cannot be empty.",
-      CONFLICT: "This listing already has proof waiting or verified, or it is not open.",
-      FORBIDDEN: "Only the advertiser can submit proof for this listing.",
-      NOT_FOUND: "That listing no longer exists.",
-      UNAUTHORIZED: "Please sign in again.",
-    });
+  const form = event.target as HTMLFormElement;
+  const data = new FormData(form);
+  const kind = String(data.get("kind") ?? "");
+  const note = String(data.get("note") ?? "").trim();
+  const file = data.get("file");
+  const upload = file instanceof File && file.size > 0 ? file : null;
+  if (!upload && !note) {
+    listError.value = "Attach a document, or write a short note.";
     return;
   }
-  proofDraft[listing] = "";
+  const proofErrors = {
+    INVALID_REQUEST: "Choose a document type, and attach a file or a short note.",
+    CONFLICT: "This listing already has proof waiting or verified, or it is not open.",
+    FORBIDDEN: "Only the advertiser can submit proof for this listing.",
+    NOT_FOUND: "That listing no longer exists.",
+    UNAUTHORIZED: "Please sign in again.",
+  };
+  if (upload) {
+    const body = new FormData();
+    body.set("listing", listing);
+    body.set("kind", kind);
+    body.set("note", note);
+    body.set("file", upload);
+    const response = await fetch("/api/listings/submit-proof", { method: "POST", body });
+    const payload = (await response.json()) as { error?: string };
+    if (payload.error) {
+      listError.value = explain(payload.error, proofErrors);
+      return;
+    }
+  } else {
+    const result = await api.listings["submit-proof"]({
+      listing,
+      evidence: formatEvidence({ kind, note }),
+    });
+    if ("error" in result) {
+      listError.value = explain(result.error, proofErrors);
+      return;
+    }
+  }
+  form.reset();
   await load();
 }
 
@@ -152,6 +186,68 @@ async function change(action: "mark-let" | "relist" | "withdraw", listing: strin
   await load();
 }
 
+const photoErrors = {
+  INVALID_REQUEST: "Use a JPEG, PNG, or WebP under 8MB.",
+  CONFLICT: "This listing already has eight photos.",
+  FORBIDDEN: "Only the advertiser can change these photos.",
+  NOT_FOUND: "That photo is no longer there.",
+  UNAUTHORIZED: "Please sign in again.",
+};
+
+async function uploadPhoto(listing: string, event: Event) {
+  listError.value = "";
+  notice.value = "";
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+  const body = new FormData();
+  body.set("listing", listing);
+  body.set("file", file);
+  const response = await fetch("/api/listings/photos", { method: "POST", body });
+  const payload = (await response.json()) as { error?: string };
+  input.value = "";
+  if (payload.error) {
+    listError.value = explain(payload.error, photoErrors);
+    return;
+  }
+  notice.value = "Photo added.";
+  await load();
+}
+
+async function setDisplay(listing: string, photo: string) {
+  listError.value = "";
+  notice.value = "";
+  const response = await fetch("/api/listings/photos/display", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ listing, photo }),
+  });
+  const payload = (await response.json()) as { error?: string };
+  if (payload.error) {
+    listError.value = explain(payload.error, photoErrors);
+    return;
+  }
+  notice.value = "Display photo updated.";
+  await load();
+}
+
+async function removePhoto(listing: string, photo: string) {
+  listError.value = "";
+  notice.value = "";
+  const response = await fetch("/api/listings/photos/remove", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ listing, photo }),
+  });
+  const payload = (await response.json()) as { error?: string };
+  if (payload.error) {
+    listError.value = explain(payload.error, photoErrors);
+    return;
+  }
+  notice.value = "Photo removed.";
+  await load();
+}
+
 async function answer(action: "accept" | "decline", introduction: string) {
   listError.value = "";
   const result = await api.introductions[action]({ introduction });
@@ -174,20 +270,41 @@ const poll = setInterval(() => {
 onUnmounted(() => clearInterval(poll));
 
 watch(account, load, { immediate: true });
+
+function thumbSrc(item: Mine[number]) {
+  return item.displayPhoto || standInFor(item.kind).src;
+}
 </script>
 
 <template>
-  <p v-if="!account" class="muted">Sign in to advertise a place and see your listings.</p>
+  <div class="mine-page">
+  <section v-if="!account" class="auth-gate card">
+    <h1>List a place</h1>
+    <p>
+      Your place, listed on your terms. Sign in to add a home, or to mark one let. Your number stays private until you
+      accept someone.
+    </p>
+    <div class="hero-actions">
+      <a class="as-button" href="#/sign-in" @click="rememberNext('#/mine')">Log in</a>
+      <a class="as-button secondary" href="#/sign-up" @click="rememberNext('#/mine')">Create an account</a>
+    </div>
+  </section>
   <template v-else>
+    <PageBand
+      src="/stand-ins/house.jpg"
+      eyebrow="Advertise"
+      title="My homes"
+      lede="Show the place as you want it seen. Photos, the terms, your own pace. Your number stays private until you say yes."
+    />
     <section class="card">
-      <h2>Advertise a place</h2>
+      <h2>List a place</h2>
       <p class="muted">
-        Show the full cost up front. Your number stays private until you accept a tenant's request.
+        People see the home clearly. They only get your number when you want them to.
       </p>
       <form class="form-grid" @submit.prevent="publish">
         <label>Location<input v-model="draft.location" placeholder="Avondale, Harare" required /></label>
         <label>
-          Kind of place
+          Type
           <select v-model="draft.kind">
             <option>Room</option>
             <option>Cottage</option>
@@ -221,18 +338,26 @@ watch(account, load, { immediate: true });
     <h2>Your listings</h2>
     <p v-if="notice" class="notice">{{ notice }}</p>
     <p v-if="listError" class="error" role="alert">{{ listError }}</p>
-    <p v-if="listings.length === 0" class="muted">You have not published anything yet.</p>
-    <article v-for="item in listings" :key="item.listing" class="card">
-      <div class="row">
+    <p v-if="listings.length === 0" class="muted">Your first listing lives here, when you are ready.</p>
+    <article v-for="item in listings" :key="item.listing" class="card mine-home">
+      <img
+        class="mine-thumb"
+        :src="thumbSrc(item)"
+        :alt="`${item.kind} in ${item.location}`"
+      />
+      <div class="mine-body">
+      <div class="card-head">
         <h3>{{ item.kind }} in {{ item.location }}</h3>
-        <span class="status" :class="item.status">{{ item.status }}</span>
-        <span v-if="item.proof === 'VERIFIED'" class="status VERIFIED">VERIFIED</span>
-        <span v-else-if="item.proof === 'PENDING'" class="status PENDING">Proof pending</span>
+        <div class="marks">
+          <span class="status" :class="item.status">{{ item.status }}</span>
+          <span v-if="item.proof === 'VERIFIED'" class="status VERIFIED">VERIFIED</span>
+          <span v-else-if="item.proof === 'PENDING'" class="status PENDING">Proof pending</span>
+        </div>
       </div>
       <form v-if="editing === item.listing" class="form-grid" @submit.prevent="saveEdit">
         <label>Location<input v-model="editDraft.location" required /></label>
         <label>
-          Kind of place
+          Type
           <select v-model="editDraft.kind">
             <option>Room</option>
             <option>Cottage</option>
@@ -286,7 +411,7 @@ watch(account, load, { immediate: true });
         >
           Edit
         </button>
-        <button v-if="item.status === 'OPEN'" type="button" @click="change('mark-let', item.listing)">
+        <button v-if="item.status === 'OPEN'" type="button" class="secondary" @click="change('mark-let', item.listing)">
           Mark as let
         </button>
         <button
@@ -306,21 +431,49 @@ watch(account, load, { immediate: true });
       <p v-else-if="item.proof === 'PENDING'" class="muted">
         Proof submitted. Waiting for Kumba to check it; this page updates by itself.
       </p>
-      <form v-else-if="item.status === 'OPEN'" class="form-grid" @submit.prevent="submitProof(item.listing)">
-        <label style="grid-column: 1 / -1">
-          Proof that you can let this place
-          <textarea
-            :value="proofDraft[item.listing] ?? ''"
-            rows="2"
-            placeholder="Rates bill reference, City of Harare, Sept 2026"
-            required
-            @input="proofDraft[item.listing] = ($event.target as HTMLTextAreaElement).value"
-          />
+      <form v-else-if="item.status === 'OPEN'" class="form-grid" @submit.prevent="submitProof(item.listing, $event)">
+        <label>
+          Type of document
+          <select name="kind" required>
+            <option value="" disabled selected>Choose one</option>
+            <option v-for="kind in PROOF_KINDS" :key="kind" :value="kind">{{ kind }}</option>
+          </select>
         </label>
+        <label>
+          File
+          <input name="file" type="file" accept="application/pdf,image/jpeg,image/png,image/webp" />
+        </label>
+        <label style="grid-column: 1 / -1">
+          Note, if you need one
+          <textarea name="note" rows="2" placeholder="City of Harare, Sept 2026" />
+        </label>
+        <p class="muted" style="grid-column: 1 / -1">
+          PDF, JPEG, PNG, or WebP. Tenants never see the file, only that Kumba checked it.
+        </p>
         <div class="row">
           <button type="submit">Submit proof</button>
         </div>
       </form>
+
+      <h4>Photos</h4>
+      <p class="muted">Show the rooms. Pick one as the display photo people see first.</p>
+      <div v-if="(item.photos?.length ?? 0) > 0" class="photo-grid">
+        <figure v-for="shot in item.photos" :key="shot.photo" class="photo-tile" :class="{ on: shot.display }">
+          <img :src="shot.url" :alt="shot.filename || 'Listing photo'" />
+          <div class="row">
+            <button v-if="!shot.display" type="button" class="secondary" @click="setDisplay(item.listing, shot.photo)">
+              Use as display photo
+            </button>
+            <span v-else class="status display-shot">Display photo</span>
+            <button type="button" class="secondary" @click="removePhoto(item.listing, shot.photo)">Remove</button>
+          </div>
+        </figure>
+      </div>
+      <label v-if="(item.photos?.length ?? 0) < MAX_PHOTOS" class="photo-add">
+        Add a photo
+        <input type="file" accept="image/jpeg,image/png,image/webp" @change="uploadPhoto(item.listing, $event)" />
+      </label>
+      <p v-else class="muted">Eight photos is the maximum.</p>
 
       <h4>Introduction requests</h4>
       <p v-if="item.requests.length === 0" class="muted">No requests yet.</p>
@@ -334,6 +487,8 @@ watch(account, load, { immediate: true });
           </template>
         </li>
       </ul>
+      </div>
     </article>
   </template>
+  </div>
 </template>

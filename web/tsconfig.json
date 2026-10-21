@@ -4,5 +4,5 @@
     "module": "ESNext",
     "moduleResolution": "Bundler"
   },
-  "include": ["src/**/*.ts", "src/**/*.vue", "env.d.ts", "../src/text.d.ts"]
+  "include": ["src/**/*.ts", "src/**/*.vue", "env.d.ts", "../src/text.d.ts", "../src/proof.ts"]
 }

@@ -1,64 +1,68 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { api, explain } from "../api.ts";
-import { account, loadReviewer, reviewer } from "../session.ts";
+import { onMounted, onUnmounted, ref, watch } from "vue";
+import { api } from "../api.ts";
+import { account, reviewer } from "../session.ts";
 
-const mode = ref<"sign-in" | "register">("sign-in");
-const username = ref("");
-const password = ref("");
-const error = ref("");
-const busy = ref(false);
-
-async function submit() {
-  error.value = "";
-  busy.value = true;
-  const input = { username: username.value.trim(), password: password.value };
-  const result =
-    mode.value === "register" ? await api.auth.register(input) : await api.auth["sign-in"](input);
-  busy.value = false;
-  if ("error" in result) {
-    error.value = explain(result.error, {
-      INVALID_REQUEST:
-        "Usernames are 3 to 32 letters, numbers, underscores, or hyphens, and passwords are 8 to 128 characters.",
-      CONFLICT: "That username is taken. Try another, or sign in instead.",
-      UNAUTHORIZED: "The username or password is incorrect.",
-    });
-    return;
-  }
-  account.value = result.account;
-  password.value = "";
-  await loadReviewer();
-}
+const open = ref(false);
+const root = ref<HTMLElement | null>(null);
 
 async function signOut() {
+  open.value = false;
   await api.auth["sign-out"]({});
   account.value = null;
   reviewer.value = false;
 }
+
+function close() {
+  open.value = false;
+}
+
+function onDocumentClick(event: MouseEvent) {
+  if (root.value && !root.value.contains(event.target as Node)) close();
+}
+
+function onKey(event: KeyboardEvent) {
+  if (event.key === "Escape") close();
+}
+
+onMounted(() => {
+  document.addEventListener("click", onDocumentClick);
+  window.addEventListener("hashchange", close);
+  window.addEventListener("keydown", onKey);
+});
+onUnmounted(() => {
+  document.removeEventListener("click", onDocumentClick);
+  window.removeEventListener("hashchange", close);
+  window.removeEventListener("keydown", onKey);
+});
+watch(account, () => {
+  if (!account.value) open.value = false;
+});
 </script>
 
 <template>
-  <div v-if="account" class="account">
-    <span>Signed in as <strong>{{ account }}</strong></span>
-    <button class="link" @click="signOut">Sign out</button>
-  </div>
-  <form v-else class="account-form" @submit.prevent="submit">
-    <input v-model="username" placeholder="Username" autocomplete="username" required />
-    <input
-      v-model="password"
-      type="password"
-      placeholder="Password"
-      :autocomplete="mode === 'register' ? 'new-password' : 'current-password'"
-      required
-    />
-    <button :disabled="busy">{{ mode === "register" ? "Create account" : "Sign in" }}</button>
+  <div v-if="account" ref="root" class="account">
+    <span class="account-name">{{ account }}</span>
     <button
       type="button"
-      class="link"
-      @click="(mode = mode === 'register' ? 'sign-in' : 'register'), (error = '')"
+      class="account-toggle"
+      :aria-expanded="open"
+      aria-controls="account-menu"
+      :aria-label="open ? 'Close account menu' : 'Open account menu'"
+      @click.stop="open = !open"
     >
-      {{ mode === "register" ? "I have an account" : "New here? Create an account" }}
+      <span v-if="open" class="account-x" aria-hidden="true">×</span>
+      <svg v-else viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M5 7h14M5 12h14M5 17h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg>
     </button>
-    <p v-if="error" class="error" role="alert">{{ error }}</p>
-  </form>
+    <div v-if="open" id="account-menu" class="account-menu">
+      <nav class="account-links">
+        <a href="#/liked">Liked places</a>
+        <a href="#/mine">My homes</a>
+        <a v-if="reviewer" href="#/review">Review</a>
+      </nav>
+      <button type="button" class="secondary" @click="signOut">Sign out</button>
+    </div>
+  </div>
 </template>

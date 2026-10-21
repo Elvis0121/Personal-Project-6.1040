@@ -13,7 +13,7 @@ defineProps<{
 <template>
   <dl class="terms">
     <dt>Rent</dt>
-    <dd>{{ money(currency, rent) }} a month</dd>
+    <dd class="rent">{{ money(currency, rent) }} a month</dd>
     <dt>Deposit</dt>
     <dd>{{ money(currency, deposit) }}</dd>
     <dt>Extras</dt>

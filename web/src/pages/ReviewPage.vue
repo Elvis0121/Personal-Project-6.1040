@@ -2,11 +2,14 @@
 import { onUnmounted, ref, watch } from "vue";
 import { api, explain, type Output } from "../api.ts";
 import ListingTerms from "../components/ListingTerms.vue";
+import PageBand from "../components/PageBand.vue";
+import { parseEvidence } from "../proof.ts";
 import { reviewer } from "../session.ts";
 
 type Queue = Output<"/review/queue">["queue"]["items"];
+type Item = Queue[number] & { proof: ReturnType<typeof parseEvidence> };
 
-const items = ref<Queue>([]);
+const items = ref<Item[]>([]);
 const error = ref("");
 const busy = ref("");
 
@@ -22,7 +25,7 @@ async function load() {
     return;
   }
   error.value = "";
-  items.value = result.queue.items;
+  items.value = result.queue.items.map((item) => ({ ...item, proof: parseEvidence(item.evidence ?? "") }));
 }
 
 async function decide(action: "verify" | "reject", verification: string) {
@@ -47,17 +50,22 @@ onUnmounted(() => clearInterval(poll));
 </script>
 
 <template>
-  <h1>Pending proof</h1>
-  <p class="muted">
-    Read the evidence, then verify or reject. Tenants will see the outcome on the listing, never this text.
-  </p>
+  <div class="review-page">
+    <PageBand
+      src="/stand-ins/flat.jpg"
+      eyebrow="For you"
+      title="Pending proof"
+      lede="You are the one who looks. Tenants never see the file. Thank you for keeping both sides honest."
+    />
   <p v-if="!reviewer" class="muted">Only the appointed reviewer can open this queue.</p>
   <p v-if="error" class="error" role="alert">{{ error }}</p>
   <p v-else-if="reviewer && items.length === 0" class="muted">No proof is waiting.</p>
   <article v-for="item in items" :key="item.verification" class="card">
-    <div class="row">
+    <div class="card-head">
       <h3>{{ item.kind ?? "Listing" }} in {{ item.location ?? "unknown location" }}</h3>
-      <span class="status PENDING">PENDING</span>
+      <div class="marks">
+        <span class="status PENDING">PENDING</span>
+      </div>
     </div>
     <p class="muted">Advertised by {{ item.advertiser }}</p>
     <ListingTerms
@@ -69,7 +77,13 @@ onUnmounted(() => clearInterval(poll));
       :move-in="item.moveIn"
     />
     <h4>Evidence</h4>
-    <pre class="evidence">{{ item.evidence }}</pre>
+    <p v-if="item.proof.kind"><strong>{{ item.proof.kind }}</strong></p>
+    <pre v-if="item.proof.note" class="evidence">{{ item.proof.note }}</pre>
+    <p v-if="item.proof.filename">
+      <a :href="`/api/review/proof/${encodeURIComponent(item.verification)}`">
+        Download {{ item.proof.filename }}
+      </a>
+    </p>
     <div class="row">
       <button :disabled="busy === item.verification" @click="decide('verify', item.verification)">
         Verify
@@ -79,4 +93,5 @@ onUnmounted(() => clearInterval(poll));
       </button>
     </div>
   </article>
+  </div>
 </template>

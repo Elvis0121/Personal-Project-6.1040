@@ -8,6 +8,8 @@ import { AlreadyAppointed, VerifyingConcept } from "./concepts/Verifying.ts";
 import { LISTING_LIFETIME_MS } from "./listing-lifetime.ts";
 import { db } from "./db.ts";
 import { policy } from "./http.ts";
+import { withPhotoRoutes } from "./photo-http.ts";
+import { withProofRoutes } from "./proof-http.ts";
 
 /** Seed lives here, not in assemble: generate and check must not talk to Mongo. */
 async function seedReviewer() {
@@ -43,7 +45,10 @@ await seedOpenTimers();
 
 const application = assembleApplication();
 const gateway = createGateway({ application });
-const api = createHttpHandler({ application, gateway, policy });
+const api = withPhotoRoutes(
+  withProofRoutes(createHttpHandler({ application, gateway, policy }), application),
+  application,
+);
 
 const sweepEveryMs = LISTING_LIFETIME_MS < 5 * 60 * 1000 ? 2_000 : 10_000;
 setInterval(() => {
