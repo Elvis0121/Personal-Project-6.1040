@@ -51,10 +51,8 @@ async function ask() {
   await load();
 }
 
-// While the advertiser has not answered, check every few seconds so the answer appears by itself.
-const poll = setInterval(() => {
-  if (mine.value?.status === "PENDING") load();
-}, 3000);
+// Verification, let, and an introduction answer all arrive while this page is open.
+const poll = setInterval(load, 3000);
 onUnmounted(() => clearInterval(poll));
 
 watch([() => props.listing, account], load, { immediate: true });
@@ -67,6 +65,8 @@ watch([() => props.listing, account], load, { immediate: true });
     <div class="row">
       <h1>{{ terms.kind }} in {{ terms.location }}</h1>
       <span class="status" :class="terms.status">{{ terms.status }}</span>
+      <span v-if="terms.verified" class="status VERIFIED">VERIFIED</span>
+      <span v-else class="status unverified">Not yet verified</span>
     </div>
     <ListingTerms v-bind="terms" />
     <p class="muted">Advertised by {{ terms.owner }}. Kumba never charges tenants.</p>

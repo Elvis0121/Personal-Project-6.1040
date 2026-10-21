@@ -3,6 +3,7 @@ import authenticatingSpec from "@design/concepts/Authenticating.md" with { type:
 import introducingSpec from "@design/concepts/Introducing.md" with { type: "text" };
 import listingSpec from "@design/concepts/Listing.md" with { type: "text" };
 import sessioningSpec from "@design/concepts/Sessioning.md" with { type: "text" };
+import verifyingSpec from "@design/concepts/Verifying.md" with { type: "text" };
 import {
   AuthenticatingConcept,
   InvalidCredentials,
@@ -29,6 +30,17 @@ import {
   NotOwner,
 } from "./concepts/Listing.ts";
 import { SessioningConcept, UnknownSession } from "./concepts/Sessioning.ts";
+import {
+  AlreadyAppointed,
+  AlreadyCurrent,
+  EmptyEvidence,
+  InvalidReviewer,
+  NoSuchVerification,
+  NotPending,
+  NotReviewer,
+  NotVerified,
+  VerifyingConcept,
+} from "./concepts/Verifying.ts";
 
 const authenticating = registerConcept({
   class: AuthenticatingConcept,
@@ -73,10 +85,26 @@ const introducing = registerConcept({
   },
 });
 
+const verifying = registerConcept({
+  class: VerifyingConcept,
+  spec: verifyingSpec,
+  refusals: {
+    INVALID_REVIEWER: InvalidReviewer,
+    ALREADY_APPOINTED: AlreadyAppointed,
+    EMPTY_EVIDENCE: EmptyEvidence,
+    ALREADY_CURRENT: AlreadyCurrent,
+    NOT_REVIEWER: NotReviewer,
+    NO_SUCH_VERIFICATION: NoSuchVerification,
+    NOT_PENDING: NotPending,
+    NOT_VERIFIED: NotVerified,
+  },
+});
+
 export const applicationConceptSet = conceptSet({
   Authenticating: authenticating,
   Sessioning: sessioning,
   Listing: listing,
   Introducing: introducing,
+  Verifying: verifying,
 });
 export const { concepts } = applicationConceptSet;

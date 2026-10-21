@@ -19,6 +19,7 @@ const blank = () => ({
 
 const draft = reactive(blank());
 const listings = ref<Mine>([]);
+const proofDraft = reactive<Record<string, string>>({});
 const publishError = ref("");
 const notice = ref("");
 const listError = ref("");
@@ -61,6 +62,26 @@ async function publish() {
   }
   Object.assign(draft, blank());
   notice.value = "Published. Tenants can now find it in search.";
+  await load();
+}
+
+async function submitProof(listing: string) {
+  listError.value = "";
+  const result = await api.listings["submit-proof"]({
+    listing,
+    evidence: (proofDraft[listing] ?? "").trim(),
+  });
+  if ("error" in result) {
+    listError.value = explain(result.error, {
+      INVALID_REQUEST: "Proof cannot be empty.",
+      CONFLICT: "This listing already has proof waiting or verified, or it is not open.",
+      FORBIDDEN: "Only the advertiser can submit proof for this listing.",
+      NOT_FOUND: "That listing no longer exists.",
+      UNAUTHORIZED: "Please sign in again.",
+    });
+    return;
+  }
+  proofDraft[listing] = "";
   await load();
 }
 
@@ -144,9 +165,30 @@ watch(account, load, { immediate: true });
       <div class="row">
         <h3>{{ item.kind }} in {{ item.location }}</h3>
         <span class="status" :class="item.status">{{ item.status }}</span>
+        <span v-if="item.proof === 'VERIFIED'" class="status VERIFIED">VERIFIED</span>
+        <span v-else-if="item.proof === 'PENDING'" class="status PENDING">Proof pending</span>
       </div>
       <ListingTerms v-bind="item" />
       <p class="muted">Contact given to accepted tenants: {{ item.contact }}</p>
+      <p v-if="item.proof === 'VERIFIED'" class="notice">VERIFIED — Kumba has checked this advertiser.</p>
+      <p v-else-if="item.proof === 'PENDING'" class="muted">
+        Proof submitted. Waiting for Kumba to check it; this page updates by itself.
+      </p>
+      <form v-else-if="item.status === 'OPEN'" class="form-grid" @submit.prevent="submitProof(item.listing)">
+        <label style="grid-column: 1 / -1">
+          Proof that you can let this place
+          <textarea
+            :value="proofDraft[item.listing] ?? ''"
+            rows="2"
+            placeholder="Rates bill reference, City of Harare, Sept 2026"
+            required
+            @input="proofDraft[item.listing] = ($event.target as HTMLTextAreaElement).value"
+          />
+        </label>
+        <div class="row">
+          <button>Submit proof</button>
+        </div>
+      </form>
 
       <h4>Introduction requests</h4>
       <p v-if="item.requests.length === 0" class="muted">No requests yet.</p>

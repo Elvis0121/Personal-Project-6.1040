@@ -116,15 +116,16 @@ export type KumbaWire = {
     };
     output: {
       "mine": {
-        "listings": {
+        "listings": ({
           "contact": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["contact"]>>;
           "currency": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["currency"]>>;
           "deposit": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["deposit"]>>;
           "extras": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["extras"]>>;
           "kind": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["kind"]>>;
-          "listing": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["listing"]>>;
+          "listing": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Verifying"]["_forSubject"]>[0], ["subject"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["listing"]>]>>;
           "location": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["location"]>>;
           "moveIn": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["moveIn"]>>;
+          "proof": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Verifying"]["_forSubject"]>>>, ["status"]>> | null;
           "rent": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["rent"]>>;
           "requests": {
             "introduction": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Introducing"]["_received"]>>>, ["introduction"]>>;
@@ -132,7 +133,7 @@ export type KumbaWire = {
             "status": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Introducing"]["_received"]>>>, ["status"]>>;
           }[];
           "status": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["status"]>>;
-        }[];
+        })[];
       };
     };
     error: { error: AppWideError | "INVALID_INPUT" | "UNKNOWN_SESSION" };
@@ -176,14 +177,26 @@ export type KumbaWire = {
           "deposit": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_search"]>>>, ["deposit"]>>;
           "extras": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_search"]>>>, ["extras"]>>;
           "kind": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_search"]>>>, ["kind"]>>;
-          "listing": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_search"]>>>, ["listing"]>>;
+          "listing": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Verifying"]["_isVerified"]>[0], ["subject"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_search"]>>>, ["listing"]>]>>;
           "location": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_search"]>>>, ["location"]>>;
           "moveIn": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_search"]>>>, ["moveIn"]>>;
           "rent": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_search"]>>>, ["rent"]>>;
+          "verified": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Verifying"]["_isVerified"]>>>, ["verified"]>>;
         }[];
       };
     };
     error: { error: AppWideError | "INVALID_INPUT" };
+  };
+  "/listings/submit-proof": {
+    input: {
+      "evidence": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Verifying"]["submit"]>[0], ["evidence"]>>;
+      "listing": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>[0], ["listing"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Verifying"]["submit"]>[0], ["subject"]>]>>;
+      "session": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Sessioning"]["current"]>[0], ["session"]>>;
+    };
+    output: {
+      "verification": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Verifying"]["submit"]>>, ["verification"]>>;
+    };
+    error: { error: AppWideError | "ALREADY_CURRENT" | "EMPTY_EVIDENCE" | "INVALID_INPUT" | "NOT_OPEN" | "NOT_OWNER" | "NO_SUCH_LISTING" | "UNKNOWN_SESSION" };
   };
   "/listings/view": {
     input: {
@@ -195,15 +208,71 @@ export type KumbaWire = {
         "deposit": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["deposit"]>>;
         "extras": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["extras"]>>;
         "kind": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["kind"]>>;
-        "listing": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>[0], ["listing"]>>;
+        "listing": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>[0], ["listing"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Verifying"]["_isVerified"]>[0], ["subject"]>]>>;
         "location": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["location"]>>;
         "moveIn": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["moveIn"]>>;
         "owner": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["owner"]>>;
         "rent": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["rent"]>>;
         "status": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["status"]>>;
+        "verified": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Verifying"]["_isVerified"]>>>, ["verified"]>>;
       } | null;
     };
     error: { error: AppWideError | "INVALID_INPUT" | "NO_SUCH_LISTING" };
+  };
+  "/review/access": {
+    input: {
+      "session": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Sessioning"]["current"]>[0], ["session"]>>;
+    };
+    output: {
+      "access": {
+        "appointed": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Verifying"]["_isReviewer"]>>>, ["appointed"]>>;
+      };
+    };
+    error: { error: AppWideError | "INVALID_INPUT" | "UNKNOWN_SESSION" };
+  };
+  "/review/queue": {
+    input: {
+      "session": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Sessioning"]["current"]>[0], ["session"]>>;
+    };
+    output: {
+      "queue": {
+        "items": ({
+          "advertiser": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Verifying"]["_pending"]>>>, ["advertiser"]>>;
+          "currency": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["currency"]>> | null;
+          "deposit": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["deposit"]>> | null;
+          "evidence": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Verifying"]["_evidence"]>>>, ["evidence"]>> | null;
+          "extras": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["extras"]>> | null;
+          "kind": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["kind"]>> | null;
+          "listing": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>[0], ["listing"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Verifying"]["_pending"]>>>, ["subject"]>]>>;
+          "location": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["location"]>> | null;
+          "moveIn": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["moveIn"]>> | null;
+          "rent": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["rent"]>> | null;
+          "status": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["status"]>> | null;
+          "verification": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Verifying"]["_evidence"]>[0], ["verification"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Verifying"]["_pending"]>>>, ["verification"]>]>>;
+        })[];
+      };
+    };
+    error: { error: AppWideError | "INVALID_INPUT" | "NOT_REVIEWER" | "UNKNOWN_SESSION" };
+  };
+  "/review/reject": {
+    input: {
+      "session": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Sessioning"]["current"]>[0], ["session"]>>;
+      "verification": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Verifying"]["reject"]>[0], ["verification"]>>;
+    };
+    output: {
+      "verification": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Verifying"]["reject"]>[0], ["verification"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Verifying"]["reject"]>>, ["verification"]>]>>;
+    };
+    error: { error: AppWideError | "INVALID_INPUT" | "NOT_PENDING" | "NOT_REVIEWER" | "NO_SUCH_VERIFICATION" | "UNKNOWN_SESSION" };
+  };
+  "/review/verify": {
+    input: {
+      "session": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Sessioning"]["current"]>[0], ["session"]>>;
+      "verification": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Verifying"]["verify"]>[0], ["verification"]>>;
+    };
+    output: {
+      "verification": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Verifying"]["verify"]>[0], ["verification"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Verifying"]["verify"]>>, ["verification"]>]>>;
+    };
+    error: { error: AppWideError | "INVALID_INPUT" | "NOT_PENDING" | "NOT_REVIEWER" | "NO_SUCH_VERIFICATION" | "UNKNOWN_SESSION" };
   };
 };
 
@@ -297,15 +366,16 @@ export type KumbaWireHttp = {
     input: Record<string, never>;
     output: {
       "mine": {
-        "listings": {
+        "listings": ({
           "contact": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["contact"]>>;
           "currency": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["currency"]>>;
           "deposit": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["deposit"]>>;
           "extras": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["extras"]>>;
           "kind": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["kind"]>>;
-          "listing": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["listing"]>>;
+          "listing": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Verifying"]["_forSubject"]>[0], ["subject"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["listing"]>]>>;
           "location": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["location"]>>;
           "moveIn": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["moveIn"]>>;
+          "proof": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Verifying"]["_forSubject"]>>>, ["status"]>> | null;
           "rent": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["rent"]>>;
           "requests": {
             "introduction": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Introducing"]["_received"]>>>, ["introduction"]>>;
@@ -313,7 +383,7 @@ export type KumbaWireHttp = {
             "status": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Introducing"]["_received"]>>>, ["status"]>>;
           }[];
           "status": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["status"]>>;
-        }[];
+        })[];
       };
     };
     error: { error: HttpAppWideError | "INVALID_REQUEST" | "UNAUTHORIZED" };
@@ -355,14 +425,25 @@ export type KumbaWireHttp = {
           "deposit": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_search"]>>>, ["deposit"]>>;
           "extras": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_search"]>>>, ["extras"]>>;
           "kind": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_search"]>>>, ["kind"]>>;
-          "listing": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_search"]>>>, ["listing"]>>;
+          "listing": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Verifying"]["_isVerified"]>[0], ["subject"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_search"]>>>, ["listing"]>]>>;
           "location": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_search"]>>>, ["location"]>>;
           "moveIn": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_search"]>>>, ["moveIn"]>>;
           "rent": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_search"]>>>, ["rent"]>>;
+          "verified": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Verifying"]["_isVerified"]>>>, ["verified"]>>;
         }[];
       };
     };
     error: { error: HttpAppWideError | "INVALID_REQUEST" };
+  };
+  "/listings/submit-proof": {
+    input: {
+      "evidence": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Verifying"]["submit"]>[0], ["evidence"]>>;
+      "listing": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>[0], ["listing"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Verifying"]["submit"]>[0], ["subject"]>]>>;
+    };
+    output: {
+      "verification": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Verifying"]["submit"]>>, ["verification"]>>;
+    };
+    error: { error: HttpAppWideError | "CONFLICT" | "FORBIDDEN" | "INVALID_REQUEST" | "NOT_FOUND" | "UNAUTHORIZED" };
   };
   "/listings/view": {
     input: {
@@ -374,14 +455,64 @@ export type KumbaWireHttp = {
         "deposit": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["deposit"]>>;
         "extras": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["extras"]>>;
         "kind": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["kind"]>>;
-        "listing": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>[0], ["listing"]>>;
+        "listing": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>[0], ["listing"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Verifying"]["_isVerified"]>[0], ["subject"]>]>>;
         "location": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["location"]>>;
         "moveIn": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["moveIn"]>>;
         "owner": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["owner"]>>;
         "rent": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["rent"]>>;
         "status": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["status"]>>;
+        "verified": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Verifying"]["_isVerified"]>>>, ["verified"]>>;
       } | null;
     };
     error: { error: HttpAppWideError | "INVALID_REQUEST" | "NOT_FOUND" };
+  };
+  "/review/access": {
+    input: Record<string, never>;
+    output: {
+      "access": {
+        "appointed": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Verifying"]["_isReviewer"]>>>, ["appointed"]>>;
+      };
+    };
+    error: { error: HttpAppWideError | "INVALID_REQUEST" | "UNAUTHORIZED" };
+  };
+  "/review/queue": {
+    input: Record<string, never>;
+    output: {
+      "queue": {
+        "items": ({
+          "advertiser": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Verifying"]["_pending"]>>>, ["advertiser"]>>;
+          "currency": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["currency"]>> | null;
+          "deposit": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["deposit"]>> | null;
+          "evidence": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Verifying"]["_evidence"]>>>, ["evidence"]>> | null;
+          "extras": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["extras"]>> | null;
+          "kind": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["kind"]>> | null;
+          "listing": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>[0], ["listing"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Verifying"]["_pending"]>>>, ["subject"]>]>>;
+          "location": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["location"]>> | null;
+          "moveIn": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["moveIn"]>> | null;
+          "rent": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["rent"]>> | null;
+          "status": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_get"]>>>, ["status"]>> | null;
+          "verification": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Verifying"]["_evidence"]>[0], ["verification"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Verifying"]["_pending"]>>>, ["verification"]>]>>;
+        })[];
+      };
+    };
+    error: { error: HttpAppWideError | "FORBIDDEN" | "INVALID_REQUEST" | "UNAUTHORIZED" };
+  };
+  "/review/reject": {
+    input: {
+      "verification": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Verifying"]["reject"]>[0], ["verification"]>>;
+    };
+    output: {
+      "verification": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Verifying"]["reject"]>[0], ["verification"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Verifying"]["reject"]>>, ["verification"]>]>>;
+    };
+    error: { error: HttpAppWideError | "CONFLICT" | "FORBIDDEN" | "INVALID_REQUEST" | "NOT_FOUND" | "UNAUTHORIZED" };
+  };
+  "/review/verify": {
+    input: {
+      "verification": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Verifying"]["verify"]>[0], ["verification"]>>;
+    };
+    output: {
+      "verification": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Verifying"]["verify"]>[0], ["verification"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Verifying"]["verify"]>>, ["verification"]>]>>;
+    };
+    error: { error: HttpAppWideError | "CONFLICT" | "FORBIDDEN" | "INVALID_REQUEST" | "NOT_FOUND" | "UNAUTHORIZED" };
   };
 };

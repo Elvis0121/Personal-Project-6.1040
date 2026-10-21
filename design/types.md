@@ -9,6 +9,7 @@ there is no separate tenant or landlord role.
 - An introduction's requester is the tenant's account and its holder is the
   listing owner's account.
 - An introduction is about a listing.
+- Verification is about a listing. The appointed reviewer is an account, seeded as `kumba`.
 
 ```instances
 instantiate Authenticating
@@ -20,6 +21,10 @@ instantiate Listing with
   User is Authenticating.Account
 
 instantiate Introducing with
+  User is Authenticating.Account
+  Subject is Listing.Listing
+
+instantiate Verifying with
   User is Authenticating.Account
   Subject is Listing.Listing
 ```

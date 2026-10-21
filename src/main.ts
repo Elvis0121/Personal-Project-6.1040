@@ -1,8 +1,30 @@
 import { createGateway } from "@mit-sdg/sync-engine/boundary";
 import { createHttpHandler } from "@mit-sdg/sync-engine-http/handler";
 import { assembleApplication } from "./assembly.ts";
+import { AuthenticatingConcept, UsernameTaken } from "./concepts/Authenticating.ts";
+import { AlreadyAppointed, VerifyingConcept } from "./concepts/Verifying.ts";
 import { db } from "./db.ts";
 import { policy } from "./http.ts";
+
+/** Seed lives here, not in assemble: generate and check must not talk to Mongo. */
+async function seedReviewer() {
+  const reviewer = process.env.REVIEWER ?? "kumba";
+  const password = process.env.REVIEWER_PASSWORD ?? "kumba-lets-2026";
+  const authenticating = new AuthenticatingConcept(db);
+  const verifying = new VerifyingConcept(db);
+  try {
+    await authenticating.register({ username: reviewer, password });
+  } catch (error) {
+    if (!(error instanceof UsernameTaken)) throw error;
+  }
+  try {
+    await verifying.appoint({ reviewer });
+  } catch (error) {
+    if (!(error instanceof AlreadyAppointed)) throw error;
+  }
+}
+
+await seedReviewer();
 
 const application = assembleApplication();
 const gateway = createGateway({ application });

@@ -23,7 +23,7 @@ Defined in [Authenticating](../design/concepts/Authenticating.md), line 1.
 
 #### Instances
 
-- `Authenticating` — instance of `Authenticating` — [Kumba application types](../design/types.md), line 14.
+- `Authenticating` — instance of `Authenticating` — [Kumba application types](../design/types.md), line 15.
 
 ### Introducing
 
@@ -54,9 +54,9 @@ Defined in [Introducing](../design/concepts/Introducing.md), line 1.
 
 #### Instances
 
-- `Introducing` — instance of `Introducing` — [Kumba application types](../design/types.md), line 22.
-  - `Subject` is `Listing.Listing` — [Kumba application types](../design/types.md), line 24.
-  - `User` is `Authenticating.Account` — [Kumba application types](../design/types.md), line 23.
+- `Introducing` — instance of `Introducing` — [Kumba application types](../design/types.md), line 23.
+  - `Subject` is `Listing.Listing` — [Kumba application types](../design/types.md), line 25.
+  - `User` is `Authenticating.Account` — [Kumba application types](../design/types.md), line 24.
 
 ### Listing
 
@@ -95,8 +95,8 @@ Defined in [Listing](../design/concepts/Listing.md), line 1.
 
 #### Instances
 
-- `Listing` — instance of `Listing` — [Kumba application types](../design/types.md), line 19.
-  - `User` is `Authenticating.Account` — [Kumba application types](../design/types.md), line 20.
+- `Listing` — instance of `Listing` — [Kumba application types](../design/types.md), line 20.
+  - `User` is `Authenticating.Account` — [Kumba application types](../design/types.md), line 21.
 
 ### Sessioning
 
@@ -112,12 +112,60 @@ Defined in [Sessioning](../design/concepts/Sessioning.md), line 1.
 
 #### Instances
 
-- `Sessioning` — instance of `Sessioning` — [Kumba application types](../design/types.md), line 16.
-  - `Subject` is `Authenticating.Account` — [Kumba application types](../design/types.md), line 17.
+- `Sessioning` — instance of `Sessioning` — [Kumba application types](../design/types.md), line 17.
+  - `Subject` is `Authenticating.Account` — [Kumba application types](../design/types.md), line 18.
+
+### Verifying
+
+Defined in [Verifying](../design/concepts/Verifying.md), line 1.
+
+#### Actions
+
+- `appoint(reviewer: User) : returns (reviewer: User)`
+  - Refuses `INVALID_REVIEWER`: A reviewer needs a username.
+  - Refuses `ALREADY_APPOINTED`: A reviewer has already been appointed.
+- `submit(advertiser: User, subject: Subject, evidence: String) : returns (verification: Verification)`
+  - Refuses `EMPTY_EVIDENCE`: Proof cannot be empty.
+  - Refuses `ALREADY_CURRENT`: This already has proof waiting or verified.
+- `verify(reviewer: User, verification: Verification) : returns (verification: Verification)`
+  - Refuses `NOT_REVIEWER`: Only the appointed reviewer can decide this.
+  - Refuses `NO_SUCH_VERIFICATION`: There is no such proof.
+  - Refuses `NOT_PENDING`: This proof has already been decided.
+- `reject(reviewer: User, verification: Verification) : returns (verification: Verification)`
+  - Refuses `NOT_REVIEWER`: Only the appointed reviewer can decide this.
+  - Refuses `NO_SUCH_VERIFICATION`: There is no such proof.
+  - Refuses `NOT_PENDING`: This proof has already been decided.
+- `revoke(subject: Subject) : returns ()`
+  - Refuses `NOT_VERIFIED`: This is not verified.
+
+#### Queries
+
+- `_isReviewer(user: User) : one (appointed: Flag)`
+- `_isVerified(subject: Subject) : one (verified: Flag)`
+- `_forSubject(subject: Subject) : optional (verification: Verification, status: Status, decidedBy: User)`
+- `_pending() : many (verification: Verification, advertiser: User, subject: Subject)`
+- `_get(verification: Verification) : optional (advertiser: User, subject: Subject, status: Status, decidedBy: User)`
+- `_evidence(reviewer: User, verification: Verification) : optional (evidence: String)`
+
+#### Instances
+
+- `Verifying` — instance of `Verifying` — [Kumba application types](../design/types.md), line 27.
+  - `Subject` is `Listing.Listing` — [Kumba application types](../design/types.md), line 29.
+  - `User` is `Authenticating.Account` — [Kumba application types](../design/types.md), line 28.
 
 ## Views
 
 _Views name reusable conditions. Multiple `where` blocks are alternatives._
+
+### the evidence of (verification) for reviewer (reviewer)
+
+Authored path: `Review.Queue.ReviewerEvidence`.
+- Covered by [Review](../design/compositions/Review.md), line 19.
+
+```view
+the evidence of (verification) for reviewer (reviewer) — inputs (verification, reviewer); outputs (evidence); bindings () — answers at most one (evidence)
+  where Verifying._evidence (reviewer, verification) has (evidence)
+```
 
 ### the owner of open (listing)
 
@@ -152,12 +200,13 @@ Former "the introduction (requester) has about (listing)" — inputs (requester,
 ### the listings of (owner)
 
 Authored path: `Listings.Advertising.OwnListings`.
-- Covered by [Listings](../design/compositions/Listings.md), line 29.
+- Covered by [Listings](../design/compositions/Listings.md), line 38.
 
 ```former
-Former "the listings of (owner)" — inputs (owner); bindings (listing, location, kind, currency, rent, deposit, extras, moveIn, contact, status, introduction, requester, answer); promises exactly one record — forms:
+Former "the listings of (owner)" — inputs (owner); bindings (listing, location, kind, currency, rent, deposit, extras, moveIn, contact, status, proof, introduction, requester, answer); promises exactly one record — forms:
   a record of
     listings: each Listing._byOwner (owner) has (contact, currency, deposit, extras, kind, listing, location, moveIn, rent, status)
+      where whether Verifying._forSubject (subject: listing) has (status: proof)
       form a record of
         contact
         currency
@@ -167,6 +216,7 @@ Former "the listings of (owner)" — inputs (owner); bindings (listing, location
         listing
         location
         moveIn
+        proof
         rent
         requests: each Introducing._received (holder: owner, subject: listing) has (introduction, requester, status: answer)
           form a record of
@@ -179,12 +229,13 @@ Former "the listings of (owner)" — inputs (owner); bindings (listing, location
 ### the open listings in (area) up to (maxRent)
 
 Authored path: `Listings.Searching.Results`.
-- Covered by [Listings](../design/compositions/Listings.md), line 41.
+- Covered by [Listings](../design/compositions/Listings.md), line 51.
 
 ```former
-Former "the open listings in (area) up to (maxRent)" — inputs (area, maxRent); bindings (listing, location, kind, currency, rent, deposit, extras, moveIn); promises exactly one record — forms:
+Former "the open listings in (area) up to (maxRent)" — inputs (area, maxRent); bindings (listing, location, kind, currency, rent, deposit, extras, moveIn, verified); promises exactly one record — forms:
   a record of
     listings: each Listing._search (area, maxRent) has (currency, deposit, extras, kind, listing, location, moveIn, rent)
+      where Verifying._isVerified (subject: listing) has (verified)
       form a record of
         currency
         deposit
@@ -194,17 +245,45 @@ Former "the open listings in (area) up to (maxRent)" — inputs (area, maxRent);
         location
         moveIn
         rent
+        verified
+```
+
+### the pending proof for (reviewer)
+
+Authored path: `Review.Queue.QueueItems`.
+- Covered by [Review](../design/compositions/Review.md), line 17.
+
+```former
+Former "the pending proof for (reviewer)" — inputs (reviewer); bindings (verification, advertiser, subject, location, kind, currency, rent, deposit, extras, moveIn, status, evidence); promises exactly one record — forms:
+  a record of
+    items: each Verifying._pending () has (advertiser, subject, verification)
+      where whether Listing._get (listing: subject) has (currency, deposit, extras, kind, location, moveIn, rent, status)
+      where whether view "the evidence of (verification) for reviewer (reviewer)" with (reviewer, verification) has (evidence)
+      form a record of
+        advertiser
+        currency
+        deposit
+        evidence
+        extras
+        kind
+        listing: subject
+        location
+        moveIn
+        rent
+        status
+        verification
 ```
 
 ### the terms of (listing)
 
 Authored path: `Listings.Searching.Terms`.
-- Covered by [Listings](../design/compositions/Listings.md), line 50.
+- Covered by [Listings](../design/compositions/Listings.md), line 61.
 
 ```former
-Former "the terms of (listing)" — inputs (listing); bindings (owner, location, kind, currency, rent, deposit, extras, moveIn, status); promises at most one record — forms:
+Former "the terms of (listing)" — inputs (listing); bindings (owner, location, kind, currency, rent, deposit, extras, moveIn, status, verified); promises at most one record — forms:
   a record of
     where Listing._get (listing) has (currency, deposit, extras, kind, location, moveIn, owner, rent, status)
+    where Verifying._isVerified (subject: listing) has (verified)
     currency
     deposit
     extras
@@ -215,6 +294,19 @@ Former "the terms of (listing)" — inputs (listing); bindings (owner, location,
     owner
     rent
     status
+    verified
+```
+
+### whether (user) is the reviewer
+
+Authored path: `Review.Access.AccessFlag`.
+- Covered by [Review](../design/compositions/Review.md), line 9.
+
+```former
+Former "whether (user) is the reviewer" — inputs (user); bindings (appointed); promises exactly one record — forms:
+  a record of
+    where Verifying._isReviewer (user) has (appointed)
+    appointed
 ```
 
 ## Reactions
@@ -472,8 +564,8 @@ then
 ### Listings.Advertising.Mine
 
 Authored path: `Listings.Advertising.Mine`.
-- Covered by [Listings](../design/compositions/Listings.md), line 28.
-- Covered by [Listings](../design/compositions/Listings.md), line 34.
+- Covered by [Listings](../design/compositions/Listings.md), line 37.
+- Covered by [Listings](../design/compositions/Listings.md), line 44.
 
 ```reaction
 when RequestBoundary.request (path: "/listings/mine", requestId, session)
@@ -484,8 +576,8 @@ then
 ### Listings.Advertising.Mine#2
 
 Authored path: `Listings.Advertising.Mine`.
-- Covered by [Listings](../design/compositions/Listings.md), line 28.
-- Covered by [Listings](../design/compositions/Listings.md), line 34.
+- Covered by [Listings](../design/compositions/Listings.md), line 37.
+- Covered by [Listings](../design/compositions/Listings.md), line 44.
 
 ```reaction
 when Sessioning.current (session, subject: owner), asked by Listings.Advertising.Mine
@@ -575,11 +667,97 @@ then
   RequestBoundary.respond (listing, requestId)
 ```
 
+### Listings.Advertising.SubmitProof
+
+Authored path: `Listings.Advertising.SubmitProof`.
+- Covered by [Listings](../design/compositions/Listings.md), line 28.
+- Covered by [Listings](../design/compositions/Listings.md), line 34.
+
+```reaction
+when RequestBoundary.request (evidence, listing, path: "/listings/submit-proof", requestId, session)
+then
+  Sessioning.current (session)
+```
+
+### Listings.Advertising.SubmitProof:missing#2
+
+Authored path: `Listings.Advertising.SubmitProof`.
+- Covered by [Listings](../design/compositions/Listings.md), line 28.
+- Covered by [Listings](../design/compositions/Listings.md), line 34.
+
+```reaction
+when Sessioning.current (session, subject: advertiser), asked by Listings.Advertising.SubmitProof
+where
+  earlier, RequestBoundary.request (evidence, listing, path: "/listings/submit-proof", requestId, session)
+  no Listing._get (listing)
+then
+  RequestBoundary.respond (error: "NO_SUCH_LISTING", requestId)
+```
+
+### Listings.Advertising.SubmitProof:not-open#2
+
+Authored path: `Listings.Advertising.SubmitProof`.
+- Covered by [Listings](../design/compositions/Listings.md), line 28.
+- Covered by [Listings](../design/compositions/Listings.md), line 34.
+
+```reaction
+when Sessioning.current (session, subject: advertiser), asked by Listings.Advertising.SubmitProof
+where
+  earlier, RequestBoundary.request (evidence, listing, path: "/listings/submit-proof", requestId, session)
+  Listing._get (listing) has (owner: advertiser) and not (status: "OPEN")
+then
+  RequestBoundary.respond (error: "NOT_OPEN", requestId)
+```
+
+### Listings.Advertising.SubmitProof:not-owner#2
+
+Authored path: `Listings.Advertising.SubmitProof`.
+- Covered by [Listings](../design/compositions/Listings.md), line 28.
+- Covered by [Listings](../design/compositions/Listings.md), line 34.
+
+```reaction
+when Sessioning.current (session, subject: advertiser), asked by Listings.Advertising.SubmitProof
+where
+  earlier, RequestBoundary.request (evidence, listing, path: "/listings/submit-proof", requestId, session)
+  Listing._get (listing) and not (owner: advertiser)
+then
+  RequestBoundary.respond (error: "NOT_OWNER", requestId)
+```
+
+### Listings.Advertising.SubmitProof:owner-open#2
+
+Authored path: `Listings.Advertising.SubmitProof`.
+- Covered by [Listings](../design/compositions/Listings.md), line 28.
+- Covered by [Listings](../design/compositions/Listings.md), line 34.
+
+```reaction
+when Sessioning.current (session, subject: advertiser), asked by Listings.Advertising.SubmitProof
+where
+  earlier, RequestBoundary.request (evidence, listing, path: "/listings/submit-proof", requestId, session)
+  Listing._get (listing) has (owner: advertiser, status: "OPEN")
+then
+  Verifying.submit (advertiser, evidence, subject: listing)
+```
+
+### Listings.Advertising.SubmitProof:owner-open#3
+
+Authored path: `Listings.Advertising.SubmitProof`.
+- Covered by [Listings](../design/compositions/Listings.md), line 28.
+- Covered by [Listings](../design/compositions/Listings.md), line 34.
+
+```reaction
+when Verifying.submit (advertiser, evidence, subject: listing, verification), asked by Listings.Advertising.SubmitProof:owner-open#2
+where
+  earlier, RequestBoundary.request (evidence, listing, path: "/listings/submit-proof", requestId, session)
+then
+  RequestBoundary.respond (requestId, verification)
+```
+
 ### Listings.Searching.Search
 
 Authored path: `Listings.Searching.Search`.
-- Covered by [Listings](../design/compositions/Listings.md), line 39.
-- Covered by [Listings](../design/compositions/Listings.md), line 46.
+- Covered by [Listings](../design/compositions/Listings.md), line 49.
+- Covered by [Listings](../design/compositions/Listings.md), line 57.
 
 ```reaction
 when RequestBoundary.request (area, maxRent, path: "/listings/search", requestId)
@@ -590,8 +768,8 @@ then
 ### Listings.Searching.View:found
 
 Authored path: `Listings.Searching.View`.
-- Covered by [Listings](../design/compositions/Listings.md), line 49.
-- Covered by [Listings](../design/compositions/Listings.md), line 55.
+- Covered by [Listings](../design/compositions/Listings.md), line 60.
+- Covered by [Listings](../design/compositions/Listings.md), line 67.
 
 ```reaction
 when RequestBoundary.request (listing, path: "/listings/view", requestId)
@@ -604,8 +782,8 @@ then
 ### Listings.Searching.View:missing
 
 Authored path: `Listings.Searching.View`.
-- Covered by [Listings](../design/compositions/Listings.md), line 49.
-- Covered by [Listings](../design/compositions/Listings.md), line 55.
+- Covered by [Listings](../design/compositions/Listings.md), line 60.
+- Covered by [Listings](../design/compositions/Listings.md), line 67.
 
 ```reaction
 when RequestBoundary.request (listing, path: "/listings/view", requestId)
@@ -613,6 +791,154 @@ where
   no Listing._get (listing)
 then
   RequestBoundary.respond (error: "NO_SUCH_LISTING", requestId)
+```
+
+### Review.Access.Access
+
+Authored path: `Review.Access.Access`.
+- Covered by [Review](../design/compositions/Review.md), line 8.
+- Covered by [Review](../design/compositions/Review.md), line 13.
+
+```reaction
+when RequestBoundary.request (path: "/review/access", requestId, session)
+then
+  Sessioning.current (session)
+```
+
+### Review.Access.Access#2
+
+Authored path: `Review.Access.Access`.
+- Covered by [Review](../design/compositions/Review.md), line 8.
+- Covered by [Review](../design/compositions/Review.md), line 13.
+
+```reaction
+when Sessioning.current (session, subject: user), asked by Review.Access.Access
+where
+  earlier, RequestBoundary.request (path: "/review/access", requestId, session)
+then
+  RequestBoundary.respond (access: former "whether (user) is the reviewer" with (user), requestId)
+```
+
+### Review.Deciding.Reject
+
+Authored path: `Review.Deciding.Reject`.
+- Covered by [Review](../design/compositions/Review.md), line 28.
+- Covered by [Review](../design/compositions/Review.md), line 33.
+
+```reaction
+when RequestBoundary.request (path: "/review/reject", requestId, session, verification)
+then
+  Sessioning.current (session)
+```
+
+### Review.Deciding.Reject#2
+
+Authored path: `Review.Deciding.Reject`.
+- Covered by [Review](../design/compositions/Review.md), line 28.
+- Covered by [Review](../design/compositions/Review.md), line 33.
+
+```reaction
+when Sessioning.current (session, subject: reviewer), asked by Review.Deciding.Reject
+where
+  earlier, RequestBoundary.request (path: "/review/reject", requestId, session, verification)
+then
+  Verifying.reject (reviewer, verification)
+```
+
+### Review.Deciding.Reject#3
+
+Authored path: `Review.Deciding.Reject`.
+- Covered by [Review](../design/compositions/Review.md), line 28.
+- Covered by [Review](../design/compositions/Review.md), line 33.
+
+```reaction
+when Verifying.reject (reviewer, verification), asked by Review.Deciding.Reject#2
+where
+  earlier, RequestBoundary.request (path: "/review/reject", requestId, session, verification)
+then
+  RequestBoundary.respond (requestId, verification)
+```
+
+### Review.Deciding.Verify
+
+Authored path: `Review.Deciding.Verify`.
+- Covered by [Review](../design/compositions/Review.md), line 27.
+- Covered by [Review](../design/compositions/Review.md), line 32.
+
+```reaction
+when RequestBoundary.request (path: "/review/verify", requestId, session, verification)
+then
+  Sessioning.current (session)
+```
+
+### Review.Deciding.Verify#2
+
+Authored path: `Review.Deciding.Verify`.
+- Covered by [Review](../design/compositions/Review.md), line 27.
+- Covered by [Review](../design/compositions/Review.md), line 32.
+
+```reaction
+when Sessioning.current (session, subject: reviewer), asked by Review.Deciding.Verify
+where
+  earlier, RequestBoundary.request (path: "/review/verify", requestId, session, verification)
+then
+  Verifying.verify (reviewer, verification)
+```
+
+### Review.Deciding.Verify#3
+
+Authored path: `Review.Deciding.Verify`.
+- Covered by [Review](../design/compositions/Review.md), line 27.
+- Covered by [Review](../design/compositions/Review.md), line 32.
+
+```reaction
+when Verifying.verify (reviewer, verification), asked by Review.Deciding.Verify#2
+where
+  earlier, RequestBoundary.request (path: "/review/verify", requestId, session, verification)
+then
+  RequestBoundary.respond (requestId, verification)
+```
+
+### Review.Queue.Queue
+
+Authored path: `Review.Queue.Queue`.
+- Covered by [Review](../design/compositions/Review.md), line 16.
+- Covered by [Review](../design/compositions/Review.md), line 24.
+
+```reaction
+when RequestBoundary.request (path: "/review/queue", requestId, session)
+then
+  Sessioning.current (session)
+```
+
+### Review.Queue.Queue:not-reviewer#2
+
+Authored path: `Review.Queue.Queue`.
+- Covered by [Review](../design/compositions/Review.md), line 16.
+- Covered by [Review](../design/compositions/Review.md), line 24.
+
+```reaction
+when Sessioning.current (session, subject: reviewer), asked by Review.Queue.Queue
+where
+  Verifying._isReviewer (user: reviewer) has (appointed: false)
+  earlier, RequestBoundary.request (path: "/review/queue", requestId, session)
+then
+  RequestBoundary.respond (error: "NOT_REVIEWER", requestId)
+```
+
+### Review.Queue.Queue:reviewer#2
+
+Authored path: `Review.Queue.Queue`.
+- Covered by [Review](../design/compositions/Review.md), line 16.
+- Covered by [Review](../design/compositions/Review.md), line 24.
+
+```reaction
+when Sessioning.current (session, subject: reviewer), asked by Review.Queue.Queue
+where
+  Verifying._isReviewer (user: reviewer) has (appointed: true)
+  earlier, RequestBoundary.request (path: "/review/queue", requestId, session)
+then
+  RequestBoundary.respond (queue: former "the pending proof for (reviewer)" with (reviewer), requestId)
 ```
 
 ### Sessions.CurrentAccount.CurrentUser
@@ -763,4 +1089,9 @@ not listed here have no explicit input contract.
 - `/listings/publish` — requires `session`, `location`, `kind`, `currency`, `rent`, `deposit`, `extras`, `moveIn`, `contact`
 - `/listings/relist` — requires `session`, `listing`
 - `/listings/search` — requires `area`, `maxRent`
+- `/listings/submit-proof` — requires `session`, `listing`, `evidence`
 - `/listings/view` — requires `listing`
+- `/review/access` — requires `session`
+- `/review/queue` — requires `session`
+- `/review/reject` — requires `session`, `verification`
+- `/review/verify` — requires `session`, `verification`

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { api, explain } from "../api.ts";
-import { account } from "../session.ts";
+import { account, loadReviewer, reviewer } from "../session.ts";
 
 const mode = ref<"sign-in" | "register">("sign-in");
 const username = ref("");
@@ -27,11 +27,13 @@ async function submit() {
   }
   account.value = result.account;
   password.value = "";
+  await loadReviewer();
 }
 
 async function signOut() {
   await api.auth["sign-out"]({});
   account.value = null;
+  reviewer.value = false;
 }
 </script>
 

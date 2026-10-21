@@ -1,6 +1,6 @@
 import { createHttpClient } from "@mit-sdg/sync-engine-http/client";
 import type { KumbaWireHttp } from "../../generated/wire.ts";
-import { account } from "./account.ts";
+import { account, reviewer } from "./account.ts";
 
 const loginPaths = ["/auth/sign-in", "/auth/register"];
 
@@ -19,6 +19,7 @@ export const api = createHttpClient<KumbaWireHttp>({
       // password on the login form is also UNAUTHORIZED, and that stays a form error.
       if (response.status === 401 && !loginPaths.some((p) => path.endsWith(p))) {
         account.value = null;
+        reviewer.value = false;
       }
       return response;
     });

@@ -147,11 +147,27 @@ button.link {
   color: var(--accent);
 }
 
+.status.VERIFIED {
+  background: var(--accent);
+  color: #fff;
+}
+
 .status.LET,
 .status.WITHDRAWN,
-.status.DECLINED {
+.status.DECLINED,
+.status.PENDING,
+.status.unverified {
   background: #eee;
   color: var(--muted);
+}
+
+.evidence {
+  white-space: pre-wrap;
+  background: #f6f4ef;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin: 0 0 1rem;
 }
 
 .row {
