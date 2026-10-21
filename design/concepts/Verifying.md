@@ -57,7 +57,7 @@ appoint (reviewer: User) : returns (reviewer: User)
     refuses ALREADY_APPOINTED "A reviewer has already been appointed."
   where no reviewer is appointed and reviewer is not blank
   then
-    set the reviewer to reviewer
+    add reviewer to Appointed Users
     returns reviewer
 
 submit (advertiser: User, subject: Subject, evidence: String) : returns (verification: Verification)
