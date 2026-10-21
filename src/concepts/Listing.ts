@@ -79,14 +79,14 @@ export class ListingConcept {
   }
 
   async update({ owner, listing, ...terms }: { owner: string; listing: string } & Terms) {
-    await this.#owned(owner, listing, "OPEN");
+    const found = await this.#owned(owner, listing, "OPEN");
     const accepted = acceptedTerms(terms);
     const result = await this.listings.updateOne(
       { _id: listing, owner, status: "OPEN" },
       { $set: accepted },
     );
     if (result.matchedCount === 0) throw new NotOpen("This listing is not open.");
-    return { listing };
+    return { listing, previousLocation: found.location };
   }
 
   async markLet({ owner, listing }: { owner: string; listing: string }) {

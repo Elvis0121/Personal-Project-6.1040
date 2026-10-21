@@ -30,6 +30,11 @@ export const policy = httpPolicy({
     NO_SUCH_VERIFICATION: "NOT_FOUND",
     NOT_PENDING: "CONFLICT",
     NOT_VERIFIED: "CONFLICT",
+    INVALID_DURATION: "INVALID_REQUEST",
+    ALREADY_TIMED: "CONFLICT",
+    NO_SUCH_TIMER: "NOT_FOUND",
+    NOT_CURRENT: "CONFLICT",
+    STILL_CURRENT: "CONFLICT",
   },
   cookies: {
     session: {

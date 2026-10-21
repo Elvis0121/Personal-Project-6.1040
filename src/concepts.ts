@@ -1,6 +1,7 @@
 import { conceptSet, registerConcept } from "@mit-sdg/sync-engine/assembly";
 import authenticatingSpec from "@design/concepts/Authenticating.md" with { type: "text" };
 import introducingSpec from "@design/concepts/Introducing.md" with { type: "text" };
+import expiringSpec from "@design/concepts/Expiring.md" with { type: "text" };
 import listingSpec from "@design/concepts/Listing.md" with { type: "text" };
 import sessioningSpec from "@design/concepts/Sessioning.md" with { type: "text" };
 import verifyingSpec from "@design/concepts/Verifying.md" with { type: "text" };
@@ -20,6 +21,14 @@ import {
   NotHolder,
   SelfIntroduction,
 } from "./concepts/Introducing.ts";
+import {
+  AlreadyTimed,
+  ExpiringConcept,
+  InvalidDuration,
+  NoSuchTimer,
+  NotCurrent,
+  StillCurrent,
+} from "./concepts/Expiring.ts";
 import {
   AlreadyOpen,
   InvalidTerms,
@@ -72,6 +81,18 @@ const listing = registerConcept({
   },
 });
 
+const expiring = registerConcept({
+  class: ExpiringConcept,
+  spec: expiringSpec,
+  refusals: {
+    INVALID_DURATION: InvalidDuration,
+    ALREADY_TIMED: AlreadyTimed,
+    NO_SUCH_TIMER: NoSuchTimer,
+    NOT_CURRENT: NotCurrent,
+    STILL_CURRENT: StillCurrent,
+  },
+});
+
 const introducing = registerConcept({
   class: IntroducingConcept,
   spec: introducingSpec,
@@ -106,5 +127,6 @@ export const applicationConceptSet = conceptSet({
   Listing: listing,
   Introducing: introducing,
   Verifying: verifying,
+  Expiring: expiring,
 });
 export const { concepts } = applicationConceptSet;

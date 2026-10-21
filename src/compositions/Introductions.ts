@@ -10,11 +10,15 @@ import { endpoint, receive, respond } from "@mit-sdg/sync-engine/boundary";
 import { form, former, no, reaction, view, when, where, whether } from "@mit-sdg/sync-engine/language";
 import { concepts } from "../concepts.ts";
 
-const { Introducing, Listing, Sessioning } = concepts;
+const { Expiring, Introducing, Listing, Sessioning } = concepts;
 
 const OpenOwner = view(
-  "the owner of open (listing)",
-  ({ listing }, { owner }, _bindings) => where(Listing._get({ listing }).is({ owner, status: "OPEN" })),
+  "the owner of open current (listing)",
+  ({ listing }, { owner }, _bindings) =>
+    where(
+      Listing._get({ listing }).is({ owner, status: "OPEN" }),
+      Expiring._isCurrent({ resource: listing }).is({ current: true }),
+    ),
 ).optional();
 
 const Request = endpoint(

@@ -10,6 +10,7 @@ there is no separate tenant or landlord role.
   listing owner's account.
 - An introduction is about a listing.
 - Verification is about a listing. The appointed reviewer is an account, seeded as `kumba`.
+- A listing's availability timer is an Expiring resource. The app starts and renews it for 30 days.
 
 ```instances
 instantiate Authenticating
@@ -27,4 +28,7 @@ instantiate Introducing with
 instantiate Verifying with
   User is Authenticating.Account
   Subject is Listing.Listing
+
+instantiate Expiring with
+  Resource is Listing.Listing
 ```

@@ -80,7 +80,7 @@ watch([() => props.listing, account], load, { immediate: true });
       Request sent. Waiting for {{ terms.owner }} to answer; this page updates by itself.
     </p>
     <p v-else-if="mine?.status === 'DECLINED'" class="muted">{{ terms.owner }} declined this request.</p>
-    <p v-else-if="terms.status !== 'OPEN'" class="muted">This place is no longer available.</p>
+    <p v-else-if="terms.status !== 'OPEN' || !terms.current" class="muted">This place is no longer available.</p>
     <p v-else-if="!account" class="muted">Sign in to ask the advertiser for an introduction.</p>
     <p v-else-if="account === terms.owner" class="muted">
       This is your listing. Manage it in <a href="#/mine">My listings</a>.

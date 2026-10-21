@@ -14,6 +14,7 @@ export default {
       new URL("./design/compositions/Listings.md", import.meta.url),
       new URL("./design/compositions/Introductions.md", import.meta.url),
       new URL("./design/compositions/Review.md", import.meta.url),
+      new URL("./design/compositions/Availability.md", import.meta.url),
     ],
   },
   projections: [httpWire({ policy, name: "KumbaWireHttp" })],

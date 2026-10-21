@@ -2,6 +2,7 @@
 import { onUnmounted, reactive, ref, watch } from "vue";
 import { api, explain, type Output } from "../api.ts";
 import ListingTerms from "../components/ListingTerms.vue";
+import { stamp } from "../format.ts";
 import { account } from "../session.ts";
 
 type Mine = Output<"/listings/mine">["mine"]["listings"];
@@ -20,6 +21,8 @@ const blank = () => ({
 const draft = reactive(blank());
 const listings = ref<Mine>([]);
 const proofDraft = reactive<Record<string, string>>({});
+const editing = ref<string | null>(null);
+const editDraft = reactive(blank());
 const publishError = ref("");
 const notice = ref("");
 const listError = ref("");
@@ -85,10 +88,67 @@ async function submitProof(listing: string) {
   await load();
 }
 
-async function change(action: "mark-let" | "relist", listing: string) {
+async function confirmAvailable(listing: string) {
   listError.value = "";
+  notice.value = "";
+  const result = await api.listings.confirm({ listing });
+  if ("error" in result) {
+    listError.value = explain(result.error, {
+      CONFLICT: "This listing is no longer current, or it is not open. Confirm again before the time runs out.",
+      FORBIDDEN: "Only the advertiser can confirm this listing.",
+      NOT_FOUND: "That listing no longer exists.",
+      UNAUTHORIZED: "Please sign in again.",
+    });
+    await load();
+    return;
+  }
+  notice.value = `Confirmed. Next check by ${stamp(result.deadline)}.`;
+  await load();
+}
+
+function startEdit(item: Mine[number]) {
+  editing.value = item.listing;
+  Object.assign(editDraft, {
+    location: item.location,
+    kind: item.kind,
+    currency: item.currency,
+    rent: item.rent,
+    deposit: item.deposit,
+    extras: item.extras,
+    moveIn: item.moveIn,
+    contact: item.contact,
+  });
+}
+
+async function saveEdit() {
+  if (!editing.value) return;
+  listError.value = "";
+  notice.value = "";
+  const result = await api.listings.update({
+    listing: editing.value,
+    ...editDraft,
+    rent: Number(editDraft.rent),
+    deposit: Number(editDraft.deposit),
+  });
+  if ("error" in result) {
+    listError.value = explain(result.error, {
+      INVALID_REQUEST:
+        "Fill in the location, kind of place, currency, move-in date, and contact number. Rent and deposit must be zero or more.",
+      ...changeMessages,
+    });
+    return;
+  }
+  editing.value = null;
+  notice.value = "Saved.";
+  await load();
+}
+
+async function change(action: "mark-let" | "relist" | "withdraw", listing: string) {
+  listError.value = "";
+  notice.value = "";
   const result = await api.listings[action]({ listing });
   if ("error" in result) listError.value = explain(result.error, changeMessages);
+  if (action === "withdraw") editing.value = null;
   await load();
 }
 
@@ -159,6 +219,7 @@ watch(account, load, { immediate: true });
     </section>
 
     <h2>Your listings</h2>
+    <p v-if="notice" class="notice">{{ notice }}</p>
     <p v-if="listError" class="error" role="alert">{{ listError }}</p>
     <p v-if="listings.length === 0" class="muted">You have not published anything yet.</p>
     <article v-for="item in listings" :key="item.listing" class="card">
@@ -168,8 +229,79 @@ watch(account, load, { immediate: true });
         <span v-if="item.proof === 'VERIFIED'" class="status VERIFIED">VERIFIED</span>
         <span v-else-if="item.proof === 'PENDING'" class="status PENDING">Proof pending</span>
       </div>
-      <ListingTerms v-bind="item" />
-      <p class="muted">Contact given to accepted tenants: {{ item.contact }}</p>
+      <form v-if="editing === item.listing" class="form-grid" @submit.prevent="saveEdit">
+        <label>Location<input v-model="editDraft.location" required /></label>
+        <label>
+          Kind of place
+          <select v-model="editDraft.kind">
+            <option>Room</option>
+            <option>Cottage</option>
+            <option>Flat</option>
+            <option>House</option>
+          </select>
+        </label>
+        <label>
+          Currency
+          <select v-model="editDraft.currency">
+            <option value="USD">US dollars</option>
+            <option value="ZWG">ZiG</option>
+          </select>
+        </label>
+        <label>Rent a month<input v-model.number="editDraft.rent" type="number" min="0" required /></label>
+        <label>Deposit<input v-model.number="editDraft.deposit" type="number" min="0" required /></label>
+        <label>Move-in date<input v-model="editDraft.moveIn" type="date" required /></label>
+        <label>Contact number<input v-model="editDraft.contact" required /></label>
+        <label style="grid-column: 1 / -1">
+          Extra charges and conditions
+          <textarea v-model="editDraft.extras" rows="2" />
+        </label>
+        <div class="row">
+          <button type="submit">Save changes</button>
+          <button type="button" class="secondary" @click="editing = null">Cancel</button>
+        </div>
+      </form>
+      <template v-else>
+        <ListingTerms v-bind="item" />
+        <p class="muted">Contact given to accepted tenants: {{ item.contact }}</p>
+      </template>
+      <p v-if="item.status === 'OPEN' && item.current && item.deadline" class="muted">
+        Confirm by {{ stamp(item.deadline) }} that this place is still available.
+      </p>
+      <p v-else-if="item.status === 'OPEN' && !item.current" class="muted">
+        This listing lapsed. It will be withdrawn shortly; then you can relist it.
+      </p>
+      <div class="row">
+        <button
+          v-if="item.status === 'OPEN' && item.current"
+          type="button"
+          @click="confirmAvailable(item.listing)"
+        >
+          Confirm still available
+        </button>
+        <button
+          v-if="item.status === 'OPEN' && editing !== item.listing"
+          type="button"
+          class="secondary"
+          @click="startEdit(item)"
+        >
+          Edit
+        </button>
+        <button v-if="item.status === 'OPEN'" type="button" @click="change('mark-let', item.listing)">
+          Mark as let
+        </button>
+        <button
+          v-if="item.status === 'OPEN'"
+          type="button"
+          class="secondary"
+          @click="change('withdraw', item.listing)"
+        >
+          Withdraw
+        </button>
+        <button v-if="item.status !== 'OPEN'" type="button" class="secondary" @click="change('relist', item.listing)">
+          Relist
+        </button>
+      </div>
+
       <p v-if="item.proof === 'VERIFIED'" class="notice">VERIFIED — Kumba has checked this advertiser.</p>
       <p v-else-if="item.proof === 'PENDING'" class="muted">
         Proof submitted. Waiting for Kumba to check it; this page updates by itself.
@@ -186,7 +318,7 @@ watch(account, load, { immediate: true });
           />
         </label>
         <div class="row">
-          <button>Submit proof</button>
+          <button type="submit">Submit proof</button>
         </div>
       </form>
 
@@ -197,16 +329,11 @@ watch(account, load, { immediate: true });
           <strong>{{ request.requester }}</strong>
           <span class="status" :class="request.status">{{ request.status }}</span>
           <template v-if="request.status === 'PENDING'">
-            <button @click="answer('accept', request.introduction)">Accept and share my number</button>
-            <button class="secondary" @click="answer('decline', request.introduction)">Decline</button>
+            <button type="button" @click="answer('accept', request.introduction)">Accept and share my number</button>
+            <button type="button" class="secondary" @click="answer('decline', request.introduction)">Decline</button>
           </template>
         </li>
       </ul>
-
-      <div class="row">
-        <button v-if="item.status === 'OPEN'" @click="change('mark-let', item.listing)">Mark as let</button>
-        <button v-else class="secondary" @click="change('relist', item.listing)">Relist</button>
-      </div>
     </article>
   </template>
 </template>

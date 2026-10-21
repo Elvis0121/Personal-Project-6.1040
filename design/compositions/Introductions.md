@@ -7,9 +7,9 @@ no earlier.
 ## Asking
 
 A signed-in tenant [asks to be introduced](reaction:Introductions.Asking.Request)
-to the owner of a listing. The request is made only while the listing is open,
-using [the owner of an open listing](view:Introductions.Asking.OpenOwner); a
-let, withdrawn, or unknown listing answers Listing's `NOT_OPEN`. The requester is the
+to the owner of a listing. The request is made only while the listing is open and current,
+using [the owner of an open current listing](view:Introductions.Asking.OpenOwner); a
+let, withdrawn, lapsed, or unknown listing answers `NOT_OPEN`. The requester is the
 session's account and the holder is the listing's owner, so a tenant cannot
 choose whom they are asking. Introducing refuses a second request about the same
 listing and a request about one's own listing.

@@ -55,7 +55,7 @@ publish (owner: User, location: String, kind: String, currency: String, rent: Nu
     add a new listing with these terms, owned by owner, with status OPEN
     returns listing
 
-update (owner: User, listing: Listing, location: String, kind: String, currency: String, rent: Number, deposit: Number, extras: String, moveIn: Date, contact: String) : returns (listing: Listing)
+update (owner: User, listing: Listing, location: String, kind: String, currency: String, rent: Number, deposit: Number, extras: String, moveIn: Date, contact: String) : returns (listing: Listing, previousLocation: String)
   where listing is not in Listings
   then
     refuses NO_SUCH_LISTING "There is no such listing."
@@ -73,8 +73,8 @@ update (owner: User, listing: Listing, location: String, kind: String, currency:
     refuses NEGATIVE_AMOUNT "Rent and deposit cannot be negative."
   where owner owns the open listing and the terms are accepted
   then
-    set the listing's terms to these values
-    returns listing
+    remember the listing's current location as previousLocation, set the listing's terms to these values
+    returns listing, previousLocation
 
 markLet (owner: User, listing: Listing) : returns (listing: Listing)
   where listing is not in Listings

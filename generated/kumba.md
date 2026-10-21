@@ -23,7 +23,38 @@ Defined in [Authenticating](../design/concepts/Authenticating.md), line 1.
 
 #### Instances
 
-- `Authenticating` — instance of `Authenticating` — [Kumba application types](../design/types.md), line 15.
+- `Authenticating` — instance of `Authenticating` — [Kumba application types](../design/types.md), line 16.
+
+### Expiring
+
+Defined in [Expiring](../design/concepts/Expiring.md), line 1.
+
+#### Actions
+
+- `start(resource: Resource, duration: Number) : returns (resource: Resource, deadline: DateTime)`
+  - Refuses `INVALID_DURATION`: A timer needs a positive duration.
+  - Refuses `ALREADY_TIMED`: This already has a timer.
+- `reschedule(resource: Resource, duration: Number) : returns (resource: Resource, deadline: DateTime)`
+  - Refuses `INVALID_DURATION`: A timer needs a positive duration.
+  - Refuses `NO_SUCH_TIMER`: There is no timer for this.
+- `renew(resource: Resource, duration: Number) : returns (resource: Resource, deadline: DateTime)`
+  - Refuses `INVALID_DURATION`: A timer needs a positive duration.
+  - Refuses `NO_SUCH_TIMER`: There is no timer for this.
+  - Refuses `NOT_CURRENT`: This is no longer current.
+- `expire(resource: Resource) : returns (resource: Resource)`
+  - Refuses `NO_SUCH_TIMER`: There is no timer for this.
+  - Refuses `STILL_CURRENT`: This is still current.
+
+#### Queries
+
+- `_isCurrent(resource: Resource) : one (current: Flag)`
+- `_get(resource: Resource) : optional (deadline: DateTime)`
+- `_due() : many (resource: Resource, deadline: DateTime)`
+
+#### Instances
+
+- `Expiring` — instance of `Expiring` — [Kumba application types](../design/types.md), line 32.
+  - `Resource` is `Listing.Listing` — [Kumba application types](../design/types.md), line 33.
 
 ### Introducing
 
@@ -54,9 +85,9 @@ Defined in [Introducing](../design/concepts/Introducing.md), line 1.
 
 #### Instances
 
-- `Introducing` — instance of `Introducing` — [Kumba application types](../design/types.md), line 23.
-  - `Subject` is `Listing.Listing` — [Kumba application types](../design/types.md), line 25.
-  - `User` is `Authenticating.Account` — [Kumba application types](../design/types.md), line 24.
+- `Introducing` — instance of `Introducing` — [Kumba application types](../design/types.md), line 24.
+  - `Subject` is `Listing.Listing` — [Kumba application types](../design/types.md), line 26.
+  - `User` is `Authenticating.Account` — [Kumba application types](../design/types.md), line 25.
 
 ### Listing
 
@@ -67,7 +98,7 @@ Defined in [Listing](../design/concepts/Listing.md), line 1.
 - `publish(owner: User, location: String, kind: String, currency: String, rent: Number, deposit: Number, extras: String, moveIn: Date, contact: String) : returns (listing: Listing)`
   - Refuses `INVALID_TERMS`: A listing needs a location, a kind of place, a currency, a move-in date, and a contact number.
   - Refuses `NEGATIVE_AMOUNT`: Rent and deposit cannot be negative.
-- `update(owner: User, listing: Listing, location: String, kind: String, currency: String, rent: Number, deposit: Number, extras: String, moveIn: Date, contact: String) : returns (listing: Listing)`
+- `update(owner: User, listing: Listing, location: String, kind: String, currency: String, rent: Number, deposit: Number, extras: String, moveIn: Date, contact: String) : returns (listing: Listing, previousLocation: String)`
   - Refuses `NO_SUCH_LISTING`: There is no such listing.
   - Refuses `NOT_OWNER`: Only the advertiser can change this listing.
   - Refuses `NOT_OPEN`: This listing is not open.
@@ -95,8 +126,8 @@ Defined in [Listing](../design/concepts/Listing.md), line 1.
 
 #### Instances
 
-- `Listing` — instance of `Listing` — [Kumba application types](../design/types.md), line 20.
-  - `User` is `Authenticating.Account` — [Kumba application types](../design/types.md), line 21.
+- `Listing` — instance of `Listing` — [Kumba application types](../design/types.md), line 21.
+  - `User` is `Authenticating.Account` — [Kumba application types](../design/types.md), line 22.
 
 ### Sessioning
 
@@ -112,8 +143,8 @@ Defined in [Sessioning](../design/concepts/Sessioning.md), line 1.
 
 #### Instances
 
-- `Sessioning` — instance of `Sessioning` — [Kumba application types](../design/types.md), line 17.
-  - `Subject` is `Authenticating.Account` — [Kumba application types](../design/types.md), line 18.
+- `Sessioning` — instance of `Sessioning` — [Kumba application types](../design/types.md), line 18.
+  - `Subject` is `Authenticating.Account` — [Kumba application types](../design/types.md), line 19.
 
 ### Verifying
 
@@ -149,9 +180,9 @@ Defined in [Verifying](../design/concepts/Verifying.md), line 1.
 
 #### Instances
 
-- `Verifying` — instance of `Verifying` — [Kumba application types](../design/types.md), line 27.
-  - `Subject` is `Listing.Listing` — [Kumba application types](../design/types.md), line 29.
-  - `User` is `Authenticating.Account` — [Kumba application types](../design/types.md), line 28.
+- `Verifying` — instance of `Verifying` — [Kumba application types](../design/types.md), line 28.
+  - `Subject` is `Listing.Listing` — [Kumba application types](../design/types.md), line 30.
+  - `User` is `Authenticating.Account` — [Kumba application types](../design/types.md), line 29.
 
 ## Views
 
@@ -167,14 +198,16 @@ the evidence of (verification) for reviewer (reviewer) — inputs (verification,
   where Verifying._evidence (reviewer, verification) has (evidence)
 ```
 
-### the owner of open (listing)
+### the owner of open current (listing)
 
 Authored path: `Introductions.Asking.OpenOwner`.
 - Covered by [Introductions](../design/compositions/Introductions.md), line 11.
 
 ```view
-the owner of open (listing) — inputs (listing); outputs (owner); bindings () — answers at most one (owner)
-  where Listing._get (listing) has (owner, status: "OPEN")
+the owner of open current (listing) — inputs (listing); outputs (owner); bindings () — answers at most one (owner)
+  where
+    Listing._get (listing) has (owner, status: "OPEN")
+    Expiring._isCurrent (resource: listing) has (current: true)
 ```
 
 ## Formers
@@ -200,16 +233,20 @@ Former "the introduction (requester) has about (listing)" — inputs (requester,
 ### the listings of (owner)
 
 Authored path: `Listings.Advertising.OwnListings`.
-- Covered by [Listings](../design/compositions/Listings.md), line 38.
+- Covered by [Listings](../design/compositions/Listings.md), line 50.
 
 ```former
-Former "the listings of (owner)" — inputs (owner); bindings (listing, location, kind, currency, rent, deposit, extras, moveIn, contact, status, proof, introduction, requester, answer); promises exactly one record — forms:
+Former "the listings of (owner)" — inputs (owner); bindings (listing, location, kind, currency, rent, deposit, extras, moveIn, contact, status, proof, deadline, current, introduction, requester, answer); promises exactly one record — forms:
   a record of
     listings: each Listing._byOwner (owner) has (contact, currency, deposit, extras, kind, listing, location, moveIn, rent, status)
       where whether Verifying._forSubject (subject: listing) has (status: proof)
+      where whether Expiring._get (resource: listing) has (deadline)
+      where Expiring._isCurrent (resource: listing) has (current)
       form a record of
         contact
         currency
+        current
+        deadline
         deposit
         extras
         kind
@@ -229,13 +266,14 @@ Former "the listings of (owner)" — inputs (owner); bindings (listing, location
 ### the open listings in (area) up to (maxRent)
 
 Authored path: `Listings.Searching.Results`.
-- Covered by [Listings](../design/compositions/Listings.md), line 51.
+- Covered by [Listings](../design/compositions/Listings.md), line 64.
 
 ```former
 Former "the open listings in (area) up to (maxRent)" — inputs (area, maxRent); bindings (listing, location, kind, currency, rent, deposit, extras, moveIn, verified); promises exactly one record — forms:
   a record of
     listings: each Listing._search (area, maxRent) has (currency, deposit, extras, kind, listing, location, moveIn, rent)
       where Verifying._isVerified (subject: listing) has (verified)
+      where Expiring._isCurrent (resource: listing) has (current: true)
       form a record of
         currency
         deposit
@@ -277,14 +315,16 @@ Former "the pending proof for (reviewer)" — inputs (reviewer); bindings (verif
 ### the terms of (listing)
 
 Authored path: `Listings.Searching.Terms`.
-- Covered by [Listings](../design/compositions/Listings.md), line 61.
+- Covered by [Listings](../design/compositions/Listings.md), line 75.
 
 ```former
-Former "the terms of (listing)" — inputs (listing); bindings (owner, location, kind, currency, rent, deposit, extras, moveIn, status, verified); promises at most one record — forms:
+Former "the terms of (listing)" — inputs (listing); bindings (owner, location, kind, currency, rent, deposit, extras, moveIn, status, verified, current); promises at most one record — forms:
   a record of
     where Listing._get (listing) has (currency, deposit, extras, kind, location, moveIn, owner, rent, status)
     where Verifying._isVerified (subject: listing) has (verified)
+    where Expiring._isCurrent (resource: listing) has (current)
     currency
+    current
     deposit
     extras
     kind
@@ -310,6 +350,142 @@ Former "whether (user) is the reviewer" — inputs (user); bindings (appointed);
 ```
 
 ## Reactions
+
+### Availability.Confirming.Confirm
+
+Authored path: `Availability.Confirming.Confirm`.
+- Covered by [Availability](../design/compositions/Availability.md), line 16.
+- Covered by [Availability](../design/compositions/Availability.md), line 22.
+
+```reaction
+when RequestBoundary.request (listing, path: "/listings/confirm", requestId, session)
+then
+  Sessioning.current (session)
+```
+
+### Availability.Confirming.Confirm:missing#2
+
+Authored path: `Availability.Confirming.Confirm`.
+- Covered by [Availability](../design/compositions/Availability.md), line 16.
+- Covered by [Availability](../design/compositions/Availability.md), line 22.
+
+```reaction
+when Sessioning.current (session, subject: owner), asked by Availability.Confirming.Confirm
+where
+  earlier, RequestBoundary.request (listing, path: "/listings/confirm", requestId, session)
+  no Listing._get (listing)
+then
+  RequestBoundary.respond (error: "NO_SUCH_LISTING", requestId)
+```
+
+### Availability.Confirming.Confirm:not-open#2
+
+Authored path: `Availability.Confirming.Confirm`.
+- Covered by [Availability](../design/compositions/Availability.md), line 16.
+- Covered by [Availability](../design/compositions/Availability.md), line 22.
+
+```reaction
+when Sessioning.current (session, subject: owner), asked by Availability.Confirming.Confirm
+where
+  earlier, RequestBoundary.request (listing, path: "/listings/confirm", requestId, session)
+  Listing._get (listing) has (owner) and not (status: "OPEN")
+then
+  RequestBoundary.respond (error: "NOT_OPEN", requestId)
+```
+
+### Availability.Confirming.Confirm:not-owner#2
+
+Authored path: `Availability.Confirming.Confirm`.
+- Covered by [Availability](../design/compositions/Availability.md), line 16.
+- Covered by [Availability](../design/compositions/Availability.md), line 22.
+
+```reaction
+when Sessioning.current (session, subject: owner), asked by Availability.Confirming.Confirm
+where
+  earlier, RequestBoundary.request (listing, path: "/listings/confirm", requestId, session)
+  Listing._get (listing) and not (owner)
+then
+  RequestBoundary.respond (error: "NOT_OWNER", requestId)
+```
+
+### Availability.Confirming.Confirm:owner-open#2
+
+Authored path: `Availability.Confirming.Confirm`.
+- Covered by [Availability](../design/compositions/Availability.md), line 16.
+- Covered by [Availability](../design/compositions/Availability.md), line 22.
+
+```reaction
+when Sessioning.current (session, subject: owner), asked by Availability.Confirming.Confirm
+where
+  earlier, RequestBoundary.request (listing, path: "/listings/confirm", requestId, session)
+  Listing._get (listing) has (owner, status: "OPEN")
+then
+  Expiring.renew (duration: 180000, resource: listing)
+```
+
+### Availability.Confirming.Confirm:owner-open#3
+
+Authored path: `Availability.Confirming.Confirm`.
+- Covered by [Availability](../design/compositions/Availability.md), line 16.
+- Covered by [Availability](../design/compositions/Availability.md), line 22.
+
+```reaction
+when Expiring.renew (duration: 180000, resource: listing, deadline, result.resource), asked by Availability.Confirming.Confirm:owner-open#2
+where
+  earlier, RequestBoundary.request (listing, path: "/listings/confirm", requestId, session)
+then
+  RequestBoundary.respond (deadline, listing: resource, requestId)
+```
+
+### Availability.Lapse.WithdrawOnExpire
+
+Authored path: `Availability.Lapse.WithdrawOnExpire`.
+- Covered by [Availability](../design/compositions/Availability.md), line 27.
+
+```reaction
+when Expiring.expire (resource: listing)
+where
+  Listing._get (listing) has (owner, status: "OPEN")
+then
+  Listing.withdraw (listing, owner)
+```
+
+### Availability.Timers.StartOnPublish
+
+Authored path: `Availability.Timers.StartOnPublish`.
+- Covered by [Availability](../design/compositions/Availability.md), line 9.
+
+```reaction
+when Listing.publish (listing)
+then
+  Expiring.start (duration: 180000, resource: listing)
+```
+
+### Availability.Timers.TimerOnRelist:existing
+
+Authored path: `Availability.Timers.TimerOnRelist`.
+- Covered by [Availability](../design/compositions/Availability.md), line 10.
+
+```reaction
+when Listing.relist (listing)
+where
+  Expiring._get (resource: listing)
+then
+  Expiring.reschedule (duration: 180000, resource: listing)
+```
+
+### Availability.Timers.TimerOnRelist:fresh
+
+Authored path: `Availability.Timers.TimerOnRelist`.
+- Covered by [Availability](../design/compositions/Availability.md), line 10.
+
+```reaction
+when Listing.relist (listing)
+where
+  no Expiring._get (resource: listing)
+then
+  Expiring.start (duration: 180000, resource: listing)
+```
 
 ### DeliverFaultToAsker
 
@@ -476,7 +652,7 @@ Authored path: `Introductions.Asking.Request`.
 when Sessioning.current (session, subject: requester), asked by Introductions.Asking.Request
 where
   earlier, RequestBoundary.request (listing, path: "/introductions/request", requestId, session)
-  no view "the owner of open (listing)" with (listing)
+  no view "the owner of open current (listing)" with (listing)
 then
   RequestBoundary.respond (error: "NOT_OPEN", requestId)
 ```
@@ -491,7 +667,7 @@ Authored path: `Introductions.Asking.Request`.
 when Sessioning.current (session, subject: requester), asked by Introductions.Asking.Request
 where
   earlier, RequestBoundary.request (listing, path: "/introductions/request", requestId, session)
-  view "the owner of open (listing)" with (listing) has (owner)
+  view "the owner of open current (listing)" with (listing) has (owner)
 then
   Introducing.request (holder: owner, requester, subject: listing)
 ```
@@ -564,8 +740,8 @@ then
 ### Listings.Advertising.Mine
 
 Authored path: `Listings.Advertising.Mine`.
-- Covered by [Listings](../design/compositions/Listings.md), line 37.
-- Covered by [Listings](../design/compositions/Listings.md), line 44.
+- Covered by [Listings](../design/compositions/Listings.md), line 49.
+- Covered by [Listings](../design/compositions/Listings.md), line 57.
 
 ```reaction
 when RequestBoundary.request (path: "/listings/mine", requestId, session)
@@ -576,8 +752,8 @@ then
 ### Listings.Advertising.Mine#2
 
 Authored path: `Listings.Advertising.Mine`.
-- Covered by [Listings](../design/compositions/Listings.md), line 37.
-- Covered by [Listings](../design/compositions/Listings.md), line 44.
+- Covered by [Listings](../design/compositions/Listings.md), line 49.
+- Covered by [Listings](../design/compositions/Listings.md), line 57.
 
 ```reaction
 when Sessioning.current (session, subject: owner), asked by Listings.Advertising.Mine
@@ -667,11 +843,25 @@ then
   RequestBoundary.respond (listing, requestId)
 ```
 
+### Listings.Advertising.RevokeOnMove
+
+Authored path: `Listings.Advertising.RevokeOnMove`.
+- Covered by [Listings](../design/compositions/Listings.md), line 31.
+
+```reaction
+when Listing.update (listing, previousLocation)
+where
+  Listing._get (listing) and not (location: previousLocation)
+  Verifying._isVerified (subject: listing) has (verified: true)
+then
+  Verifying.revoke (subject: listing)
+```
+
 ### Listings.Advertising.SubmitProof
 
 Authored path: `Listings.Advertising.SubmitProof`.
-- Covered by [Listings](../design/compositions/Listings.md), line 28.
-- Covered by [Listings](../design/compositions/Listings.md), line 34.
+- Covered by [Listings](../design/compositions/Listings.md), line 40.
+- Covered by [Listings](../design/compositions/Listings.md), line 46.
 
 ```reaction
 when RequestBoundary.request (evidence, listing, path: "/listings/submit-proof", requestId, session)
@@ -682,8 +872,8 @@ then
 ### Listings.Advertising.SubmitProof:missing#2
 
 Authored path: `Listings.Advertising.SubmitProof`.
-- Covered by [Listings](../design/compositions/Listings.md), line 28.
-- Covered by [Listings](../design/compositions/Listings.md), line 34.
+- Covered by [Listings](../design/compositions/Listings.md), line 40.
+- Covered by [Listings](../design/compositions/Listings.md), line 46.
 
 ```reaction
 when Sessioning.current (session, subject: advertiser), asked by Listings.Advertising.SubmitProof
@@ -697,8 +887,8 @@ then
 ### Listings.Advertising.SubmitProof:not-open#2
 
 Authored path: `Listings.Advertising.SubmitProof`.
-- Covered by [Listings](../design/compositions/Listings.md), line 28.
-- Covered by [Listings](../design/compositions/Listings.md), line 34.
+- Covered by [Listings](../design/compositions/Listings.md), line 40.
+- Covered by [Listings](../design/compositions/Listings.md), line 46.
 
 ```reaction
 when Sessioning.current (session, subject: advertiser), asked by Listings.Advertising.SubmitProof
@@ -712,8 +902,8 @@ then
 ### Listings.Advertising.SubmitProof:not-owner#2
 
 Authored path: `Listings.Advertising.SubmitProof`.
-- Covered by [Listings](../design/compositions/Listings.md), line 28.
-- Covered by [Listings](../design/compositions/Listings.md), line 34.
+- Covered by [Listings](../design/compositions/Listings.md), line 40.
+- Covered by [Listings](../design/compositions/Listings.md), line 46.
 
 ```reaction
 when Sessioning.current (session, subject: advertiser), asked by Listings.Advertising.SubmitProof
@@ -727,8 +917,8 @@ then
 ### Listings.Advertising.SubmitProof:owner-open#2
 
 Authored path: `Listings.Advertising.SubmitProof`.
-- Covered by [Listings](../design/compositions/Listings.md), line 28.
-- Covered by [Listings](../design/compositions/Listings.md), line 34.
+- Covered by [Listings](../design/compositions/Listings.md), line 40.
+- Covered by [Listings](../design/compositions/Listings.md), line 46.
 
 ```reaction
 when Sessioning.current (session, subject: advertiser), asked by Listings.Advertising.SubmitProof
@@ -742,8 +932,8 @@ then
 ### Listings.Advertising.SubmitProof:owner-open#3
 
 Authored path: `Listings.Advertising.SubmitProof`.
-- Covered by [Listings](../design/compositions/Listings.md), line 28.
-- Covered by [Listings](../design/compositions/Listings.md), line 34.
+- Covered by [Listings](../design/compositions/Listings.md), line 40.
+- Covered by [Listings](../design/compositions/Listings.md), line 46.
 
 ```reaction
 when Verifying.submit (advertiser, evidence, subject: listing, verification), asked by Listings.Advertising.SubmitProof:owner-open#2
@@ -753,11 +943,91 @@ then
   RequestBoundary.respond (requestId, verification)
 ```
 
+### Listings.Advertising.Update
+
+Authored path: `Listings.Advertising.Update`.
+- Covered by [Listings](../design/compositions/Listings.md), line 28.
+- Covered by [Listings](../design/compositions/Listings.md), line 36.
+
+```reaction
+when RequestBoundary.request (contact, currency, deposit, extras, kind, listing, location, moveIn, path: "/listings/update", rent, requestId, session)
+then
+  Sessioning.current (session)
+```
+
+### Listings.Advertising.Update#2
+
+Authored path: `Listings.Advertising.Update`.
+- Covered by [Listings](../design/compositions/Listings.md), line 28.
+- Covered by [Listings](../design/compositions/Listings.md), line 36.
+
+```reaction
+when Sessioning.current (session, subject: owner), asked by Listings.Advertising.Update
+where
+  earlier, RequestBoundary.request (contact, currency, deposit, extras, kind, listing, location, moveIn, path: "/listings/update", rent, requestId, session)
+then
+  Listing.update (contact, currency, deposit, extras, kind, listing, location, moveIn, owner, rent)
+```
+
+### Listings.Advertising.Update#3
+
+Authored path: `Listings.Advertising.Update`.
+- Covered by [Listings](../design/compositions/Listings.md), line 28.
+- Covered by [Listings](../design/compositions/Listings.md), line 36.
+
+```reaction
+when Listing.update (contact, currency, deposit, extras, kind, listing, location, moveIn, owner, rent), asked by Listings.Advertising.Update#2
+where
+  earlier, RequestBoundary.request (contact, currency, deposit, extras, kind, listing, location, moveIn, path: "/listings/update", rent, requestId, session)
+then
+  RequestBoundary.respond (listing, requestId)
+```
+
+### Listings.Advertising.Withdraw
+
+Authored path: `Listings.Advertising.Withdraw`.
+- Covered by [Listings](../design/compositions/Listings.md), line 29.
+- Covered by [Listings](../design/compositions/Listings.md), line 37.
+
+```reaction
+when RequestBoundary.request (listing, path: "/listings/withdraw", requestId, session)
+then
+  Sessioning.current (session)
+```
+
+### Listings.Advertising.Withdraw#2
+
+Authored path: `Listings.Advertising.Withdraw`.
+- Covered by [Listings](../design/compositions/Listings.md), line 29.
+- Covered by [Listings](../design/compositions/Listings.md), line 37.
+
+```reaction
+when Sessioning.current (session, subject: owner), asked by Listings.Advertising.Withdraw
+where
+  earlier, RequestBoundary.request (listing, path: "/listings/withdraw", requestId, session)
+then
+  Listing.withdraw (listing, owner)
+```
+
+### Listings.Advertising.Withdraw#3
+
+Authored path: `Listings.Advertising.Withdraw`.
+- Covered by [Listings](../design/compositions/Listings.md), line 29.
+- Covered by [Listings](../design/compositions/Listings.md), line 37.
+
+```reaction
+when Listing.withdraw (listing, owner), asked by Listings.Advertising.Withdraw#2
+where
+  earlier, RequestBoundary.request (listing, path: "/listings/withdraw", requestId, session)
+then
+  RequestBoundary.respond (listing, requestId)
+```
+
 ### Listings.Searching.Search
 
 Authored path: `Listings.Searching.Search`.
-- Covered by [Listings](../design/compositions/Listings.md), line 49.
-- Covered by [Listings](../design/compositions/Listings.md), line 57.
+- Covered by [Listings](../design/compositions/Listings.md), line 62.
+- Covered by [Listings](../design/compositions/Listings.md), line 71.
 
 ```reaction
 when RequestBoundary.request (area, maxRent, path: "/listings/search", requestId)
@@ -768,8 +1038,8 @@ then
 ### Listings.Searching.View:found
 
 Authored path: `Listings.Searching.View`.
-- Covered by [Listings](../design/compositions/Listings.md), line 60.
-- Covered by [Listings](../design/compositions/Listings.md), line 67.
+- Covered by [Listings](../design/compositions/Listings.md), line 74.
+- Covered by [Listings](../design/compositions/Listings.md), line 82.
 
 ```reaction
 when RequestBoundary.request (listing, path: "/listings/view", requestId)
@@ -782,8 +1052,8 @@ then
 ### Listings.Searching.View:missing
 
 Authored path: `Listings.Searching.View`.
-- Covered by [Listings](../design/compositions/Listings.md), line 60.
-- Covered by [Listings](../design/compositions/Listings.md), line 67.
+- Covered by [Listings](../design/compositions/Listings.md), line 74.
+- Covered by [Listings](../design/compositions/Listings.md), line 82.
 
 ```reaction
 when RequestBoundary.request (listing, path: "/listings/view", requestId)
@@ -1084,13 +1354,16 @@ not listed here have no explicit input contract.
 - `/introductions/decline` — requires `session`, `introduction`
 - `/introductions/mine` — requires `session`, `listing`
 - `/introductions/request` — requires `session`, `listing`
+- `/listings/confirm` — requires `session`, `listing`
 - `/listings/mark-let` — requires `session`, `listing`
 - `/listings/mine` — requires `session`
 - `/listings/publish` — requires `session`, `location`, `kind`, `currency`, `rent`, `deposit`, `extras`, `moveIn`, `contact`
 - `/listings/relist` — requires `session`, `listing`
 - `/listings/search` — requires `area`, `maxRent`
 - `/listings/submit-proof` — requires `session`, `listing`, `evidence`
+- `/listings/update` — requires `session`, `listing`, `location`, `kind`, `currency`, `rent`, `deposit`, `extras`, `moveIn`, `contact`
 - `/listings/view` — requires `listing`
+- `/listings/withdraw` — requires `session`, `listing`
 - `/review/access` — requires `session`
 - `/review/queue` — requires `session`
 - `/review/reject` — requires `session`, `verification`

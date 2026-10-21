@@ -1,8 +1,11 @@
 import { createGateway } from "@mit-sdg/sync-engine/boundary";
 import { createHttpHandler } from "@mit-sdg/sync-engine-http/handler";
-import { assembleApplication } from "./assembly.ts";
+import { assembleApplication, expireDue } from "./assembly.ts";
 import { AuthenticatingConcept, UsernameTaken } from "./concepts/Authenticating.ts";
+import { ExpiringConcept } from "./concepts/Expiring.ts";
+import { ListingConcept } from "./concepts/Listing.ts";
 import { AlreadyAppointed, VerifyingConcept } from "./concepts/Verifying.ts";
+import { LISTING_LIFETIME_MS } from "./listing-lifetime.ts";
 import { db } from "./db.ts";
 import { policy } from "./http.ts";
 
@@ -24,11 +27,28 @@ async function seedReviewer() {
   }
 }
 
+/** Listings published before Expiring was wired have no timer; start one so they stay in search. */
+async function seedOpenTimers() {
+  const listings = new ListingConcept(db);
+  const expiring = new ExpiringConcept(db);
+  for (const { listing } of await listings._search({ area: "", maxRent: Number.MAX_SAFE_INTEGER })) {
+    if ((await expiring._get({ resource: listing })).length === 0) {
+      await expiring.start({ resource: listing, duration: LISTING_LIFETIME_MS });
+    }
+  }
+}
+
 await seedReviewer();
+await seedOpenTimers();
 
 const application = assembleApplication();
 const gateway = createGateway({ application });
 const api = createHttpHandler({ application, gateway, policy });
+
+const sweepEveryMs = LISTING_LIFETIME_MS < 5 * 60 * 1000 ? 2_000 : 10_000;
+setInterval(() => {
+  expireDue(application).catch((error) => console.error(error));
+}, sweepEveryMs);
 
 const server = Bun.serve({
   hostname: process.env.HOST ?? "127.0.0.1",

@@ -6,10 +6,10 @@
  * Verification is joined here as a flag or a proof status, never as evidence.
  */
 import { endpoint, receive, respond } from "@mit-sdg/sync-engine/boundary";
-import { each, form, former, no, where, whether } from "@mit-sdg/sync-engine/language";
+import { each, form, former, no, reaction, when, where, whether } from "@mit-sdg/sync-engine/language";
 import { concepts } from "../concepts.ts";
 
-const { Introducing, Listing, Sessioning, Verifying } = concepts;
+const { Expiring, Introducing, Listing, Sessioning, Verifying } = concepts;
 
 const Publish = endpoint(
   "/listings/publish",
@@ -46,6 +46,63 @@ const Relist = endpoint(
       .then(Listing.relist({ owner, listing }).responds({ listing }))
       .then(respond({ listing })),
   { input: { required: ["session", "listing"] } },
+);
+
+const Withdraw = endpoint(
+  "/listings/withdraw",
+  ({ session, owner, listing }) =>
+    receive({ session, listing })
+      .then(Sessioning.current({ session }).responds({ subject: owner }))
+      .then(Listing.withdraw({ owner, listing }).responds({ listing }))
+      .then(respond({ listing })),
+  { input: { required: ["session", "listing"] } },
+);
+
+const Update = endpoint(
+  "/listings/update",
+  ({ session, owner, listing, location, kind, currency, rent, deposit, extras, moveIn, contact }) =>
+    receive({ session, listing, location, kind, currency, rent, deposit, extras, moveIn, contact })
+      .then(Sessioning.current({ session }).responds({ subject: owner }))
+      .then(
+        Listing.update({
+          owner,
+          listing,
+          location,
+          kind,
+          currency,
+          rent,
+          deposit,
+          extras,
+          moveIn,
+          contact,
+        }).responds({ listing }),
+      )
+      .then(respond({ listing })),
+  {
+    input: {
+      required: [
+        "session",
+        "listing",
+        "location",
+        "kind",
+        "currency",
+        "rent",
+        "deposit",
+        "extras",
+        "moveIn",
+        "contact",
+      ],
+    },
+  },
+);
+
+const RevokeOnMove = reaction(({ listing, previousLocation }) =>
+  when(Listing.update({}).responds({ listing, previousLocation }))
+    .where(
+      Listing._get({ listing }).is.not({ location: previousLocation }),
+      Verifying._isVerified({ subject: listing }).is({ verified: true }),
+    )
+    .then(Verifying.revoke({ subject: listing })),
 );
 
 const SubmitProof = endpoint(
@@ -89,6 +146,8 @@ const OwnListings = former(
       contact,
       status,
       proof,
+      deadline,
+      current,
       introduction,
       requester,
       answer,
@@ -109,7 +168,11 @@ const OwnListings = former(
           status,
         }),
       )
-        .where(whether(Verifying._forSubject({ subject: listing }).is({ status: proof })))
+        .where(
+          whether(Verifying._forSubject({ subject: listing }).is({ status: proof })),
+          whether(Expiring._get({ resource: listing }).is({ deadline })),
+          Expiring._isCurrent({ resource: listing }).is({ current }),
+        )
         .form({
           listing,
           location,
@@ -122,6 +185,8 @@ const OwnListings = former(
           contact,
           status,
           proof,
+          deadline,
+          current,
           requests: each(
             Introducing._received({ holder: owner, subject: listing }).is({ introduction, requester, status: answer }),
           ).form({ introduction, requester, status: answer }),
@@ -154,7 +219,10 @@ const Results = former(
           moveIn,
         }),
       )
-        .where(Verifying._isVerified({ subject: listing }).is({ verified }))
+        .where(
+          Verifying._isVerified({ subject: listing }).is({ verified }),
+          Expiring._isCurrent({ resource: listing }).is({ current: true }),
+        )
         .form({ listing, location, kind, currency, rent, deposit, extras, moveIn, verified }),
     }),
 );
@@ -168,11 +236,12 @@ const Search = endpoint(
 
 const Terms = former(
   "the terms of (listing)",
-  ({ listing }, { owner, location, kind, currency, rent, deposit, extras, moveIn, status, verified }) =>
+  ({ listing }, { owner, location, kind, currency, rent, deposit, extras, moveIn, status, verified, current }) =>
     where(
       Listing._get({ listing }).is({ owner, location, kind, currency, rent, deposit, extras, moveIn, status }),
       Verifying._isVerified({ subject: listing }).is({ verified }),
-    ).form({ listing, owner, location, kind, currency, rent, deposit, extras, moveIn, status, verified }),
+      Expiring._isCurrent({ resource: listing }).is({ current }),
+    ).form({ listing, owner, location, kind, currency, rent, deposit, extras, moveIn, status, verified, current }),
 ).optional();
 
 const View = endpoint(
@@ -190,6 +259,6 @@ const View = endpoint(
 );
 
 export const composition = {
-  Advertising: { Publish, MarkLet, Relist, SubmitProof, Mine, OwnListings },
+  Advertising: { Publish, MarkLet, Relist, Withdraw, Update, SubmitProof, Mine, OwnListings, RevokeOnMove },
   Searching: { Search, Results, View, Terms },
 };

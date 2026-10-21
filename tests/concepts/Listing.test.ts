@@ -100,7 +100,10 @@ test("the owner sees their own listings with contacts, newest first", async () =
 
 test("only an open listing can be updated, let, or withdrawn, and only a closed one relisted", async () => {
   const { listing } = await listings.publish({ owner: "mrsdube", ...cottage });
-  await listings.update({ owner: "mrsdube", listing, ...cottage, rent: 160 });
+  expect(await listings.update({ owner: "mrsdube", listing, ...cottage, rent: 160 })).toEqual({
+    listing,
+    previousLocation: cottage.location,
+  });
   expect((await listings._get({ listing }))[0]?.rent).toBe(160);
   await expect(listings.relist({ owner: "mrsdube", listing })).rejects.toBeInstanceOf(AlreadyOpen);
 

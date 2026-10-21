@@ -36,7 +36,7 @@ test("principle: current until the deadline, renew keeps it, expire deletes the 
   expect(await expiring._get({ resource: "cottage" })).toEqual([{ deadline: started.deadline }]);
   expect(await expiring._due({})).toEqual([]);
 
-  now = new Date(now.getTime() + 10 * 24 * 60 * 60 * 1000);
+  now = new Date(now.getTime() + Math.floor(MONTH_MS / 3));
   const renewed = await expiring.renew({ resource: "cottage", duration: MONTH_MS });
   expect(renewed.deadline.getTime()).toBe(now.getTime() + MONTH_MS);
   expect(await expiring._isCurrent({ resource: "cottage" })).toEqual({ current: true });
