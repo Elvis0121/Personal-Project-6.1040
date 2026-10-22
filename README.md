@@ -20,12 +20,16 @@ This is being built as a real product for real tenants and landlords, starting i
 - Compositions: [Sessions](design/compositions/Sessions.md), [Listings](design/compositions/Listings.md), [Introductions](design/compositions/Introductions.md)
 - [Demo video](https://youtu.be/vbYU4Ed9J8E)
 
+
+
 ## P3: Beta
 
-Visual study, 16:9:
+svisual study sldies
 
-- Colour: [slide](design/visual-study/01-colour.png) · [page](design/visual-study/01-colour.html)
-- Type: [slide](design/visual-study/02-type.png) · [page](design/visual-study/02-type.html)
+- colour: [slide](design/visual-study/01-colour.png) 
+- typography: [slide](design/visual-study/02-type.png) 
+
+
 
 ### Running locally
 
@@ -44,7 +48,7 @@ Open the app at exactly [http://127.0.0.1:8080](http://127.0.0.1:8080) (not loca
 
 ### Tests
 
-`bun test` needs MongoDB running (`bun run db:up`). Each file opens a throwaway database, so it does not touch the app's data. Every concept has a test for its principle, plus tests for its refusals. A saved run is in [`tests/bun-test-output.txt`](tests/bun-test-output.txt).
+`bun test` needs MongoDB running (`bun run db:up`). Each file opens a throwaway database, so it does not touch the app's data. Every concept has a test for its principle, plus tests for its refusals. A saved run is in `[tests/bun-test-output.txt](tests/bun-test-output.txt)`.
 
 - The landlord's number never leaks. Search results and listing details never include the contact. `_disclosed` answers it only to the requester of an accepted introduction.
 - Only the right person can act. Only a listing's owner can mark it as let, withdraw it, confirm it, edit it, or relist it. Only the landlord who was asked can accept or decline a request. Only `kumba` sees proof and can verify it.

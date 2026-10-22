@@ -67,6 +67,7 @@ watch(savedHomes, load, { immediate: true });
       You have not liked a place yet. <a href="#/homes">Find your home</a>.
     </p>
     <template v-else-if="cards.length > 0">
+      <h2>Saved on this device</h2>
       <div class="homes">
         <PropertyCard v-for="item in cards" :key="item.listing" v-bind="item" />
       </div>
