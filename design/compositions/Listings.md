@@ -42,6 +42,13 @@ open listing they own. The subject is that listing. Empty proof, a second
 current proof, someone else's listing, and a listing that is not open are all
 refused. Proof is submitted on My listings, not on a separate page.
 
+The advertiser classifies the document as a rates bill, water bill, electricity
+bill, title deed, lease, or other, and may attach a PDF or a photo. Verifying
+still stores `evidence` as a string: the first line is the kind, an optional
+`file:` line names the file, and the rest is a note. The file bytes live beside
+the concept, not in any query. Tenants never see the file. Only the reviewer
+reads it.
+
 ```endpoints
 Listings.Advertising.SubmitProof at /listings/submit-proof
 ```
@@ -81,3 +88,12 @@ An unknown listing answers `NO_SUCH_LISTING`.
 ```endpoints
 Listings.Searching.View at /listings/view
 ```
+
+## Photos
+
+Photos sit beside Listing, the same way proof files sit beside Verifying. They
+are not a Photographing concept: a photo has no identity that other concepts
+react to. The owner of an open listing can upload up to eight JPEG, PNG, or
+WebP files, pick one as the display photo, and remove one. Search, view, and
+mine inject `displayPhoto` and `photos` onto the JSON they already return.
+Anyone can GET a photo. Only the owner can write.

@@ -14,7 +14,7 @@ defineProps<{
   <header>
     <a :href="account ? '#/homes' : '#/'" class="brand">
       <BrandMark />
-      <span class="brand-name">Bvisa Musondosi</span>
+      <span class="brand-name">Kumba</span>
     </a>
     <nav>
       <a href="#/homes" :class="{ current: page === 'search' || page === 'listing' }">Find your home</a>

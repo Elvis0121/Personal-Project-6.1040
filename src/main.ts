@@ -55,6 +55,8 @@ setInterval(() => {
   expireDue(application).catch((error) => console.error(error));
 }, sweepEveryMs);
 
+const dist = `${import.meta.dir}/../web/dist`;
+
 const server = Bun.serve({
   hostname: process.env.HOST ?? "127.0.0.1",
   port: Number(process.env.PORT ?? 3000),
@@ -71,6 +73,12 @@ const server = Bun.serve({
         );
       }
     },
+  },
+  async fetch(request) {
+    const pathname = new URL(request.url).pathname;
+    const target = pathname === "/" ? "/index.html" : pathname;
+    const file = Bun.file(dist + target);
+    return new Response((await file.exists()) ? file : Bun.file(`${dist}/index.html`));
   },
 });
 

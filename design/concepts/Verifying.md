@@ -43,6 +43,7 @@ a set of Verifications with
   an optional decidedBy User
   Rule: a verification has a decidedBy exactly when its status is not PENDING
   Rule: revoke must not clear decidedBy
+  Rule: evidence is the classified note (kind, optional filename, optional text). File bytes are not concept state.
 ```
 
 ## Actions

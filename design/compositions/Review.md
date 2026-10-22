@@ -16,7 +16,8 @@ Review.Access.Access at /review/access
 The reviewer [reads the queue](reaction:Review.Queue.Queue) of pending proof.
 The [queue](former:Review.Queue.QueueItems) joins each pending verification to
 the listing's public terms and to the evidence, which
-[only the reviewer can read](view:Review.Queue.ReviewerEvidence). A tenant or
+[only the reviewer can read](view:Review.Queue.ReviewerEvidence). When the
+evidence names a file, the reviewer can open that file here. A tenant or
 advertiser calling the same queue is refused, so the evidence never leaves
 this screen.
 
