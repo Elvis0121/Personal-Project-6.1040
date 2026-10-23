@@ -20,7 +20,7 @@ Happy path, `journey: a tenant finds a verified place, is introduced, and the la
 
 Access, `access control: the session decides who acts, and only the right person can`
 
-- No cookie, a made-up cookie, or a foreign Origin are refused.
+- No cookie, a made-up cookie, or a foreign Origin are refused. Sign-out, then `/listings/mine` is UNAUTHORIZED.
 - A session stuffed in the JSON body is ignored.
 - Tinashe cannot mark-let, confirm, withdraw, edit, or submit proof on her listing.
 - She cannot request an introduction to herself. He cannot accept his own request. A second request is CONFLICT. After she declines, accept is refused and he still has no number.
@@ -63,6 +63,6 @@ these other paths have also been walked on the local ui. live walk is below.
 ## Unresolved
 
 - Vue is not under `bun test`. photos and multipart proof are in `tests/photo-http.test.ts` / `tests/proof-http.test.ts`, not in the journey file.
-- recording is in the README. still need to finish the live ticks once the site is actually taking sign-in.
+- still need to finish the live ticks once the site is actually taking sign-in. video is separate.
 - photos/proofs are files on disk. they'll vanish if the platform gives us a new machine. would need S3 later.
 - note anything that breaks in the ui here when you walk it.

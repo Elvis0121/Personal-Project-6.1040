@@ -100,5 +100,5 @@ Anyone can GET a photo. Only the owner can write, and only while the listing
 is OPEN. A let or withdrawn listing keeps the files; it cannot add, pick, or
 remove them.
 
-Uploads are multipart so they skip the json policy. that extra path has to do
-Origin / session / owner / OPEN itself. the json tests won't notice if it drifts.
+Uploads are multipart so they skip the json policy. extra path checks origin,
+session, owner, OPEN.

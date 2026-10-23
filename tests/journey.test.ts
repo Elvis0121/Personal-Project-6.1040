@@ -128,6 +128,10 @@ test("access control: the session decides who acts, and only the right person ca
   expect((await post("/listings/mine", {}, "__Host-kumba-session=made-up")).body).toEqual({ error: "UNAUTHORIZED" });
   expect((await post("/listings/mine", {}, dube, "http://evil.example")).body).toEqual({ error: "FORBIDDEN" });
 
+  const visitor = await register("chipo", "chipo-pass-1");
+  expect((await post("/auth/sign-out", {}, visitor)).status).toBe(200);
+  expect((await post("/listings/mine", {}, visitor)).body).toEqual({ error: "UNAUTHORIZED" });
+
   // A session value in the body is ignored; the cookie decides who is asking.
   expect((await post("/listings/mine", { session: "anything" }, tinashe)).body.mine.listings).toEqual([]);
 

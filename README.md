@@ -34,8 +34,6 @@ Live app: [https://kumba.mit-sdg.dev](https://kumba.mit-sdg.dev)
 
 note: it is virtually IMPOSSIBLE to show the functionality of the app in under 2 minutes because of cookie sessions and the need to sign in to 3 different accounts, as can be attested from the video.
 
-
-
 ### What landed from the study
 
 slides were from looking at spice markets and old print, not at kumba. then i took some of that into the ui:
@@ -45,6 +43,8 @@ slides were from looking at spice markets and old print, not at kumba. then i to
 - oregano for VERIFIED, turmeric for pending
 - cream page, dark type
 - Newsreader for headings, Source Sans 3 for the rest
+
+
 
 ### Why files sit beside the concepts
 
@@ -91,6 +91,8 @@ Integration. [tests/journey.test.ts](tests/journey.test.ts) runs the journey thr
 Limitations. Vue pages aren't in `bun test`. photos / multipart proof have their own http tests.
 
 design notebook is in the private repo.
+
+
 
 
 

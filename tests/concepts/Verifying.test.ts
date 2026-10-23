@@ -146,8 +146,10 @@ test("revoke refuses an unverified subject and does not clear decidedBy", async 
 
   await verifying.verify({ reviewer: "kumba", verification });
   await verifying.revoke({ subject: "cottage" });
-  const stored = await testDb.db.collection("verifying.verifications").findOne({ _id: verification as never });
-  expect(stored).toMatchObject({ status: "REJECTED", decidedBy: "kumba", evidence: bill });
+  expect(await verifying._get({ verification })).toEqual([
+    { advertiser: "mrsdube", subject: "cottage", status: "REJECTED", decidedBy: "kumba" },
+  ]);
+  expect(await verifying._evidence({ reviewer: "kumba", verification })).toEqual([{ evidence: bill }]);
 });
 
 test("pending lists oldest first and never includes evidence", async () => {
