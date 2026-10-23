@@ -1,6 +1,6 @@
 # Concept design
 
-> p1 snapshot. current specs (what the code actually implements — `bun run check` verifies them) are in [concepts/](concepts/).
+> p1 snapshot. current specs (what the code actually implements, `bun run check` verifies them) are in [concepts/](concepts/).
 
 4 main concepts:
 

@@ -26,4 +26,4 @@ Availability.Confirming.Confirm at /listings/confirm
 
 When a timer [expires](reaction:Availability.Lapse.WithdrawOnExpire) and the
 listing is still open, it is withdrawn. a let listing stays let. no expire
-button — tests move a clock, server expires whatever `_due` answers.
+button. tests move a clock, server expires whatever `_due` answers.

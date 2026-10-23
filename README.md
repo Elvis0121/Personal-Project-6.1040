@@ -34,8 +34,6 @@ Live app: [https://kumba.mit-sdg.dev](https://kumba.mit-sdg.dev)
 
 note: it is virtually IMPOSSIBLE to show the functionality of the app in under 2 minutes because of cookie sessions and the need to sign in to 3 different accounts, as can be attested from the video.
 
-### from the slides
-
 slides were from looking at spice markets and old print, not at kumba. then i took some of that into the ui:
 
 - teal on buttons / links
@@ -46,13 +44,11 @@ slides were from looking at spice markets and old print, not at kumba. then i to
 
 
 
-### photos / proof files
+didn't make a Photographing concept. a photo just sits on a listing. if proof files lived in Verifying they'd show up on search the second a query leaked.
 
-didn't make a Photographing concept. a photo doesn't really *do* anything in the model, it just sits on a listing. same for proof files: if they lived in Verifying's state, they'd be one leaky query away from search.
+bytes are on disk. Verifying only stores a string (kind / filename / note). reviewer opens the file through `_evidence`. tenants see VERIFIED, not the rates bill.
 
-so the bytes are just files on disk. Verifying only stores a string (kind / filename / note). reviewer opens the file through `_evidence`. tenants see VERIFIED. they never see Mrs Dube's rates bill.
-
-photos are the same idea, extra http next to Listing. max 8. first one is the display photo.
+photos: extra http next to Listing. max 8. first one is the display photo.
 
 ### Running locally
 
@@ -77,8 +73,6 @@ need mongo up (`bun run db:up`) then `bun test`. each file uses a throwaway data
 
 every concept has a principle test + the refusals. also http tests for edit, expiry, review, photos, proof.
 
-stuff that would actually be bad if it broke:
-
 - search/view never include the landlords number. `_disclosed` only after accept, and only to that tenant
 - tinashe cant let / confirm / edit mrs dube's listing. only `kumba` sees proof
 - two requests at the same time, one introduction
@@ -90,9 +84,7 @@ stuff that would actually be bad if it broke:
 
 `bun run check` = specs, code, generated types agree.
 
-long path is [tests/journey.test.ts](tests/journey.test.ts) (endpoints + cookie + mongo). what i clicked is [p3/user-journey.md](p3/user-journey.md). vue pages arent in bun test, which is not ideal, http covers the behaviour though.
-
-design notebook is in the private repo.
+[tests/journey.test.ts](tests/journey.test.ts) is the long path (endpoints + cookie + mongo). clicks are in [p3/user-journey.md](p3/user-journey.md). vue isnt in bun test.
 
 
 
