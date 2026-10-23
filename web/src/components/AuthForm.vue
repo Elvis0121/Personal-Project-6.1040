@@ -11,6 +11,17 @@ const password = ref("");
 const error = ref("");
 const busy = ref(false);
 
+function originHint() {
+  const here = location.origin;
+  if (here.includes("localhost")) {
+    return "This page is localhost. Open it as http://127.0.0.1:8080 so the session cookie can stick.";
+  }
+  if (here.endsWith(".mit-sdg.dev")) {
+    return `Sign-in is refused from ${here}. PUBLIC_ORIGIN on the server must match this address exactly, with https and no trailing slash.`;
+  }
+  return `Sign-in is refused from ${here}. Open the exact address the server was configured for.`;
+}
+
 async function submit() {
   error.value = "";
   busy.value = true;
@@ -24,7 +35,7 @@ async function submit() {
         "Usernames are 3 to 32 letters, numbers, underscores, or hyphens, and passwords are 8 to 128 characters.",
       CONFLICT: "That username is taken. Try another, or log in instead.",
       UNAUTHORIZED: "The username or password is incorrect.",
-      FORBIDDEN: "Open http://127.0.0.1:8080, not localhost. The session cookie will not stick on localhost.",
+      FORBIDDEN: originHint(),
     });
     return;
   }

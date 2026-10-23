@@ -6,6 +6,7 @@ import { formatEvidence, parseEvidence } from "./proof.ts";
 
 type App = ReturnType<typeof assembleApplication>;
 
+/** Same Origin rule as src/http.ts. Multipart never goes through that policy, so this door has to match. */
 const ORIGIN = process.env.PUBLIC_ORIGIN ?? "http://127.0.0.1:8080";
 
 function json(error: string, status: number) {

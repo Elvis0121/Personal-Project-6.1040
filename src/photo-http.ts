@@ -12,6 +12,7 @@ import {
 
 type App = ReturnType<typeof assembleApplication>;
 
+/** Same Origin rule as src/http.ts. Multipart never goes through that policy, so this door has to match. */
 const ORIGIN = process.env.PUBLIC_ORIGIN ?? "http://127.0.0.1:8080";
 const ATTACH = new Set(["/api/listings/search", "/api/listings/view", "/api/listings/mine"]);
 
@@ -48,11 +49,12 @@ async function userOf(request: Request, application: App) {
   return current.subject;
 }
 
-async function ownerOf(request: Request, application: App, listing: string) {
+async function ownerOf(request: Request, application: App, listing: string, open = false) {
   const owner = await userOf(request, application);
   const found = (await application.concepts.Listing._get({ listing }))[0];
   if (!found) return json("NOT_FOUND", 404);
   if (found.owner !== owner) return json("FORBIDDEN", 403);
+  if (open && found.status !== "OPEN") return json("CONFLICT", 409);
   return { listing };
 }
 
@@ -80,7 +82,7 @@ export async function uploadListingPhoto(request: Request, application: App) {
   try {
     const form = await request.formData();
     listing = listingFrom(form);
-    const owned = await ownerOf(request, application, listing);
+    const owned = await ownerOf(request, application, listing, true);
     if (owned instanceof Response) return owned;
     const file = form.get("file");
     if (!(file instanceof File) || file.size === 0) return json("INVALID_REQUEST", 400);
@@ -97,7 +99,7 @@ export async function chooseDisplayPhoto(request: Request, application: App) {
   const body = await readJson(request);
   if (!body) return json("INVALID_REQUEST", 400);
   try {
-    const owned = await ownerOf(request, application, listingFrom(body));
+    const owned = await ownerOf(request, application, listingFrom(body), true);
     if (owned instanceof Response) return owned;
     return Response.json(await setDisplayPhoto(owned.listing, photoFrom(body)));
   } catch (error) {
@@ -112,7 +114,7 @@ export async function dropListingPhoto(request: Request, application: App) {
   const body = await readJson(request);
   if (!body) return json("INVALID_REQUEST", 400);
   try {
-    const owned = await ownerOf(request, application, listingFrom(body));
+    const owned = await ownerOf(request, application, listingFrom(body), true);
     if (owned instanceof Response) return owned;
     return Response.json(await removeListingPhoto(owned.listing, photoFrom(body)));
   } catch (error) {

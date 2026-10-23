@@ -57,7 +57,9 @@ onUnmounted(() => clearInterval(poll));
       title="Pending proof"
       lede="You are the one who looks. Tenants never see the file. Thank you for keeping both sides honest."
     />
-  <p v-if="!reviewer" class="muted">Only the appointed reviewer can open this queue.</p>
+  <p v-if="!reviewer" class="muted">
+    Only the reviewer account can open this. Locally that's <code>kumba</code>. You don't need this page to look for a home or to list one.
+  </p>
   <p v-if="error" class="error" role="alert">{{ error }}</p>
   <p v-else-if="reviewer && items.length === 0" class="muted">No proof is waiting.</p>
   <article v-for="item in items" :key="item.verification" class="card">

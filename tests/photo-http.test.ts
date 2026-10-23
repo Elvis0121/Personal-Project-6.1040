@@ -147,3 +147,36 @@ test("unsigned visitors cannot upload, and a missing photo is not found", async 
   const missing = await handle(new Request("http://127.0.0.1:3000/api/listings/photo/no-such/no-such"));
   expect(missing.status).toBe(404);
 });
+
+test("a let listing cannot take photo writes; a foreign Origin is refused on the multipart door", async () => {
+  const dube = await register("mrsdube", "avondale-cottage");
+  const { listing } = (await post("/listings/publish", cottage, dube)).body;
+  const uploaded = await upload(listing, dube);
+  expect(uploaded.status).toBe(200);
+
+  expect((await post("/listings/mark-let", { listing }, dube)).status).toBe(200);
+  const afterLet = await upload(listing, dube);
+  expect(afterLet.status).toBe(409);
+  expect(afterLet.body.error).toBe("CONFLICT");
+
+  const display = await post("/listings/photos/display", { listing, photo: uploaded.body.photo }, dube);
+  expect(display.status).toBe(409);
+  const removed = await post("/listings/photos/remove", { listing, photo: uploaded.body.photo }, dube);
+  expect(removed.status).toBe(409);
+
+  const stillThere = await handle(new Request(`http://127.0.0.1:3000${uploaded.body.url}`));
+  expect(stillThere.status).toBe(200);
+
+  const form = new FormData();
+  form.set("listing", listing);
+  form.set("file", jpeg());
+  const foreign = await handle(
+    new Request("http://127.0.0.1:3000/api/listings/photos", {
+      method: "POST",
+      headers: { Origin: "http://localhost:8080", Cookie: dube },
+      body: form,
+    }),
+  );
+  expect(foreign.status).toBe(403);
+  expect((await foreign.json() as { error: string }).error).toBe("FORBIDDEN");
+});

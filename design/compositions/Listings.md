@@ -96,4 +96,9 @@ are not a Photographing concept: a photo has no identity that other concepts
 react to. The owner of an open listing can upload up to eight JPEG, PNG, or
 WebP files, pick one as the display photo, and remove one. Search, view, and
 mine inject `displayPhoto` and `photos` onto the JSON they already return.
-Anyone can GET a photo. Only the owner can write.
+Anyone can GET a photo. Only the owner can write, and only while the listing
+is OPEN. A let or withdrawn listing keeps the files; it cannot add, pick, or
+remove them.
+
+Uploads are multipart so they skip the json policy. that extra path has to do
+Origin / session / owner / OPEN itself. the json tests won't notice if it drifts.

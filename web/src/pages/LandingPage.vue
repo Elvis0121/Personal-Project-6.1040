@@ -111,12 +111,7 @@ const faqs = [
         <p class="eyebrow">A fairer way to find a home</p>
         <h1>Finding a home is hard enough</h1>
         <p class="lede">
-          You shouldn't have to chase people for prices, pay to find out an address, or arrive at a place that's already
-          gone.
-        </p>
-        <p class="lede">
-          Kumba shows you the full cost upfront, checks who's behind an advert, and clears out stale listings. Browse
-          freely, no account needed. Sign in when you're ready to begin your next chapter.
+          Full cost up front. Who is behind the advert, checked. Stale listings gone. Look around with no account.
         </p>
         <div class="hero-actions">
           <a class="as-button" href="#/homes">Find your home</a>

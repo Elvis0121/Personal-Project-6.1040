@@ -1262,6 +1262,24 @@ textarea:focus-visible {
   min-width: 0;
 }
 
+.mine-next {
+  margin: 0 0 0.85rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--color-brand-tint);
+  border-radius: var(--radius-sm);
+  color: var(--color-brand);
+}
+
+.mine-section {
+  margin: 1rem 0 0;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.mine-section h4 {
+  margin-top: 0;
+}
+
 .photo-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));

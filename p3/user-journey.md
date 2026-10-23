@@ -1,10 +1,12 @@
 # user journey testing (p3)
 
-story is in [p2/user-journey.md](../p2/user-journey.md). Automated journey i [tests/journey.test.ts](../tests/journey.test.ts). Run `bun run db:up` then `bun test tests/journey.test.ts`.
+story is in [p2/user-journey.md](../p2/user-journey.md). automated journey is [tests/journey.test.ts](../tests/journey.test.ts). run `bun run db:up` then `bun test tests/journey.test.ts`.
 
-This is HTTP + Mongo, not the Vue pages. Won't open p in browser
+this is HTTP + Mongo, not the Vue pages. won't open a browser.
 
-## automated tests cover happy path
+saved `bun test` run: [tests/bun-test-output.txt](../tests/bun-test-output.txt).
+
+## Automated tests cover the happy path
 
 Happy path, `journey: a tenant finds a verified place, is introduced, and the landlord marks it let`
 
@@ -35,22 +37,19 @@ Other paths
 - Relisting keeps accepted introductions, clears pending and declined, and lets a declined person ask again.
 - If she does not confirm before the timer, the cottage leaves search, nobody can ask, and expire withdraws it. It is not marked let.
 
-these alternative paths have also ben  tested on the UI
+one thing that was easy to miss: photos don't go through the same handler as the json api, so origin/session could have been wrong there. also after you mark a place let you shouldn't still be able to swap photos. that's in [tests/photo-http.test.ts](../tests/photo-http.test.ts).
 
-## steps taken in a walk through on (live) ui
+these other paths have also been walked on the local ui. live walk is below.
+
+## Steps taken in a walk-through on the (live) UI
 
 - [x] Guest landing, then Find your home, no account. Search. Open a listing. Number still hidden. Ask is behind log in.
 
-- this initially failed -> the landing page could not serve the lookup functionality
-  ```
-     -fixed and re-ran and the landing page showed available houses even when logged out. Needed to sign in to request an introduction
-  ```
+  landing at first didn't show houses when logged out. fixed that, guests can look, still have to sign in to ask for an introduction.
 
 - [ ] Sign up / sign in. Cookie survives a reload.
 
-```
-  - sign in said "You are not allowed to do that". Registering worked on local host. Added PUBLIC_ORIGIN to Environment variables
-```
+  live sign-in said "You are not allowed to do that". registering worked on localhost. PUBLIC_ORIGIN has to be https://kumba.mit-sdg.dev (no slash) and then it actually has to deploy. still finishing this on the live site.
 
 - [x] List a place (signed out asks for an account; signed in publishes). Photos: upload, display photo, remove.
 - [ ] Submit proof as a classified document (water bill, title deed, …). File reaches Review. Tenant never sees it.
@@ -61,11 +60,9 @@ these alternative paths have also ben  tested on the UI
 - [ ] Someone else cannot edit, let, or see proof.
 - [ ] A bad form (blank contact, negative rent) shows an error and does not publish.
 
-
-
 ## Unresolved
 
-- Vue is not under `bun test`. Photos and multipart proof are covered in `tests/photo-http.test.ts` and `tests/proof-http.test.ts`, not in `journey.test.ts`.
-- Live click-through and the ≤2 min recording are still outstanding.
-- Note anything that breaks in the UI here when you walk it.
-
+- Vue is not under `bun test`. photos and multipart proof are in `tests/photo-http.test.ts` / `tests/proof-http.test.ts`, not in the journey file.
+- recording is in the README. still need to finish the live ticks once the site is actually taking sign-in.
+- photos/proofs are files on disk. they'll vanish if the platform gives us a new machine. would need S3 later.
+- note anything that breaks in the ui here when you walk it.

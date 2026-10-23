@@ -209,26 +209,12 @@ actions
          false otherwise
 
 notes
-  Evidence is a set of references to uploaded files (a rates or
-  electricity bill, a title deed, an owner's letter of authority,
-  an ID). Verifying does not interpret them; judging them is the
-  reviewer's job.
-
-  reviewers holds the admin and is limited to one user: appoint
-  succeeds only while the set is empty, and that user is seeded
-  when the app is deployed. Examine, verify, and reject require
-  that user. revoke does not, because a location change must be
-  able to clear a verification without the admin performing it.
-  Everyone else learns just whether a subject is verified.
-
-  After a rejection the advertiser may submit again with better
-  evidence.
-
-  Uploaded documents are sensitive. files deleted once a 
-  verification is decided, keeping only the outcome
+  old draft. current one is concepts/Verifying.md. evidence is one string
+  now, `_evidence` is a query, files stay on disk, tenants still don't
+  see them.
 ```
 
-
+current Verifying: [concepts/Verifying.md](concepts/Verifying.md).
 
 ### Introducing
 
@@ -365,7 +351,7 @@ reaction reviewOnlyByAdmin
   then Verifying.verify (reviewer: user, verification)
 ```
 
-`examine`, `reject`, and an admin-requested `revoke` follow the same pattern as `reviewOnlyByAdmin`: the request is carried out only when the user is in Verifying's reviewers set. A location change does not use that check. `updateListing` applies the edit, and `revokeOnMove` clears verification when the location actually changed
+`_evidence`, `reject`, and an admin-requested `revoke` follow the same pattern as `reviewOnlyByAdmin`: the request is carried out only when the user is in Verifying's reviewers set. A location change does not use that check. `updateListing` applies the edit, and `revokeOnMove` clears verification when the location actually changed. The reviewer reads evidence through the `_evidence` query, not an `examine` action.
 
 ### Introductions and letting
 
