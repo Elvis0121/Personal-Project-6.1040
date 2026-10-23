@@ -55,7 +55,7 @@ onUnmounted(() => clearInterval(poll));
       src="/stand-ins/flat.jpg"
       eyebrow="For you"
       title="Pending proof"
-      lede="You are the one who looks. Tenants never see the file. Thank you for keeping both sides honest."
+      lede="Pending proof. Tenants never see these files."
     />
   <p v-if="!reviewer" class="muted">
     Only the reviewer account can open this. Locally that's <code>kumba</code>. You don't need this page to look for a home or to list one.

@@ -29,12 +29,12 @@ Live app: [https://kumba.mit-sdg.dev](https://kumba.mit-sdg.dev)
 ## P3: Beta
 
 - Visual study: [colour](design/visual-study/01-colour.png), [type](design/visual-study/02-type.png)
-- [User journey and what was checked](p3/user-journey.md)
+- [user journey testing](p3/user-journey.md)
 - demo video: [https://youtu.be/AgoNLDelj1g?si=Qr14E2q150i2Sgq6](https://youtu.be/AgoNLDelj1g?si=Qr14E2q150i2Sgq6)
 
 note: it is virtually IMPOSSIBLE to show the functionality of the app in under 2 minutes because of cookie sessions and the need to sign in to 3 different accounts, as can be attested from the video.
 
-### What landed from the study
+### from the slides
 
 slides were from looking at spice markets and old print, not at kumba. then i took some of that into the ui:
 
@@ -46,7 +46,7 @@ slides were from looking at spice markets and old print, not at kumba. then i to
 
 
 
-### Why files sit beside the concepts
+### photos / proof files
 
 didn't make a Photographing concept. a photo doesn't really *do* anything in the model, it just sits on a listing. same for proof files: if they lived in Verifying's state, they'd be one leaky query away from search.
 
@@ -73,22 +73,24 @@ reviewer account is `kumba` (see `.env.example`). on the live app, `PUBLIC_ORIGI
 
 ### Tests
 
-`bun test` needs MongoDB running (`bun run db:up`). Each file opens a throwaway database, so it does not touch the app's data. Every concept has a test for its principle, plus tests for its refusals. A saved run is in [tests/bun-test-output.txt](tests/bun-test-output.txt).
+need mongo up (`bun run db:up`) then `bun test`. each file uses a throwaway database so it doesnt touch the real one. saved output: [tests/bun-test-output.txt](tests/bun-test-output.txt).
 
-- The landlord's number never leaks. Search results and listing details never include the contact. `_disclosed` answers it only to the requester of an accepted introduction.
-- Only the right person can act. Only a listing's owner can mark it as let, withdraw it, confirm it, edit it, or relist it. Only the landlord who was asked can accept or decline a request. Only `kumba` sees proof and can verify it.
-- Duplicate requests are refused. Two simultaneous requests about the same place produce one introduction.
-- Relisting gives tenants a fresh chance. Pending and declined requests are cleared, and accepted ones are kept.
-- A tenant sees VERIFIED after Kumba checks, and never the evidence. An unverified listing stays in search.
-- A listing that is not confirmed in time leaves search and is withdrawn, not marked let.
-- Passwords and sessions behave. Passwords are not stored as written. Sessions stop working when they are ended or expire.
-- photos: same origin rule as the json api, and you can't change them after the place is let. that's in `tests/photo-http.test.ts`
+every concept has a principle test + the refusals. also http tests for edit, expiry, review, photos, proof.
 
-`bun run check` confirms that the code matches the specifications in `design/` and that the generated API types are current.
+stuff that would actually be bad if it broke:
 
-Integration. [tests/journey.test.ts](tests/journey.test.ts) runs the journey through the real endpoints + cookie + mongo (search, VERIFIED, introduction, mark let, lapse). also access control and error cases. write-up of what i actually clicked is [p3/user-journey.md](p3/user-journey.md).
+- search/view never include the landlords number. `_disclosed` only after accept, and only to that tenant
+- tinashe cant let / confirm / edit mrs dube's listing. only `kumba` sees proof
+- two requests at the same time, one introduction
+- relist clears pending and declined, keeps accepted
+- after kumba verifies, search says VERIFIED but still no bill. unverified listings still show
+- dont confirm in time → leaves search, withdrawn, not marked let
+- password isnt stored as written. sign-out then mine is UNAUTHORIZED
+- photos go through a different handler than the json api so origin + "cant change after let" is in `tests/photo-http.test.ts`
 
-Limitations. Vue pages aren't in `bun test`. photos / multipart proof have their own http tests.
+`bun run check` = specs, code, generated types agree.
+
+long path is [tests/journey.test.ts](tests/journey.test.ts) (endpoints + cookie + mongo). what i clicked is [p3/user-journey.md](p3/user-journey.md). vue pages arent in bun test, which is not ideal, http covers the behaviour though.
 
 design notebook is in the private repo.
 

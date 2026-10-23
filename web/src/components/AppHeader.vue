@@ -6,6 +6,7 @@ import { account } from "../session.ts";
 
 defineProps<{
   page: "landing" | "search" | "listing" | "liked" | "mine" | "review" | "sign-in" | "sign-up";
+  reviewer: boolean;
 }>();
 </script>
 
@@ -24,7 +25,7 @@ defineProps<{
       >
         {{ account ? "My homes" : "List a place" }}
       </a>
-      <a v-if="account" href="#/review" :class="{ current: page === 'review' }">Review</a>
+      <a v-if="reviewer" href="#/review" :class="{ current: page === 'review' }">Review</a>
     </nav>
     <AccountPanel />
     <div v-if="!account && page !== 'sign-in' && page !== 'sign-up'" class="header-auth">

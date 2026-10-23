@@ -1,6 +1,6 @@
 # Concept design
 
-> (please note, this is a P1 snapshot. The current specifications, which the code implements and `bun run check` verifies, are in `[concepts/](concepts/)`. The P2 design notes explain what changed and why)
+> p1 snapshot. current specs (what the code actually implements — `bun run check` verifies them) are in [concepts/](concepts/).
 
 4 main concepts:
 

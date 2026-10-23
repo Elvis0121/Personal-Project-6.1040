@@ -38,7 +38,7 @@ const tenantSteps = [
   },
   {
     title: "Only live rooms stay in search",
-    body: "If it is let, or the owner does not confirm it is still empty, it leaves. You spend time on places you can actually have.",
+    body: "If it is let, or the owner does not confirm it is still available, it leaves. You spend time on places you can actually have.",
     src: "/stand-ins/flat.jpg",
     alt: "A flat looking out on the city",
   },

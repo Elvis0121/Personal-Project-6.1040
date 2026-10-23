@@ -233,7 +233,7 @@ Former "the introduction (requester) has about (listing)" — inputs (requester,
 ### the listings of (owner)
 
 Authored path: `Listings.Advertising.OwnListings`.
-- Covered by [Listings](../design/compositions/Listings.md), line 50.
+- Covered by [Listings](../design/compositions/Listings.md), line 55.
 
 ```former
 Former "the listings of (owner)" — inputs (owner); bindings (listing, location, kind, currency, rent, deposit, extras, moveIn, contact, status, proof, deadline, current, introduction, requester, answer); promises exactly one record — forms:
@@ -266,7 +266,7 @@ Former "the listings of (owner)" — inputs (owner); bindings (listing, location
 ### the open listings in (area) up to (maxRent)
 
 Authored path: `Listings.Searching.Results`.
-- Covered by [Listings](../design/compositions/Listings.md), line 64.
+- Covered by [Listings](../design/compositions/Listings.md), line 69.
 
 ```former
 Former "the open listings in (area) up to (maxRent)" — inputs (area, maxRent); bindings (listing, location, kind, currency, rent, deposit, extras, moveIn, verified); promises exactly one record — forms:
@@ -315,7 +315,7 @@ Former "the pending proof for (reviewer)" — inputs (reviewer); bindings (verif
 ### the terms of (listing)
 
 Authored path: `Listings.Searching.Terms`.
-- Covered by [Listings](../design/compositions/Listings.md), line 75.
+- Covered by [Listings](../design/compositions/Listings.md), line 80.
 
 ```former
 Former "the terms of (listing)" — inputs (listing); bindings (owner, location, kind, currency, rent, deposit, extras, moveIn, status, verified, current); promises at most one record — forms:
@@ -420,7 +420,7 @@ where
   earlier, RequestBoundary.request (listing, path: "/listings/confirm", requestId, session)
   Listing._get (listing) has (owner, status: "OPEN")
 then
-  Expiring.renew (duration: 180000, resource: listing)
+  Expiring.renew (duration: 2592000000, resource: listing)
 ```
 
 ### Availability.Confirming.Confirm:owner-open#3
@@ -430,7 +430,7 @@ Authored path: `Availability.Confirming.Confirm`.
 - Covered by [Availability](../design/compositions/Availability.md), line 22.
 
 ```reaction
-when Expiring.renew (duration: 180000, resource: listing, deadline, result.resource), asked by Availability.Confirming.Confirm:owner-open#2
+when Expiring.renew (duration: 2592000000, resource: listing, deadline, result.resource), asked by Availability.Confirming.Confirm:owner-open#2
 where
   earlier, RequestBoundary.request (listing, path: "/listings/confirm", requestId, session)
 then
@@ -458,7 +458,7 @@ Authored path: `Availability.Timers.StartOnPublish`.
 ```reaction
 when Listing.publish (listing)
 then
-  Expiring.start (duration: 180000, resource: listing)
+  Expiring.start (duration: 2592000000, resource: listing)
 ```
 
 ### Availability.Timers.TimerOnRelist:existing
@@ -471,7 +471,7 @@ when Listing.relist (listing)
 where
   Expiring._get (resource: listing)
 then
-  Expiring.reschedule (duration: 180000, resource: listing)
+  Expiring.reschedule (duration: 2592000000, resource: listing)
 ```
 
 ### Availability.Timers.TimerOnRelist:fresh
@@ -484,7 +484,7 @@ when Listing.relist (listing)
 where
   no Expiring._get (resource: listing)
 then
-  Expiring.start (duration: 180000, resource: listing)
+  Expiring.start (duration: 2592000000, resource: listing)
 ```
 
 ### DeliverFaultToAsker
@@ -740,8 +740,8 @@ then
 ### Listings.Advertising.Mine
 
 Authored path: `Listings.Advertising.Mine`.
-- Covered by [Listings](../design/compositions/Listings.md), line 49.
-- Covered by [Listings](../design/compositions/Listings.md), line 57.
+- Covered by [Listings](../design/compositions/Listings.md), line 54.
+- Covered by [Listings](../design/compositions/Listings.md), line 62.
 
 ```reaction
 when RequestBoundary.request (path: "/listings/mine", requestId, session)
@@ -752,8 +752,8 @@ then
 ### Listings.Advertising.Mine#2
 
 Authored path: `Listings.Advertising.Mine`.
-- Covered by [Listings](../design/compositions/Listings.md), line 49.
-- Covered by [Listings](../design/compositions/Listings.md), line 57.
+- Covered by [Listings](../design/compositions/Listings.md), line 54.
+- Covered by [Listings](../design/compositions/Listings.md), line 62.
 
 ```reaction
 when Sessioning.current (session, subject: owner), asked by Listings.Advertising.Mine
@@ -861,7 +861,7 @@ then
 
 Authored path: `Listings.Advertising.SubmitProof`.
 - Covered by [Listings](../design/compositions/Listings.md), line 40.
-- Covered by [Listings](../design/compositions/Listings.md), line 46.
+- Covered by [Listings](../design/compositions/Listings.md), line 51.
 
 ```reaction
 when RequestBoundary.request (evidence, listing, path: "/listings/submit-proof", requestId, session)
@@ -873,7 +873,7 @@ then
 
 Authored path: `Listings.Advertising.SubmitProof`.
 - Covered by [Listings](../design/compositions/Listings.md), line 40.
-- Covered by [Listings](../design/compositions/Listings.md), line 46.
+- Covered by [Listings](../design/compositions/Listings.md), line 51.
 
 ```reaction
 when Sessioning.current (session, subject: advertiser), asked by Listings.Advertising.SubmitProof
@@ -888,7 +888,7 @@ then
 
 Authored path: `Listings.Advertising.SubmitProof`.
 - Covered by [Listings](../design/compositions/Listings.md), line 40.
-- Covered by [Listings](../design/compositions/Listings.md), line 46.
+- Covered by [Listings](../design/compositions/Listings.md), line 51.
 
 ```reaction
 when Sessioning.current (session, subject: advertiser), asked by Listings.Advertising.SubmitProof
@@ -903,7 +903,7 @@ then
 
 Authored path: `Listings.Advertising.SubmitProof`.
 - Covered by [Listings](../design/compositions/Listings.md), line 40.
-- Covered by [Listings](../design/compositions/Listings.md), line 46.
+- Covered by [Listings](../design/compositions/Listings.md), line 51.
 
 ```reaction
 when Sessioning.current (session, subject: advertiser), asked by Listings.Advertising.SubmitProof
@@ -918,7 +918,7 @@ then
 
 Authored path: `Listings.Advertising.SubmitProof`.
 - Covered by [Listings](../design/compositions/Listings.md), line 40.
-- Covered by [Listings](../design/compositions/Listings.md), line 46.
+- Covered by [Listings](../design/compositions/Listings.md), line 51.
 
 ```reaction
 when Sessioning.current (session, subject: advertiser), asked by Listings.Advertising.SubmitProof
@@ -933,7 +933,7 @@ then
 
 Authored path: `Listings.Advertising.SubmitProof`.
 - Covered by [Listings](../design/compositions/Listings.md), line 40.
-- Covered by [Listings](../design/compositions/Listings.md), line 46.
+- Covered by [Listings](../design/compositions/Listings.md), line 51.
 
 ```reaction
 when Verifying.submit (advertiser, evidence, subject: listing, verification), asked by Listings.Advertising.SubmitProof:owner-open#2
@@ -1026,8 +1026,8 @@ then
 ### Listings.Searching.Search
 
 Authored path: `Listings.Searching.Search`.
-- Covered by [Listings](../design/compositions/Listings.md), line 62.
-- Covered by [Listings](../design/compositions/Listings.md), line 71.
+- Covered by [Listings](../design/compositions/Listings.md), line 67.
+- Covered by [Listings](../design/compositions/Listings.md), line 76.
 
 ```reaction
 when RequestBoundary.request (area, maxRent, path: "/listings/search", requestId)
@@ -1038,8 +1038,8 @@ then
 ### Listings.Searching.View:found
 
 Authored path: `Listings.Searching.View`.
-- Covered by [Listings](../design/compositions/Listings.md), line 74.
-- Covered by [Listings](../design/compositions/Listings.md), line 82.
+- Covered by [Listings](../design/compositions/Listings.md), line 79.
+- Covered by [Listings](../design/compositions/Listings.md), line 87.
 
 ```reaction
 when RequestBoundary.request (listing, path: "/listings/view", requestId)
@@ -1052,8 +1052,8 @@ then
 ### Listings.Searching.View:missing
 
 Authored path: `Listings.Searching.View`.
-- Covered by [Listings](../design/compositions/Listings.md), line 74.
-- Covered by [Listings](../design/compositions/Listings.md), line 82.
+- Covered by [Listings](../design/compositions/Listings.md), line 79.
+- Covered by [Listings](../design/compositions/Listings.md), line 87.
 
 ```reaction
 when RequestBoundary.request (listing, path: "/listings/view", requestId)

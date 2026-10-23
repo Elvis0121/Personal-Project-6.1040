@@ -12,7 +12,7 @@ import SignInPage from "./pages/SignInPage.vue";
 import SignUpPage from "./pages/SignUpPage.vue";
 import { account } from "./account.ts";
 import { pageFromHash } from "./route.ts";
-import { loadAccount } from "./session.ts";
+import { loadAccount, reviewer } from "./session.ts";
 
 const hash = ref(location.hash);
 const syncHash = () => (hash.value = location.hash);
@@ -39,7 +39,7 @@ onUnmounted(() => window.removeEventListener("hashchange", syncHash));
 <template>
   <div :class="{ 'guest-shell': guestLanding, 'app-shell': !guestLanding }">
     <GuestMedia v-if="guestLanding" />
-    <AppHeader :page="headerPage" />
+    <AppHeader :page="headerPage" :reviewer="reviewer" />
     <main>
       <LandingPage v-if="guestLanding" />
       <SearchPage v-else-if="page.name === 'search' || page.name === 'landing'" />

@@ -965,7 +965,7 @@ textarea:focus-visible {
   background:
     linear-gradient(180deg, var(--color-brand-hover) 0%, var(--color-brand) 55%, var(--color-scrim) 100%);
   color: var(--color-cream);
-  border-bottom: 8px solid var(--color-accent);
+  border-bottom: 8px solid var(--color-brand-hover);
 }
 
 .contact-stub h2 {
@@ -979,7 +979,7 @@ textarea:focus-visible {
 }
 
 .contact-stub a {
-  color: var(--color-accent-soft);
+  color: var(--color-cream);
 }
 
 .contact-actions {
@@ -1270,6 +1270,14 @@ textarea:focus-visible {
   color: var(--color-brand);
 }
 
+.mine-warn {
+  margin: 0 0 0.85rem;
+  padding: 0.65rem 0.8rem;
+  background: color-mix(in srgb, var(--color-warning) 16%, var(--color-cream));
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+}
+
 .mine-section {
   margin: 1rem 0 0;
   padding-top: 0.85rem;
@@ -1278,6 +1286,13 @@ textarea:focus-visible {
 
 .mine-section h4 {
   margin-top: 0;
+}
+
+.mine-section.hot {
+  padding: 0.85rem 0.75rem 0.35rem;
+  border-top: none;
+  border-radius: var(--radius-sm);
+  background: var(--color-brand-tint);
 }
 
 .photo-grid {
@@ -1296,7 +1311,7 @@ textarea:focus-visible {
 }
 
 .photo-tile.on {
-  border-color: var(--color-accent);
+  border-color: var(--color-brand);
 }
 
 .photo-tile img {
@@ -1317,8 +1332,8 @@ textarea:focus-visible {
 }
 
 .status.display-shot {
-  background: var(--color-accent-soft);
-  border-color: var(--color-accent);
+  background: var(--color-brand-tint);
+  border-color: var(--color-brand);
   color: var(--color-brand);
   letter-spacing: 0.04em;
 }
@@ -1488,9 +1503,13 @@ textarea:focus-visible {
   color: var(--color-warning);
 }
 
+.status.OPEN,
 .status.DECLINED,
 .status.LET,
 .status.WITHDRAWN {
+  border: none;
+  background: transparent;
+  padding: 0.18rem 0;
   color: var(--color-text-secondary);
 }
 
@@ -1594,7 +1613,7 @@ textarea:focus-visible {
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
   margin: 0.2rem 0 0.5rem;
-  color: var(--color-accent);
+  color: var(--color-brand);
 }
 
 @media (max-width: 52rem) {

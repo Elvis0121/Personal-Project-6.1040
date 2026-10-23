@@ -185,8 +185,8 @@ def colour_slide() -> Image.Image:
     footer(
         draw,
         [
-            "Why these, not the whole stall. Barrel teal is the quietest strong colour in the barrels, so it can sit on every button. Paprika is reserved for errors, chili, not decoration.",
-            "VERIFIED uses darkened oregano. Pending uses turmeric, darkened for contrast. Body type is pepper on salt-pile cream. The rest of the powders stay in the collage.",
+            "teal from the barrels on buttons/links (quiet enough to use a lot). paprika only on errors, not decoration.",
+            "VERIFIED is darker oregano, pending is turmeric. type is pepper on that cream. left the loud pinks/yellows, too much for forms.",
         ],
     )
     return canvas
@@ -263,20 +263,19 @@ def type_slide() -> Image.Image:
     note_block(
         draw,
         (1548, 470),
-        ["condensed gothic", "labels only", "VERIFIED, Rent, kickers"],
+        ["condensed gothic", "too shouty at 16px", "labels stay Source Sans"],
         sample="FOX",
         sample_font=GOTHIC,
-        used=True,
+        used=False,
     )
     write_lines(
         draw,
         (1548, 620),
         [
-            "Body is a humanist sans",
-            "(Source Sans 3), not",
-            "marquee condensed.",
-            "Paragraphs have to be",
-            "read, not announced.",
+            "body is Source Sans 3,",
+            "not the marquee condensed.",
+            "you actually have to read",
+            "forms, they shouldn't shout.",
         ],
         font=SMALL_FONT,
         fill=INK,
@@ -295,8 +294,8 @@ def type_slide() -> Image.Image:
     footer(
         draw,
         [
-            "In the interface. Headings, the brand word, and the hero type bar use Newsreader: oldstyle serif, high x-height, from the newsprint. Body and forms stay Source Sans 3.",
-            "Gothic tracking is only for small labels (VERIFIED, kickers, Rent / Deposit), so the outline of a page is obvious. Neon script and copperplate stayed on the board.",
+            "headings + the kumba word use Newsreader (the newsprint serif). body, forms, labels are Source Sans 3.",
+            "gothic / neon / copperplate stayed on the board. too shouty for 16px labels.",
         ],
     )
     return canvas

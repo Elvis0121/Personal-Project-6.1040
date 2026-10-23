@@ -42,12 +42,10 @@ open listing they own. The subject is that listing. Empty proof, a second
 current proof, someone else's listing, and a listing that is not open are all
 refused. Proof is submitted on My listings, not on a separate page.
 
-The advertiser classifies the document as a rates bill, water bill, electricity
-bill, title deed, lease, or other, and may attach a PDF or a photo. Verifying
-still stores `evidence` as a string: the first line is the kind, an optional
-`file:` line names the file, and the rest is a note. The file bytes live beside
-the concept, not in any query. Tenants never see the file. Only the reviewer
-reads it.
+they pick rates bill / water / electricity / title deed / lease / other and
+can attach a pdf or a photo. Verifying stores `evidence` as a string: first
+line is the kind, optional `file:` line, rest is a note. bytes stay on disk,
+not in a query. tenants never see the file. only the reviewer does.
 
 ```endpoints
 Listings.Advertising.SubmitProof at /listings/submit-proof
@@ -91,14 +89,11 @@ Listings.Searching.View at /listings/view
 
 ## Photos
 
-Photos sit beside Listing, the same way proof files sit beside Verifying. They
-are not a Photographing concept: a photo has no identity that other concepts
-react to. The owner of an open listing can upload up to eight JPEG, PNG, or
-WebP files, pick one as the display photo, and remove one. Search, view, and
-mine inject `displayPhoto` and `photos` onto the JSON they already return.
-Anyone can GET a photo. Only the owner can write, and only while the listing
-is OPEN. A let or withdrawn listing keeps the files; it cannot add, pick, or
-remove them.
+not a Photographing concept, they just sit on a listing (same as proof files
+beside Verifying). owner of an open listing can upload up to 8 jpeg/png/webp,
+pick a display photo, remove one. search / view / mine get `displayPhoto` and
+`photos` stuck on the json they already return. anyone can GET. only the owner
+writes, and only while OPEN. let or withdrawn keeps the files.
 
-Uploads are multipart so they skip the json policy. extra path checks origin,
-session, owner, OPEN.
+multipart so not through the json policy. extra path checks origin, session,
+owner, OPEN.

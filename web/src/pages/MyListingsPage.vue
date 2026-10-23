@@ -32,6 +32,7 @@ const draft = reactive(blank());
 const listings = ref<Mine>([]);
 const editing = ref<string | null>(null);
 const editDraft = reactive(blank());
+const pending = ref<{ listing: string; action: "mark-let" | "withdraw" } | null>(null);
 const publishError = ref("");
 const notice = ref("");
 const listError = ref("");
@@ -163,8 +164,14 @@ function startEdit(item: Mine[number]) {
   });
 }
 
+function movingVerified(item: Mine[number]) {
+  return item.proof === "VERIFIED" && editDraft.location.trim() !== item.location.trim();
+}
+
 async function saveEdit() {
   if (!editing.value) return;
+  const current = listings.value.find((row) => row.listing === editing.value);
+  const dropped = current ? movingVerified(current) : false;
   listError.value = "";
   notice.value = "";
   const result = await api.listings.update({
@@ -182,17 +189,29 @@ async function saveEdit() {
     return;
   }
   editing.value = null;
-  notice.value = "Saved.";
+  notice.value = dropped
+    ? "Saved. VERIFIED is off because the place moved. Submit proof again if you want the label."
+    : "Saved.";
   await load();
 }
 
 async function change(action: "mark-let" | "relist" | "withdraw", listing: string) {
   listError.value = "";
   notice.value = "";
+  pending.value = null;
   const result = await api.listings[action]({ listing });
   if ("error" in result) listError.value = explain(result.error, changeMessages);
   if (action === "withdraw") editing.value = null;
   await load();
+}
+
+function askChange(action: "mark-let" | "withdraw", listing: string) {
+  pending.value = { listing, action };
+}
+
+function confirmPending() {
+  if (!pending.value) return;
+  return change(pending.value.action, pending.value.listing);
 }
 
 const photoErrors = {
@@ -298,7 +317,7 @@ function nextStep(item: Mine[number]) {
   const waiting = waitingOn(item);
   if (waiting === 1) return "One person is waiting for your number.";
   if (waiting > 1) return `${waiting} people are waiting for your number.`;
-  if (item.deadline) return `Confirm by ${stamp(item.deadline)} that this place is still empty.`;
+  if (item.deadline) return `Confirm by ${stamp(item.deadline)} that this place is still available.`;
   if (item.proof === "PENDING") return "Proof is with Kumba. This page updates by itself.";
   if (item.proof !== "VERIFIED") return "Submit proof if you want the VERIFIED label. Tenants never see the file.";
   if (!(item.photos?.length)) return "Add a photo so people see the rooms first.";
@@ -410,8 +429,12 @@ function nextStep(item: Mine[number]) {
           Extra charges and conditions
           <textarea v-model="editDraft.extras" rows="2" />
         </label>
+        <p v-if="movingVerified(item)" class="mine-warn">
+          Different location, so VERIFIED comes off. A cottage in Avondale is not the same claim as one somewhere else.
+          You'll need to submit proof again if you want the label.
+        </p>
         <div class="row">
-          <button type="submit">Save changes</button>
+          <button type="submit">{{ movingVerified(item) ? "Save, and drop VERIFIED" : "Save changes" }}</button>
           <button type="button" class="secondary" @click="editing = null">Cancel</button>
         </div>
       </form>
@@ -422,7 +445,23 @@ function nextStep(item: Mine[number]) {
 
       <section class="mine-section">
         <h4>Availability</h4>
-        <div class="row">
+        <template v-if="pending?.listing === item.listing">
+          <p class="mine-warn">
+            <template v-if="pending.action === 'mark-let'">
+              It leaves search. People who already have your number keep it. New people can't ask.
+            </template>
+            <template v-else>
+              It leaves search. You can relist later.
+            </template>
+          </p>
+          <div class="row">
+            <button type="button" @click="confirmPending">
+              {{ pending.action === "mark-let" ? "Yes, it's let" : "Yes, withdraw it" }}
+            </button>
+            <button type="button" class="secondary" @click="pending = null">Keep it listed</button>
+          </div>
+        </template>
+        <div v-else class="row">
           <button
             v-if="item.status === 'OPEN' && item.current"
             type="button"
@@ -438,14 +477,19 @@ function nextStep(item: Mine[number]) {
           >
             Edit
           </button>
-          <button v-if="item.status === 'OPEN'" type="button" class="secondary" @click="change('mark-let', item.listing)">
+          <button
+            v-if="item.status === 'OPEN'"
+            type="button"
+            class="secondary"
+            @click="askChange('mark-let', item.listing)"
+          >
             Mark as let
           </button>
           <button
             v-if="item.status === 'OPEN'"
             type="button"
             class="secondary"
-            @click="change('withdraw', item.listing)"
+            @click="askChange('withdraw', item.listing)"
           >
             Withdraw
           </button>
@@ -514,7 +558,7 @@ function nextStep(item: Mine[number]) {
         <p v-else-if="item.status === 'OPEN'" class="muted">Eight photos is the maximum.</p>
       </section>
 
-      <section class="mine-section">
+      <section class="mine-section" :class="{ hot: waitingOn(item) > 0 }">
         <h4>Requests</h4>
         <p v-if="item.requests.length === 0" class="muted">No requests yet.</p>
         <ul v-else class="requests">
