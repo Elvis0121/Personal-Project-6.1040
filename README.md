@@ -60,7 +60,7 @@ Open the app at exactly [http://127.0.0.1:8080](http://127.0.0.1:8080) (not loca
 
 `bun run check` confirms that the code matches the specifications in `design/` and that the generated API types are current.
 
-Integration. `tests/journey.test.ts` runs the user journey through the real endpoints, session cookie, and MongoDB: search, VERIFIED, introduction, mark as let, and a lapsed listing leaving search. It also covers access control (no session, a foreign website, acting on someone else's listing or request) and error cases.
+Integration. `tests/journey.test.ts` runs the user journey through the real endpoints, session cookie, and MongoDB: search, VERIFIED, introduction, mark as let, and a lapsed listing leaving search. It also covers access control (no session, a foreign website, acting on someone else's listing or request) and error cases. Write-up (STUB): [p3/user-journey.md](p3/user-journey.md).
 
 Limitations. The Vue pages are not tested automatically; the [demo video](https://youtu.be/vbYU4Ed9J8E) shows them working.
 

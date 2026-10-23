@@ -24,6 +24,7 @@ async function submit() {
         "Usernames are 3 to 32 letters, numbers, underscores, or hyphens, and passwords are 8 to 128 characters.",
       CONFLICT: "That username is taken. Try another, or log in instead.",
       UNAUTHORIZED: "The username or password is incorrect.",
+      FORBIDDEN: "Open http://127.0.0.1:8080, not localhost. The session cookie will not stick on localhost.",
     });
     return;
   }

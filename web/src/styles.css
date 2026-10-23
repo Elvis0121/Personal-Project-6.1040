@@ -785,7 +785,8 @@ textarea:focus-visible {
 
 .landing-body .reasons,
 .landing-body .faq,
-.landing-body .safe-path {
+.landing-body .safe-path,
+.landing-body .preview {
   max-width: 70rem;
   margin-left: auto;
   margin-right: auto;

@@ -1,7 +1,27 @@
 <script setup lang="ts">
+import { onMounted, ref } from "vue";
+import { api, type Output } from "../api.ts";
+import PropertyCard from "../components/PropertyCard.vue";
 import SafePath from "../components/SafePath.vue";
 import TypeBar from "../components/TypeBar.vue";
 import { rememberNext } from "../auth-next.ts";
+import type { GalleryShot } from "../gallery.ts";
+
+type Card = Output<"/listings/search">["results"]["listings"][number] & {
+  displayPhoto?: string | null;
+  photos?: GalleryShot[];
+};
+
+const PREVIEW = 6;
+const homes = ref<Card[]>([]);
+const loaded = ref(false);
+
+onMounted(async () => {
+  const result = await api.listings.search({ area: "", maxRent: Number.MAX_SAFE_INTEGER });
+  loaded.value = true;
+  if ("error" in result) return;
+  homes.value = result.results.listings.slice(0, PREVIEW);
+});
 
 const tenantSteps = [
   {
@@ -106,6 +126,20 @@ const faqs = [
     </section>
 
     <div class="landing-body">
+      <section class="preview">
+        <p class="safe-kicker">Open now</p>
+        <h2>Places you can look at today</h2>
+        <p v-if="loaded && homes.length === 0" class="muted">
+          Nothing listed yet. Check back, or <a href="#/mine" @click="rememberNext('#/mine')">list a place</a>.
+        </p>
+        <div v-else-if="homes.length > 0" class="homes">
+          <PropertyCard v-for="item in homes" :key="item.listing" v-bind="item" />
+        </div>
+        <p v-if="homes.length > 0" class="preview-more">
+          <a class="as-button" href="#/homes">See all homes</a>
+        </p>
+      </section>
+
       <SafePath kicker="If you are looking" title="How Kumba keeps tenants safe" :steps="tenantSteps">
         <template #cta>
           <a class="as-button" href="#/homes">Find your home</a>
