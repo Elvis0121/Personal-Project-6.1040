@@ -38,9 +38,10 @@ Listings.Advertising.Withdraw at /listings/withdraw
 ```
 
 The owner [submits proof](reaction:Listings.Advertising.SubmitProof) about an
-open listing they own. The subject is that listing. Empty proof, a second
-current proof, someone else's listing, and a listing that is not open are all
-refused. Proof is submitted on My listings, not on a separate page.
+open listing they own, using [the owner of an open listing](view:Listings.Advertising.OwnedOpen).
+The subject is that listing. Empty proof, a second current proof, someone
+else's listing, and a listing that is not open are all refused. Proof is
+submitted on My listings, not on a separate page.
 
 they pick rates bill / water / electricity / title deed / lease / other and
 can attach a pdf or a photo. Verifying stores `evidence` as a string: first
@@ -95,5 +96,6 @@ pick a display photo, remove one. search / view / mine get `displayPhoto` and
 `photos` stuck on the json they already return. anyone can GET. only the owner
 writes, and only while OPEN. let or withdrawn keeps the files.
 
-multipart so not through the json policy. extra path checks origin, session,
-owner, OPEN.
+multipart so not through the json policy. extra path uses the same origin
+list, session cookie, and OwnedOpen check as submit-proof / confirm. not a
+second policy.

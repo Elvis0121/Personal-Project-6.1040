@@ -1,5 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import type { Db } from "mongodb";
+import { getBlob, proofKey, putBlob } from "./file-store.ts";
 
 const MAX_BYTES = 8 * 1024 * 1024;
 const ALLOWED = new Map([
@@ -36,15 +38,26 @@ export function checkProofFile(file: File) {
   return { filename, type };
 }
 
-export async function saveProofFile(verification: string, file: File) {
+async function tryDiskWrite(filePath: string, bytes: Buffer) {
+  try {
+    await mkdir(path.dirname(filePath), { recursive: true });
+    await writeFile(filePath, bytes);
+  } catch {
+    // live disk is often read-only
+  }
+}
+
+export async function saveProofFile(verification: string, file: File, database: Db) {
   const { filename, type } = checkProofFile(file);
-  const dir = proofDir();
-  await mkdir(dir, { recursive: true });
-  await writeFile(path.join(dir, verification), Buffer.from(await file.arrayBuffer()));
+  const bytes = Buffer.from(await file.arrayBuffer());
+  await putBlob(database, proofKey(verification), bytes, { filename, type });
+  await tryDiskWrite(path.join(proofDir(), verification), bytes);
   return { filename, type };
 }
 
-export async function readProofFile(verification: string) {
+export async function readProofFile(verification: string, database: Db) {
+  const fromDb = await getBlob(database, proofKey(verification));
+  if (fromDb) return fromDb;
   try {
     return await readFile(path.join(proofDir(), verification));
   } catch {

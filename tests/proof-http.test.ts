@@ -130,6 +130,13 @@ test("an advertiser can upload a classified document; only the reviewer can open
   expect(asReviewer.headers.get("Content-Type")).toBe("image/jpeg");
   expect(asReviewer.headers.get("Content-Disposition")).toContain("zesa.jpg");
   expect(new Uint8Array(await asReviewer.arrayBuffer())).toEqual(bytes);
+
+  await rm(path.join(proofDir, verification), { force: true });
+  const afterDiskGone = await handle(
+    new Request(`http://127.0.0.1:3000/api/review/proof/${verification}`, { headers: { Cookie: kumba } }),
+  );
+  expect(afterDiskGone.status).toBe(200);
+  expect(new Uint8Array(await afterDiskGone.arrayBuffer())).toEqual(bytes);
 });
 
 test("a text file is not proof", async () => {

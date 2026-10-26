@@ -1,5 +1,7 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
+import type { Db } from "mongodb";
+import { deleteBlob, getBlob, manifestKey, photoKey, putBlob } from "./file-store.ts";
 
 export const MAX_PHOTO_BYTES = 8 * 1024 * 1024;
 export const MAX_PHOTOS = 8;
@@ -44,26 +46,48 @@ function emptyManifest(): Manifest {
   return { photos: [], display: null };
 }
 
-export async function readManifest(listing: string): Promise<Manifest> {
-  if (!isSafeId(listing)) return emptyManifest();
-  try {
-    const parsed = JSON.parse(await readFile(path.join(listingDir(listing), "manifest.json"), "utf8")) as Manifest;
-    const photos = Array.isArray(parsed.photos)
-      ? parsed.photos.filter((row) => row && isSafeId(row.id) && typeof row.filename === "string")
-      : [];
-    const display = typeof parsed.display === "string" && photos.some((row) => row.id === parsed.display)
+function tidyManifest(parsed: Manifest): Manifest {
+  const photos = Array.isArray(parsed.photos)
+    ? parsed.photos.filter((row) => row && isSafeId(row.id) && typeof row.filename === "string")
+    : [];
+  const display =
+    typeof parsed.display === "string" && photos.some((row) => row.id === parsed.display)
       ? parsed.display
       : (photos[0]?.id ?? null);
-    return { photos, display };
+  return { photos, display };
+}
+
+async function tryDiskWrite(filePath: string, bytes: Buffer | string) {
+  try {
+    await mkdir(path.dirname(filePath), { recursive: true });
+    await writeFile(filePath, bytes);
+  } catch {
+    // live disk is often read-only
+  }
+}
+
+export async function readManifest(listing: string, database: Db): Promise<Manifest> {
+  if (!isSafeId(listing)) return emptyManifest();
+  const fromDb = await getBlob(database, manifestKey(listing));
+  if (fromDb) {
+    try {
+      return tidyManifest(JSON.parse(fromDb.toString("utf8")) as Manifest);
+    } catch {
+      // fall through to disk
+    }
+  }
+  try {
+    const parsed = JSON.parse(await readFile(path.join(listingDir(listing), "manifest.json"), "utf8")) as Manifest;
+    return tidyManifest(parsed);
   } catch {
     return emptyManifest();
   }
 }
 
-async function writeManifest(listing: string, manifest: Manifest) {
-  const dir = listingDir(listing);
-  await mkdir(dir, { recursive: true });
-  await writeFile(path.join(dir, "manifest.json"), JSON.stringify(manifest));
+async function writeManifest(listing: string, manifest: Manifest, database: Db) {
+  const json = JSON.stringify(manifest);
+  await putBlob(database, manifestKey(listing), Buffer.from(json), { type: "application/json" });
+  await tryDiskWrite(path.join(listingDir(listing), "manifest.json"), json);
 }
 
 export function checkPhotoFile(file: File) {
@@ -77,8 +101,8 @@ export function checkPhotoFile(file: File) {
   return { filename, type };
 }
 
-export async function galleryOf(listing: string) {
-  const manifest = await readManifest(listing);
+export async function galleryOf(listing: string, database: Db) {
+  const manifest = await readManifest(listing, database);
   return manifest.photos.map((row) => ({
     photo: row.id,
     filename: row.filename,
@@ -87,50 +111,53 @@ export async function galleryOf(listing: string) {
   }));
 }
 
-export async function displayPhotoUrl(listing: string) {
-  const manifest = await readManifest(listing);
+export async function displayPhotoUrl(listing: string, database: Db) {
+  const manifest = await readManifest(listing, database);
   return manifest.display ? publicPhotoUrl(listing, manifest.display) : null;
 }
 
-export async function saveListingPhoto(listing: string, file: File) {
+export async function saveListingPhoto(listing: string, file: File, database: Db) {
   const { filename, type } = checkPhotoFile(file);
-  const manifest = await readManifest(listing);
+  const manifest = await readManifest(listing, database);
   if (manifest.photos.length >= MAX_PHOTOS) throw new Error("full");
   const id = Bun.randomUUIDv7();
-  const dir = listingDir(listing);
-  await mkdir(dir, { recursive: true });
-  await writeFile(path.join(dir, id), Buffer.from(await file.arrayBuffer()));
+  const bytes = Buffer.from(await file.arrayBuffer());
+  await putBlob(database, photoKey(listing, id), bytes, { filename, type });
+  await tryDiskWrite(path.join(listingDir(listing), id), bytes);
   manifest.photos.push({ id, filename });
   if (!manifest.display) manifest.display = id;
-  await writeManifest(listing, manifest);
+  await writeManifest(listing, manifest, database);
   return { photo: id, filename, type, display: manifest.display === id, url: publicPhotoUrl(listing, id) };
 }
 
-export async function setDisplayPhoto(listing: string, photo: string) {
+export async function setDisplayPhoto(listing: string, photo: string, database: Db) {
   if (!isSafeId(photo)) throw new Error("id");
-  const manifest = await readManifest(listing);
+  const manifest = await readManifest(listing, database);
   if (!manifest.photos.some((row) => row.id === photo)) throw new Error("missing");
   manifest.display = photo;
-  await writeManifest(listing, manifest);
+  await writeManifest(listing, manifest, database);
   return { photo, url: publicPhotoUrl(listing, photo) };
 }
 
-export async function removeListingPhoto(listing: string, photo: string) {
+export async function removeListingPhoto(listing: string, photo: string, database: Db) {
   if (!isSafeId(photo)) throw new Error("id");
-  const manifest = await readManifest(listing);
+  const manifest = await readManifest(listing, database);
   if (!manifest.photos.some((row) => row.id === photo)) throw new Error("missing");
   manifest.photos = manifest.photos.filter((row) => row.id !== photo);
   if (manifest.display === photo) manifest.display = manifest.photos[0]?.id ?? null;
-  await writeManifest(listing, manifest);
-  await rm(path.join(listingDir(listing), photo), { force: true });
+  await writeManifest(listing, manifest, database);
+  await deleteBlob(database, photoKey(listing, photo));
+  await rm(path.join(listingDir(listing), photo), { force: true }).catch(() => undefined);
   return { photo, display: manifest.display };
 }
 
-export async function readListingPhoto(listing: string, photo: string) {
+export async function readListingPhoto(listing: string, photo: string, database: Db) {
   if (!isSafeId(listing) || !isSafeId(photo)) return null;
-  const manifest = await readManifest(listing);
+  const manifest = await readManifest(listing, database);
   const row = manifest.photos.find((item) => item.id === photo);
   if (!row) return null;
+  const fromDb = await getBlob(database, photoKey(listing, photo));
+  if (fromDb) return { bytes: fromDb, filename: row.filename };
   try {
     return { bytes: await readFile(path.join(listingDir(listing), photo)), filename: row.filename };
   } catch {

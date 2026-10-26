@@ -32,6 +32,10 @@ Live app: [https://kumba.mit-sdg.dev](https://kumba.mit-sdg.dev)
 - [user journey testing](p3/user-journey.md)
 - demo video: [https://youtu.be/AgoNLDelj1g?si=Qr14E2q150i2Sgq6](https://youtu.be/AgoNLDelj1g?si=Qr14E2q150i2Sgq6)
 
+## P4: Code complete
+
+- [design notes](p4/design.md)
+
 note: it is virtually IMPOSSIBLE to show the functionality of the app in under 2 minutes because of cookie sessions and the need to sign in to 3 different accounts, as can be attested from the video.
 
 slides were from looking at spice markets and old print, not at kumba. then i took some of that into the ui:

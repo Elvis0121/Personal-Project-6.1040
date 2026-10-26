@@ -10,6 +10,7 @@ import { endpoint, receive, respond } from "@mit-sdg/sync-engine/boundary";
 import { no, reaction, when, where } from "@mit-sdg/sync-engine/language";
 import { concepts } from "../concepts.ts";
 import { LISTING_LIFETIME_MS } from "../listing-lifetime.ts";
+import { OwnedOpen } from "./owned-open.ts";
 
 const { Expiring, Listing, Sessioning } = concepts;
 
@@ -36,7 +37,7 @@ const Confirm = endpoint(
     receive({ session, listing })
       .then(Sessioning.current({ session }).responds({ subject: owner }))
       .then(
-        where(Listing._get({ listing }).is({ owner, status: "OPEN" }))
+        where(OwnedOpen({ listing }).is({ owner }))
           .then(
             Expiring.renew({ resource: listing, duration: LISTING_LIFETIME_MS }).responds({
               resource,

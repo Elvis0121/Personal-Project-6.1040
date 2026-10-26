@@ -15,6 +15,7 @@ import { pageFromHash } from "./route.ts";
 import { loadAccount, reviewer } from "./session.ts";
 
 const hash = ref(location.hash);
+const ready = ref(false);
 const syncHash = () => (hash.value = location.hash);
 const page = computed(() => pageFromHash(hash.value));
 const guestLanding = computed(() => page.value.name === "landing" && !account.value);
@@ -23,15 +24,20 @@ const headerPage = computed(() =>
 );
 
 watch(
-  [account, page],
+  [account, page, ready],
   () => {
+    if (!ready.value) return;
     if (account.value && page.value.name === "landing") location.hash = "#/homes";
+    if (!account.value && (page.value.name === "mine" || page.value.name === "review")) {
+      location.hash = "#/";
+    }
   },
 );
 
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener("hashchange", syncHash);
-  loadAccount();
+  await loadAccount();
+  ready.value = true;
 });
 onUnmounted(() => window.removeEventListener("hashchange", syncHash));
 </script>

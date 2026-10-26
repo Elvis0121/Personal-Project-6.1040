@@ -28,6 +28,24 @@ async function load() {
   items.value = result.queue.items.map((item) => ({ ...item, proof: parseEvidence(item.evidence ?? "") }));
 }
 
+async function openProof(item: Item) {
+  if (!item.proof.filename) return;
+  const response = await fetch(`/api/review/proof/${encodeURIComponent(item.verification)}`);
+  if (!response.ok) {
+    error.value = explain("NOT_FOUND", {
+      NOT_FOUND: "That file is gone. Upload the proof again on My homes.",
+    });
+    return;
+  }
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = item.proof.filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 async function decide(action: "verify" | "reject", verification: string) {
   busy.value = verification;
   const result = await api.review[action]({ verification });
@@ -82,9 +100,9 @@ onUnmounted(() => clearInterval(poll));
     <p v-if="item.proof.kind"><strong>{{ item.proof.kind }}</strong></p>
     <pre v-if="item.proof.note" class="evidence">{{ item.proof.note }}</pre>
     <p v-if="item.proof.filename">
-      <a :href="`/api/review/proof/${encodeURIComponent(item.verification)}`">
+      <button type="button" class="secondary" @click="openProof(item)">
         Download {{ item.proof.filename }}
-      </a>
+      </button>
     </p>
     <div class="row">
       <button :disabled="busy === item.verification" @click="decide('verify', item.verification)">

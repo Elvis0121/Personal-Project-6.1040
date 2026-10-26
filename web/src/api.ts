@@ -2,7 +2,7 @@ import { createHttpClient } from "@mit-sdg/sync-engine-http/client";
 import type { KumbaWireHttp } from "../../generated/wire.ts";
 import { account, reviewer } from "./account.ts";
 
-const loginPaths = ["/auth/sign-in", "/auth/register"];
+const loginPaths = ["/auth/sign-in", "/auth/register", "/auth/current", "/review/access"];
 
 function requestUrl(input: RequestInfo | URL): string {
   if (typeof input === "string") return input;

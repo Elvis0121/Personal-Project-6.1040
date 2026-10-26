@@ -1331,6 +1331,28 @@ textarea:focus-visible {
   margin: 0.4rem 0 0.6rem;
 }
 
+.photo-add.as-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  margin-top: 0.6rem;
+  padding: 0.55rem 0.95rem;
+  border: 1px solid var(--color-brand);
+  border-radius: var(--radius-sm);
+  background: var(--color-brand);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.photo-add.as-button input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
 .status.display-shot {
   background: var(--color-brand-tint);
   border-color: var(--color-brand);

@@ -29,6 +29,7 @@ const blank = () => ({
 });
 
 const draft = reactive(blank());
+const draftPhotos = ref<File[]>([]);
 const listings = ref<Mine>([]);
 const editing = ref<string | null>(null);
 const editDraft = reactive(blank());
@@ -37,6 +38,14 @@ const publishError = ref("");
 const notice = ref("");
 const listError = ref("");
 const busy = ref(false);
+
+const photoErrors = {
+  INVALID_REQUEST: "Use a JPEG, PNG, or WebP under 8MB.",
+  CONFLICT: "This listing already has eight photos, or it is not open.",
+  FORBIDDEN: "Only the advertiser can change these photos.",
+  NOT_FOUND: "That photo is no longer there.",
+  UNAUTHORIZED: "Please sign in again.",
+};
 
 const changeMessages = {
   FORBIDDEN: "Only the advertiser can change this listing.",
@@ -83,7 +92,23 @@ async function publish() {
     return;
   }
   Object.assign(draft, blank());
-  notice.value = "Published. Tenants can now find it in search.";
+  const listing = result.listing;
+  const pendingPhotos = draftPhotos.value;
+  draftPhotos.value = [];
+  for (const file of pendingPhotos) {
+    const body = new FormData();
+    body.set("listing", listing);
+    body.set("file", file);
+    const uploaded = await fetch("/api/listings/photos", { method: "POST", body });
+    const payload = (await uploaded.json().catch(() => ({}))) as { error?: string };
+    if (payload.error) {
+      publishError.value = explain(payload.error, photoErrors);
+      break;
+    }
+  }
+  notice.value = pendingPhotos.length
+    ? "Published, with photos. Tenants can now find it in search."
+    : "Published. Tenants can now find it in search.";
   await load();
 }
 
@@ -214,14 +239,6 @@ function confirmPending() {
   return change(pending.value.action, pending.value.listing);
 }
 
-const photoErrors = {
-  INVALID_REQUEST: "Use a JPEG, PNG, or WebP under 8MB.",
-  CONFLICT: "This listing already has eight photos, or it is not open.",
-  FORBIDDEN: "Only the advertiser can change these photos.",
-  NOT_FOUND: "That photo is no longer there.",
-  UNAUTHORIZED: "Please sign in again.",
-};
-
 async function uploadPhoto(listing: string, event: Event) {
   listError.value = "";
   notice.value = "";
@@ -232,7 +249,11 @@ async function uploadPhoto(listing: string, event: Event) {
   body.set("listing", listing);
   body.set("file", file);
   const response = await fetch("/api/listings/photos", { method: "POST", body });
-  const payload = (await response.json()) as { error?: string };
+  const payload = (await response.json().catch(() => ({}))) as { error?: string };
+  if (!response.ok && !payload.error) {
+    listError.value = "Could not upload that photo. Try again.";
+    return;
+  }
   input.value = "";
   if (payload.error) {
     listError.value = explain(payload.error, photoErrors);
@@ -367,6 +388,18 @@ function nextStep(item: Mine[number]) {
         <label style="grid-column: 1 / -1">
           Extra charges and conditions
           <textarea v-model="draft.extras" rows="2" placeholder="Water billed separately. No viewing fee." />
+        </label>
+        <label class="photo-add" style="grid-column: 1 / -1">
+          Photos of the place
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            multiple
+            @change="draftPhotos = Array.from(($event.target as HTMLInputElement).files ?? [])"
+          />
+          <span class="muted">{{
+            draftPhotos.length ? `${draftPhotos.length} ready to upload when you publish` : "JPEG, PNG, or WebP. Uploads when you publish."
+          }}</span>
         </label>
         <div class="row">
           <template v-if="account">
@@ -551,8 +584,8 @@ function nextStep(item: Mine[number]) {
             <p v-else-if="shot.display" class="muted">Display photo</p>
           </figure>
         </div>
-        <label v-if="item.status === 'OPEN' && (item.photos?.length ?? 0) < MAX_PHOTOS" class="photo-add">
-          Add a photo
+        <label v-if="item.status === 'OPEN' && (item.photos?.length ?? 0) < MAX_PHOTOS" class="photo-add as-button">
+          Upload a photo
           <input type="file" accept="image/jpeg,image/png,image/webp" @change="uploadPhoto(item.listing, $event)" />
         </label>
         <p v-else-if="item.status === 'OPEN'" class="muted">Eight photos is the maximum.</p>

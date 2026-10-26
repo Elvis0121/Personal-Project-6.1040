@@ -13,10 +13,11 @@ import { SessioningConcept } from "./concepts/Sessioning.ts";
 import { VerifyingConcept } from "./concepts/Verifying.ts";
 import { applicationConceptSet } from "./concepts.ts";
 import { db } from "./db.ts";
+import { rememberFilesDb } from "./file-store.ts";
 
 /** Tests pass their own throwaway database and, for Expiring, a clock they can move. */
 export function assembleApplication(database: Db = db, clock: () => Date = () => new Date()) {
-  return assemble({
+  const application = assemble({
     conceptSet: applicationConceptSet,
     instances: {
       Authenticating: new AuthenticatingConcept(database),
@@ -36,6 +37,8 @@ export function assembleApplication(database: Db = db, clock: () => Date = () =>
     // Print what went wrong. Otherwise a failure only shows up as INTERNAL_ERROR.
     rawFaultReporter: ({ error }) => console.error(error),
   });
+  rememberFilesDb(application, database);
+  return application;
 }
 
 /**

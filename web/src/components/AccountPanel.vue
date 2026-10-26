@@ -11,6 +11,7 @@ async function signOut() {
   await api.auth["sign-out"]({});
   account.value = null;
   reviewer.value = false;
+  location.hash = "#/";
 }
 
 function close() {

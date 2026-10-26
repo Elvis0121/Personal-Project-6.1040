@@ -8,6 +8,7 @@
 import { endpoint, receive, respond } from "@mit-sdg/sync-engine/boundary";
 import { each, form, former, no, reaction, when, where, whether } from "@mit-sdg/sync-engine/language";
 import { concepts } from "../concepts.ts";
+import { OwnedOpen } from "./owned-open.ts";
 
 const { Expiring, Introducing, Listing, Sessioning, Verifying } = concepts;
 
@@ -111,7 +112,7 @@ const SubmitProof = endpoint(
     receive({ session, listing, evidence })
       .then(Sessioning.current({ session }).responds({ subject: advertiser }))
       .then(
-        where(Listing._get({ listing }).is({ owner: advertiser, status: "OPEN" }))
+        where(OwnedOpen({ listing }).is({ owner: advertiser }))
           .then(
             Verifying.submit({ advertiser, subject: listing, evidence }).responds({ verification }),
           )
@@ -259,6 +260,6 @@ const View = endpoint(
 );
 
 export const composition = {
-  Advertising: { Publish, MarkLet, Relist, Withdraw, Update, SubmitProof, Mine, OwnListings, RevokeOnMove },
+  Advertising: { Publish, MarkLet, Relist, Withdraw, Update, SubmitProof, Mine, OwnListings, RevokeOnMove, OwnedOpen },
   Searching: { Search, Results, View, Terms },
 };

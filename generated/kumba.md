@@ -198,6 +198,17 @@ the evidence of (verification) for reviewer (reviewer) — inputs (verification,
   where Verifying._evidence (reviewer, verification) has (evidence)
 ```
 
+### the owner of open (listing)
+
+Authored path: `Listings.Advertising.OwnedOpen`.
+- Covered by [Availability](../design/compositions/Availability.md), line 17.
+- Covered by [Listings](../design/compositions/Listings.md), line 41.
+
+```view
+the owner of open (listing) — inputs (listing); outputs (owner); bindings () — answers at most one (owner)
+  where Listing._get (listing) has (owner, status: "OPEN")
+```
+
 ### the owner of open current (listing)
 
 Authored path: `Introductions.Asking.OpenOwner`.
@@ -233,7 +244,7 @@ Former "the introduction (requester) has about (listing)" — inputs (requester,
 ### the listings of (owner)
 
 Authored path: `Listings.Advertising.OwnListings`.
-- Covered by [Listings](../design/compositions/Listings.md), line 55.
+- Covered by [Listings](../design/compositions/Listings.md), line 56.
 
 ```former
 Former "the listings of (owner)" — inputs (owner); bindings (listing, location, kind, currency, rent, deposit, extras, moveIn, contact, status, proof, deadline, current, introduction, requester, answer); promises exactly one record — forms:
@@ -266,7 +277,7 @@ Former "the listings of (owner)" — inputs (owner); bindings (listing, location
 ### the open listings in (area) up to (maxRent)
 
 Authored path: `Listings.Searching.Results`.
-- Covered by [Listings](../design/compositions/Listings.md), line 69.
+- Covered by [Listings](../design/compositions/Listings.md), line 70.
 
 ```former
 Former "the open listings in (area) up to (maxRent)" — inputs (area, maxRent); bindings (listing, location, kind, currency, rent, deposit, extras, moveIn, verified); promises exactly one record — forms:
@@ -315,7 +326,7 @@ Former "the pending proof for (reviewer)" — inputs (reviewer); bindings (verif
 ### the terms of (listing)
 
 Authored path: `Listings.Searching.Terms`.
-- Covered by [Listings](../design/compositions/Listings.md), line 80.
+- Covered by [Listings](../design/compositions/Listings.md), line 81.
 
 ```former
 Former "the terms of (listing)" — inputs (listing); bindings (owner, location, kind, currency, rent, deposit, extras, moveIn, status, verified, current); promises at most one record — forms:
@@ -418,7 +429,7 @@ Authored path: `Availability.Confirming.Confirm`.
 when Sessioning.current (session, subject: owner), asked by Availability.Confirming.Confirm
 where
   earlier, RequestBoundary.request (listing, path: "/listings/confirm", requestId, session)
-  Listing._get (listing) has (owner, status: "OPEN")
+  view "the owner of open (listing)" with (listing) has (owner)
 then
   Expiring.renew (duration: 2592000000, resource: listing)
 ```
@@ -740,8 +751,8 @@ then
 ### Listings.Advertising.Mine
 
 Authored path: `Listings.Advertising.Mine`.
-- Covered by [Listings](../design/compositions/Listings.md), line 54.
-- Covered by [Listings](../design/compositions/Listings.md), line 62.
+- Covered by [Listings](../design/compositions/Listings.md), line 55.
+- Covered by [Listings](../design/compositions/Listings.md), line 63.
 
 ```reaction
 when RequestBoundary.request (path: "/listings/mine", requestId, session)
@@ -752,8 +763,8 @@ then
 ### Listings.Advertising.Mine#2
 
 Authored path: `Listings.Advertising.Mine`.
-- Covered by [Listings](../design/compositions/Listings.md), line 54.
-- Covered by [Listings](../design/compositions/Listings.md), line 62.
+- Covered by [Listings](../design/compositions/Listings.md), line 55.
+- Covered by [Listings](../design/compositions/Listings.md), line 63.
 
 ```reaction
 when Sessioning.current (session, subject: owner), asked by Listings.Advertising.Mine
@@ -861,7 +872,7 @@ then
 
 Authored path: `Listings.Advertising.SubmitProof`.
 - Covered by [Listings](../design/compositions/Listings.md), line 40.
-- Covered by [Listings](../design/compositions/Listings.md), line 51.
+- Covered by [Listings](../design/compositions/Listings.md), line 52.
 
 ```reaction
 when RequestBoundary.request (evidence, listing, path: "/listings/submit-proof", requestId, session)
@@ -873,7 +884,7 @@ then
 
 Authored path: `Listings.Advertising.SubmitProof`.
 - Covered by [Listings](../design/compositions/Listings.md), line 40.
-- Covered by [Listings](../design/compositions/Listings.md), line 51.
+- Covered by [Listings](../design/compositions/Listings.md), line 52.
 
 ```reaction
 when Sessioning.current (session, subject: advertiser), asked by Listings.Advertising.SubmitProof
@@ -888,7 +899,7 @@ then
 
 Authored path: `Listings.Advertising.SubmitProof`.
 - Covered by [Listings](../design/compositions/Listings.md), line 40.
-- Covered by [Listings](../design/compositions/Listings.md), line 51.
+- Covered by [Listings](../design/compositions/Listings.md), line 52.
 
 ```reaction
 when Sessioning.current (session, subject: advertiser), asked by Listings.Advertising.SubmitProof
@@ -903,7 +914,7 @@ then
 
 Authored path: `Listings.Advertising.SubmitProof`.
 - Covered by [Listings](../design/compositions/Listings.md), line 40.
-- Covered by [Listings](../design/compositions/Listings.md), line 51.
+- Covered by [Listings](../design/compositions/Listings.md), line 52.
 
 ```reaction
 when Sessioning.current (session, subject: advertiser), asked by Listings.Advertising.SubmitProof
@@ -918,13 +929,13 @@ then
 
 Authored path: `Listings.Advertising.SubmitProof`.
 - Covered by [Listings](../design/compositions/Listings.md), line 40.
-- Covered by [Listings](../design/compositions/Listings.md), line 51.
+- Covered by [Listings](../design/compositions/Listings.md), line 52.
 
 ```reaction
 when Sessioning.current (session, subject: advertiser), asked by Listings.Advertising.SubmitProof
 where
   earlier, RequestBoundary.request (evidence, listing, path: "/listings/submit-proof", requestId, session)
-  Listing._get (listing) has (owner: advertiser, status: "OPEN")
+  view "the owner of open (listing)" with (listing) has (owner: advertiser)
 then
   Verifying.submit (advertiser, evidence, subject: listing)
 ```
@@ -933,7 +944,7 @@ then
 
 Authored path: `Listings.Advertising.SubmitProof`.
 - Covered by [Listings](../design/compositions/Listings.md), line 40.
-- Covered by [Listings](../design/compositions/Listings.md), line 51.
+- Covered by [Listings](../design/compositions/Listings.md), line 52.
 
 ```reaction
 when Verifying.submit (advertiser, evidence, subject: listing, verification), asked by Listings.Advertising.SubmitProof:owner-open#2
@@ -1026,8 +1037,8 @@ then
 ### Listings.Searching.Search
 
 Authored path: `Listings.Searching.Search`.
-- Covered by [Listings](../design/compositions/Listings.md), line 67.
-- Covered by [Listings](../design/compositions/Listings.md), line 76.
+- Covered by [Listings](../design/compositions/Listings.md), line 68.
+- Covered by [Listings](../design/compositions/Listings.md), line 77.
 
 ```reaction
 when RequestBoundary.request (area, maxRent, path: "/listings/search", requestId)
@@ -1038,8 +1049,8 @@ then
 ### Listings.Searching.View:found
 
 Authored path: `Listings.Searching.View`.
-- Covered by [Listings](../design/compositions/Listings.md), line 79.
-- Covered by [Listings](../design/compositions/Listings.md), line 87.
+- Covered by [Listings](../design/compositions/Listings.md), line 80.
+- Covered by [Listings](../design/compositions/Listings.md), line 88.
 
 ```reaction
 when RequestBoundary.request (listing, path: "/listings/view", requestId)
@@ -1052,8 +1063,8 @@ then
 ### Listings.Searching.View:missing
 
 Authored path: `Listings.Searching.View`.
-- Covered by [Listings](../design/compositions/Listings.md), line 79.
-- Covered by [Listings](../design/compositions/Listings.md), line 87.
+- Covered by [Listings](../design/compositions/Listings.md), line 80.
+- Covered by [Listings](../design/compositions/Listings.md), line 88.
 
 ```reaction
 when RequestBoundary.request (listing, path: "/listings/view", requestId)

@@ -13,10 +13,10 @@ does not delete the timer; relist reschedules.
 
 ## Confirming
 
-The owner [confirms an open listing is still available](reaction:Availability.Confirming.Confirm).
-that renews the timer. empty proof of ownership is Listing's: someone else's
-listing, missing listing, listing that isn't open. renew after the deadline is
-Expiring's `NOT_CURRENT`.
+The owner [confirms an open listing is still available](reaction:Availability.Confirming.Confirm)
+using [the owner of an open listing](view:Listings.Advertising.OwnedOpen).
+that renews the timer. missing / not owner / not open are Listing's. renew
+after the deadline is Expiring's `NOT_CURRENT`.
 
 ```endpoints
 Availability.Confirming.Confirm at /listings/confirm

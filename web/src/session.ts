@@ -3,8 +3,17 @@ import { api } from "./api.ts";
 
 export { account, reviewer };
 
+/** Bumps when a form signs in so a late /auth/current cannot wipe the new session. */
+let generation = 0;
+
+export function beginSession() {
+  generation += 1;
+}
+
 export async function loadAccount() {
+  const mine = generation;
   const result = await api.auth.current({});
+  if (mine !== generation) return;
   account.value = "error" in result ? null : result.account;
   await loadReviewer();
 }
