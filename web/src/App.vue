@@ -28,9 +28,9 @@ watch(
   () => {
     if (!ready.value) return;
     if (account.value && page.value.name === "landing") location.hash = "#/homes";
-    if (!account.value && (page.value.name === "mine" || page.value.name === "review")) {
-      location.hash = "#/";
-    }
+    // Sign-out already sends people to `#/`. Guests still need `#/mine` so
+    // "List a place" can show the form and the log-in buttons.
+    if (!account.value && page.value.name === "review") location.hash = "#/";
   },
 );
 
