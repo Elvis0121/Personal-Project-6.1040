@@ -173,9 +173,9 @@ Defined in [Verifying](../design/concepts/Verifying.md), line 1.
 
 - `_isReviewer(user: User) : one (appointed: Flag)`
 - `_isVerified(subject: Subject) : one (verified: Flag)`
-- `_forSubject(subject: Subject) : optional (verification: Verification, status: Status, decidedBy: User)`
+- `_forSubject(subject: Subject) : optional (verification: Verification, status: Status, decidedBy: User, decidedAt: DateTime)`
 - `_pending() : many (verification: Verification, advertiser: User, subject: Subject)`
-- `_get(verification: Verification) : optional (advertiser: User, subject: Subject, status: Status, decidedBy: User)`
+- `_get(verification: Verification) : optional (advertiser: User, subject: Subject, status: Status, decidedBy: User, decidedAt: DateTime)`
 - `_evidence(reviewer: User, verification: Verification) : optional (evidence: String)`
 
 #### Instances
@@ -247,10 +247,10 @@ Authored path: `Listings.Advertising.OwnListings`.
 - Covered by [Listings](../design/compositions/Listings.md), line 56.
 
 ```former
-Former "the listings of (owner)" — inputs (owner); bindings (listing, location, kind, currency, rent, deposit, extras, moveIn, contact, status, proof, deadline, current, introduction, requester, answer); promises exactly one record — forms:
+Former "the listings of (owner)" — inputs (owner); bindings (listing, location, kind, currency, rent, deposit, extras, moveIn, contact, status, proof, decidedAt, deadline, current, introduction, requester, answer); promises exactly one record — forms:
   a record of
     listings: each Listing._byOwner (owner) has (contact, currency, deposit, extras, kind, listing, location, moveIn, rent, status)
-      where whether Verifying._forSubject (subject: listing) has (status: proof)
+      where whether Verifying._forSubject (subject: listing) has (decidedAt, status: proof)
       where whether Expiring._get (resource: listing) has (deadline)
       where Expiring._isCurrent (resource: listing) has (current)
       form a record of
@@ -258,6 +258,7 @@ Former "the listings of (owner)" — inputs (owner); bindings (listing, location
         currency
         current
         deadline
+        decidedAt
         deposit
         extras
         kind

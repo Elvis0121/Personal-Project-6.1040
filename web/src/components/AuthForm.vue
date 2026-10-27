@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { api, explain } from "../api.ts";
-import { account, beginSession, loadReviewer } from "../session.ts";
+import { account, beginSession, reviewer } from "../session.ts";
 
 const props = defineProps<{ mode: "sign-in" | "register" }>();
 const emit = defineEmits<{ ok: [] }>();
@@ -44,9 +44,10 @@ async function submit() {
       return;
     }
     beginSession();
+    const access = await api.review.access({});
+    reviewer.value = !("error" in access) && access.access.appointed === true;
     account.value = result.account;
     password.value = "";
-    await loadReviewer();
     emit("ok");
   } catch {
     error.value = explain("NETWORK_ERROR");

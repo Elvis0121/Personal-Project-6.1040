@@ -43,3 +43,15 @@ reviewer is a username (`kumba`), not a flag. queue / `_evidence` / proof downlo
 
 sign out goes to `#/`. guests can still open List a place; the form tells them to log in. `#/review` without an account goes home.
 
+## tests for the extra door
+
+happy path already had "let, then no more photos". the live bugs were the cases that path doesn't hit, so those are in bun test now:
+
+- photo still serves after the disk file is gone. that's the reviewer `NOT_FOUND`. `tests/photo-http.test.ts`
+- withdrawn listing cannot take photo writes. same `OwnedOpen` as let. `tests/photo-http.test.ts`
+- owner cannot confirm after mark-let. confirm uses the view too. `tests/expire-http.test.ts`
+- multipart proof after mark-let is CONFLICT, same as json. if access.ts only wrapped json, this fails. `tests/proof-http.test.ts`
+- guest cannot download proof. `tests/proof-http.test.ts`
+
+if bytes only live on disk, the first one fails. if the extra http door still has its own owner check, the multipart one fails.
+

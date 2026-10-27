@@ -132,6 +132,7 @@ export type KumbaWire = {
           "currency": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["currency"]>>;
           "current": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Expiring"]["_isCurrent"]>>>, ["current"]>>;
           "deadline": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Expiring"]["_get"]>>>, ["deadline"]>> | null;
+          "decidedAt": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Verifying"]["_forSubject"]>>>, ["decidedAt"]>> | null;
           "deposit": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["deposit"]>>;
           "extras": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["extras"]>>;
           "kind": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["kind"]>>;
@@ -423,6 +424,7 @@ export type KumbaWireHttp = {
           "currency": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["currency"]>>;
           "current": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Expiring"]["_isCurrent"]>>>, ["current"]>>;
           "deadline": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Expiring"]["_get"]>>>, ["deadline"]>> | null;
+          "decidedAt": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Verifying"]["_forSubject"]>>>, ["decidedAt"]>> | null;
           "deposit": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["deposit"]>>;
           "extras": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["extras"]>>;
           "kind": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Listing"]["_byOwner"]>>>, ["kind"]>>;

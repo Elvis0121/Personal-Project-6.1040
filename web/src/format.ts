@@ -10,6 +10,14 @@ export function day(date: string): string {
   });
 }
 
+export function onDay(value: string | Date): string {
+  return new Date(value).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 export function stamp(value: string | Date): string {
   return new Date(value).toLocaleString("en-GB", {
     day: "numeric",

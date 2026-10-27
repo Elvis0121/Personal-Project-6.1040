@@ -59,9 +59,13 @@ watch(account, () => {
     </button>
     <div v-if="open" id="account-menu" class="account-menu">
       <nav class="account-links">
-        <a href="#/liked">Liked places</a>
-        <a href="#/mine">My homes</a>
-        <a v-if="reviewer" href="#/review">Review</a>
+        <template v-if="reviewer">
+          <a href="#/review">Review</a>
+        </template>
+        <template v-else>
+          <a href="#/liked">Liked places</a>
+          <a href="#/mine">My homes</a>
+        </template>
       </nav>
       <button type="button" class="secondary" @click="signOut">Sign out</button>
     </div>

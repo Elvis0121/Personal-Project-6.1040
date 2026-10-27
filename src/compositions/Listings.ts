@@ -147,6 +147,7 @@ const OwnListings = former(
       contact,
       status,
       proof,
+      decidedAt,
       deadline,
       current,
       introduction,
@@ -170,7 +171,7 @@ const OwnListings = former(
         }),
       )
         .where(
-          whether(Verifying._forSubject({ subject: listing }).is({ status: proof })),
+          whether(Verifying._forSubject({ subject: listing }).is({ status: proof, decidedAt })),
           whether(Expiring._get({ resource: listing }).is({ deadline })),
           Expiring._isCurrent({ resource: listing }).is({ current }),
         )
@@ -186,6 +187,7 @@ const OwnListings = former(
           contact,
           status,
           proof,
+          decidedAt,
           deadline,
           current,
           requests: each(

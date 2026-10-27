@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { onUnmounted, reactive, ref, watch } from "vue";
 import { api, explain, type Output } from "../api.ts";
+import ConfirmDialog from "../components/ConfirmDialog.vue";
 import ListingTerms from "../components/ListingTerms.vue";
 import PageBand from "../components/PageBand.vue";
-import { stamp } from "../format.ts";
+import { onDay, stamp } from "../format.ts";
 import type { GalleryShot } from "../gallery.ts";
 import { rememberNext } from "../auth-next.ts";
 import { standInFor } from "../place.ts";
@@ -33,10 +34,16 @@ const draftPhotos = ref<File[]>([]);
 const listings = ref<Mine>([]);
 const editing = ref<string | null>(null);
 const editDraft = reactive(blank());
-const pending = ref<{ listing: string; action: "mark-let" | "withdraw" } | null>(null);
+type Prompt =
+  | { kind: "let"; listing: string }
+  | { kind: "withdraw"; listing: string }
+  | { kind: "relist"; listing: string }
+  | { kind: "remove-photo"; listing: string; photo: string }
+  | { kind: "accept"; introduction: string; requester: string }
+  | { kind: "decline"; introduction: string; requester: string };
+const prompt = ref<Prompt | null>(null);
 const publishError = ref("");
-const notice = ref("");
-const listError = ref("");
+const toast = ref<{ text: string; tone: "ok" | "error" } | null>(null);
 const busy = ref(false);
 
 const photoErrors = {
@@ -54,6 +61,65 @@ const changeMessages = {
   UNAUTHORIZED: "Please sign in again.",
 };
 
+function say(text: string, tone: "ok" | "error" = "ok") {
+  toast.value = { text, tone };
+}
+
+function promptCopy(current: Prompt) {
+  if (current.kind === "let") {
+    return {
+      title: "Mark this as let?",
+      body: "It leaves search. People who already have your number keep it. New people can't ask.",
+      confirmLabel: "Mark it let",
+      abortLabel: "Keep listing",
+      confirmKind: "brand" as const,
+    };
+  }
+  if (current.kind === "withdraw") {
+    return {
+      title: "Withdraw this listing?",
+      body: "It leaves search. You can relist later.",
+      confirmLabel: "Withdraw it",
+      abortLabel: "Keep listing",
+      confirmKind: "danger" as const,
+    };
+  }
+  if (current.kind === "relist") {
+    return {
+      title: "Relist this place?",
+      body: "It goes back on search. People can find it again.",
+      confirmLabel: "Relist it",
+      abortLabel: "Keep it off",
+      confirmKind: "brand" as const,
+    };
+  }
+  if (current.kind === "remove-photo") {
+    return {
+      title: "Remove this photo?",
+      body: "It comes off this listing. You can upload it again later.",
+      confirmLabel: "Remove it",
+      abortLabel: "Keep photo",
+      confirmKind: "danger" as const,
+    };
+  }
+  if (current.kind === "accept") {
+    return {
+      title: "Share your number?",
+      body: `${current.requester} will get your number.`,
+      confirmLabel: "Share number",
+      abortLabel: "Not yet",
+      confirmKind: "accept" as const,
+    };
+  }
+  return {
+    title: "Decline this request?",
+    body: `${current.requester} will not get your number.`,
+    confirmLabel: "Decline",
+    abortLabel: "Keep waiting",
+    confirmKind: "danger" as const,
+  };
+}
+
 async function load() {
   if (!account.value) {
     listings.value = [];
@@ -61,10 +127,9 @@ async function load() {
   }
   const result = await api.listings.mine({});
   if ("error" in result) {
-    listError.value = explain(result.error, { UNAUTHORIZED: "Please sign in again." });
+    say(explain(result.error, { UNAUTHORIZED: "Please sign in again." }), "error");
     return;
   }
-  listError.value = "";
   listings.value = result.mine.listings;
 }
 
@@ -79,7 +144,6 @@ async function publish() {
     return;
   }
   publishError.value = "";
-  notice.value = "";
   busy.value = true;
   const result = await api.listings.publish({ ...draft, rent: Number(draft.rent), deposit: Number(draft.deposit) });
   busy.value = false;
@@ -106,14 +170,15 @@ async function publish() {
       break;
     }
   }
-  notice.value = pendingPhotos.length
-    ? "Published, with photos. Tenants can now find it in search."
-    : "Published. Tenants can now find it in search.";
+  say(
+    pendingPhotos.length
+      ? "Published, with photos. Tenants can now find it in search."
+      : "Published. Tenants can now find it in search.",
+  );
   await load();
 }
 
 async function submitProof(listing: string, event: Event) {
-  listError.value = "";
   const form = event.target as HTMLFormElement;
   const data = new FormData(form);
   const kind = String(data.get("kind") ?? "");
@@ -121,7 +186,7 @@ async function submitProof(listing: string, event: Event) {
   const file = data.get("file");
   const upload = file instanceof File && file.size > 0 ? file : null;
   if (!upload && !note) {
-    listError.value = "Attach a document, or write a short note.";
+    say("Attach a document, or write a short note.", "error");
     return;
   }
   const proofErrors = {
@@ -140,7 +205,7 @@ async function submitProof(listing: string, event: Event) {
     const response = await fetch("/api/listings/submit-proof", { method: "POST", body });
     const payload = (await response.json()) as { error?: string };
     if (payload.error) {
-      listError.value = explain(payload.error, proofErrors);
+      say(explain(payload.error, proofErrors), "error");
       return;
     }
   } else {
@@ -149,7 +214,7 @@ async function submitProof(listing: string, event: Event) {
       evidence: formatEvidence({ kind, note }),
     });
     if ("error" in result) {
-      listError.value = explain(result.error, proofErrors);
+      say(explain(result.error, proofErrors), "error");
       return;
     }
   }
@@ -158,20 +223,21 @@ async function submitProof(listing: string, event: Event) {
 }
 
 async function confirmAvailable(listing: string) {
-  listError.value = "";
-  notice.value = "";
   const result = await api.listings.confirm({ listing });
   if ("error" in result) {
-    listError.value = explain(result.error, {
-      CONFLICT: "This listing is no longer current, or it is not open. Confirm again before the time runs out.",
-      FORBIDDEN: "Only the advertiser can confirm this listing.",
-      NOT_FOUND: "That listing no longer exists.",
-      UNAUTHORIZED: "Please sign in again.",
-    });
+    say(
+      explain(result.error, {
+        CONFLICT: "This listing is no longer current, or it is not open. Confirm again before the time runs out.",
+        FORBIDDEN: "Only the advertiser can confirm this listing.",
+        NOT_FOUND: "That listing no longer exists.",
+        UNAUTHORIZED: "Please sign in again.",
+      }),
+      "error",
+    );
     await load();
     return;
   }
-  notice.value = `Confirmed. Next check by ${stamp(result.deadline)}.`;
+  say(`Confirmed. Next check by ${stamp(result.deadline)}.`);
   await load();
 }
 
@@ -197,8 +263,6 @@ async function saveEdit() {
   if (!editing.value) return;
   const current = listings.value.find((row) => row.listing === editing.value);
   const dropped = current ? movingVerified(current) : false;
-  listError.value = "";
-  notice.value = "";
   const result = await api.listings.update({
     listing: editing.value,
     ...editDraft,
@@ -206,42 +270,47 @@ async function saveEdit() {
     deposit: Number(editDraft.deposit),
   });
   if ("error" in result) {
-    listError.value = explain(result.error, {
-      INVALID_REQUEST:
-        "Fill in the location, kind of place, currency, move-in date, and contact number. Rent and deposit must be zero or more.",
-      ...changeMessages,
-    });
+    say(
+      explain(result.error, {
+        INVALID_REQUEST:
+          "Fill in the location, kind of place, currency, move-in date, and contact number. Rent and deposit must be zero or more.",
+        ...changeMessages,
+      }),
+      "error",
+    );
     return;
   }
   editing.value = null;
-  notice.value = dropped
-    ? "Saved. VERIFIED is off because the place moved. Submit proof again if you want the label."
-    : "Saved.";
+  say(
+    dropped
+      ? "Saved. VERIFIED is off because the place moved. Submit proof again if you want the label."
+      : "Saved.",
+  );
   await load();
 }
 
 async function change(action: "mark-let" | "relist" | "withdraw", listing: string) {
-  listError.value = "";
-  notice.value = "";
-  pending.value = null;
   const result = await api.listings[action]({ listing });
-  if ("error" in result) listError.value = explain(result.error, changeMessages);
+  if ("error" in result) say(explain(result.error, changeMessages), "error");
+  else if (action === "mark-let") say("Marked as let. It is off search.");
+  else if (action === "withdraw") say("Withdrawn. You can relist later.");
+  else say("Relisted. People can find it in search again.");
   if (action === "withdraw") editing.value = null;
   await load();
 }
 
-function askChange(action: "mark-let" | "withdraw", listing: string) {
-  pending.value = { listing, action };
-}
-
-function confirmPending() {
-  if (!pending.value) return;
-  return change(pending.value.action, pending.value.listing);
+async function runPrompt() {
+  const current = prompt.value;
+  if (!current) return;
+  prompt.value = null;
+  if (current.kind === "let") return change("mark-let", current.listing);
+  if (current.kind === "withdraw") return change("withdraw", current.listing);
+  if (current.kind === "relist") return change("relist", current.listing);
+  if (current.kind === "remove-photo") return removePhoto(current.listing, current.photo);
+  return answer(current.kind, current.introduction);
 }
 
 async function uploadPhoto(listing: string, event: Event) {
-  listError.value = "";
-  notice.value = "";
   const input = event.target as HTMLInputElement;
   const file = input.files?.[0];
   if (!file) return;
@@ -251,21 +320,19 @@ async function uploadPhoto(listing: string, event: Event) {
   const response = await fetch("/api/listings/photos", { method: "POST", body });
   const payload = (await response.json().catch(() => ({}))) as { error?: string };
   if (!response.ok && !payload.error) {
-    listError.value = "Could not upload that photo. Try again.";
+    say("Could not upload that photo. Try again.", "error");
     return;
   }
   input.value = "";
   if (payload.error) {
-    listError.value = explain(payload.error, photoErrors);
+    say(explain(payload.error, photoErrors), "error");
     return;
   }
-  notice.value = "Photo added.";
+  say("Photo added.");
   await load();
 }
 
 async function setDisplay(listing: string, photo: string) {
-  listError.value = "";
-  notice.value = "";
   const response = await fetch("/api/listings/photos/display", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -273,16 +340,14 @@ async function setDisplay(listing: string, photo: string) {
   });
   const payload = (await response.json()) as { error?: string };
   if (payload.error) {
-    listError.value = explain(payload.error, photoErrors);
+    say(explain(payload.error, photoErrors), "error");
     return;
   }
-  notice.value = "Display photo updated.";
+  say("Display photo updated.");
   await load();
 }
 
 async function removePhoto(listing: string, photo: string) {
-  listError.value = "";
-  notice.value = "";
   const response = await fetch("/api/listings/photos/remove", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -290,24 +355,28 @@ async function removePhoto(listing: string, photo: string) {
   });
   const payload = (await response.json()) as { error?: string };
   if (payload.error) {
-    listError.value = explain(payload.error, photoErrors);
+    say(explain(payload.error, photoErrors), "error");
     return;
   }
-  notice.value = "Photo removed.";
+  say("Photo removed.");
   await load();
 }
 
 async function answer(action: "accept" | "decline", introduction: string) {
-  listError.value = "";
   const result = await api.introductions[action]({ introduction });
   if ("error" in result) {
-    listError.value = explain(result.error, {
-      FORBIDDEN: "Only the person who was asked can answer this request.",
-      CONFLICT: "This request has already been answered.",
-      NOT_FOUND: "That request no longer exists.",
-      INVALID_REQUEST: "This listing has no contact number to share.",
-      UNAUTHORIZED: "Please sign in again.",
-    });
+    say(
+      explain(result.error, {
+        FORBIDDEN: "Only the person who was asked can answer this request.",
+        CONFLICT: "This request has already been answered.",
+        NOT_FOUND: "That request no longer exists.",
+        INVALID_REQUEST: "This listing has no contact number to share.",
+        UNAUTHORIZED: "Please sign in again.",
+      }),
+      "error",
+    );
+  } else {
+    say(action === "accept" ? "They have your number now." : "Request declined.");
   }
   await load();
 }
@@ -342,6 +411,17 @@ function nextStep(item: Mine[number]) {
   if (item.proof === "PENDING") return "Proof is with Kumba. This page updates by itself.";
   if (item.proof !== "VERIFIED") return "Submit proof if you want the VERIFIED label. Tenants never see the file.";
   if (!(item.photos?.length)) return "Add a photo so people see the rooms first.";
+  return "";
+}
+
+function focusOf(item: Mine[number]) {
+  if (item.status !== "OPEN") return "relist";
+  if (!item.current) return "lapse";
+  if (waitingOn(item) > 0) return "requests";
+  if (item.deadline) return "confirm";
+  if (item.proof === "PENDING") return "pending-proof";
+  if (item.proof !== "VERIFIED") return "proof";
+  if (!(item.photos?.length)) return "photos";
   return "";
 }
 </script>
@@ -385,26 +465,25 @@ function nextStep(item: Mine[number]) {
         <label>Deposit<input v-model.number="draft.deposit" type="number" min="0" required /></label>
         <label>Move-in date<input v-model="draft.moveIn" type="date" required /></label>
         <label>Contact number<input v-model="draft.contact" placeholder="0772 000 000" required /></label>
-        <label style="grid-column: 1 / -1">
+        <label class="form-span">
           Extra charges and conditions
           <textarea v-model="draft.extras" rows="2" placeholder="Water billed separately. No viewing fee." />
         </label>
-        <label class="photo-add" style="grid-column: 1 / -1">
-          Photos of the place
-          <input
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            multiple
-            @change="draftPhotos = Array.from(($event.target as HTMLInputElement).files ?? [])"
-          />
-          <span class="muted">{{
-            draftPhotos.length ? `${draftPhotos.length} ready to upload when you publish` : "JPEG, PNG, or WebP. Uploads when you publish."
-          }}</span>
-        </label>
+        <div class="form-span photo-pick">
+          <label class="photo-add as-button">
+            {{ draftPhotos.length ? `${draftPhotos.length} photo${draftPhotos.length === 1 ? "" : "s"} ready` : "Add photos" }}
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              multiple
+              @change="draftPhotos = Array.from(($event.target as HTMLInputElement).files ?? [])"
+            />
+          </label>
+          <span class="muted">JPEG, PNG, or WebP. Uploads when you publish.</span>
+        </div>
         <div class="row">
           <template v-if="account">
             <button :disabled="busy">Publish</button>
-            <span v-if="notice" class="notice">{{ notice }}</span>
           </template>
           <template v-else>
             <a class="as-button" href="#/sign-in" @click="rememberNext('#/mine')">Log in</a>
@@ -417,8 +496,6 @@ function nextStep(item: Mine[number]) {
 
     <template v-if="account">
     <h2>Your listings</h2>
-    <p v-if="notice" class="notice">{{ notice }}</p>
-    <p v-if="listError" class="error" role="alert">{{ listError }}</p>
     <p v-if="listings.length === 0" class="muted">Your first listing lives here, when you are ready.</p>
     <article v-for="item in listings" :key="item.listing" class="card mine-home">
       <img
@@ -458,7 +535,7 @@ function nextStep(item: Mine[number]) {
         <label>Deposit<input v-model.number="editDraft.deposit" type="number" min="0" required /></label>
         <label>Move-in date<input v-model="editDraft.moveIn" type="date" required /></label>
         <label>Contact number<input v-model="editDraft.contact" required /></label>
-        <label style="grid-column: 1 / -1">
+        <label class="form-span">
           Extra charges and conditions
           <textarea v-model="editDraft.extras" rows="2" />
         </label>
@@ -473,28 +550,139 @@ function nextStep(item: Mine[number]) {
       </form>
       <template v-else>
         <ListingTerms v-bind="item" />
-        <p class="muted">Contact given to accepted tenants: {{ item.contact }}</p>
       </template>
 
-      <section class="mine-section">
-        <h4>Availability</h4>
-        <template v-if="pending?.listing === item.listing">
-          <p class="mine-warn">
-            <template v-if="pending.action === 'mark-let'">
-              It leaves search. People who already have your number keep it. New people can't ask.
-            </template>
-            <template v-else>
-              It leaves search. You can relist later.
-            </template>
+      <details class="mine-fold mine-photos">
+        <summary>Photos {{ item.photos?.length ? `(${item.photos.length})` : "" }}</summary>
+        <p class="muted">Show the rooms. Pick one as the display photo people see first.</p>
+        <div v-if="(item.photos?.length ?? 0) > 0" class="photo-grid">
+          <figure v-for="shot in item.photos" :key="shot.photo" class="photo-tile" :class="{ on: shot.display }">
+            <img :src="shot.url" :alt="shot.filename || 'Listing photo'" />
+            <div v-if="item.status === 'OPEN'" class="row">
+              <button v-if="!shot.display" type="button" class="secondary" @click="setDisplay(item.listing, shot.photo)">
+                Use as display photo
+              </button>
+              <span v-else class="status display-shot">Display photo</span>
+              <button
+                type="button"
+                class="secondary"
+                @click="prompt = { kind: 'remove-photo', listing: item.listing, photo: shot.photo }"
+              >
+                Remove
+              </button>
+            </div>
+            <p v-else-if="shot.display" class="muted">Display photo</p>
+          </figure>
+        </div>
+        <label v-if="item.status === 'OPEN' && (item.photos?.length ?? 0) < MAX_PHOTOS" class="photo-add as-button">
+          Upload a photo
+          <input type="file" accept="image/jpeg,image/png,image/webp" @change="uploadPhoto(item.listing, $event)" />
+        </label>
+        <p v-else-if="item.status === 'OPEN'" class="muted">Eight photos is the maximum.</p>
+      </details>
+
+      <section v-if="focusOf(item) === 'proof'" class="mine-section">
+        <h4>Proof</h4>
+        <form class="form-grid" @submit.prevent="submitProof(item.listing, $event)">
+          <label>
+            Type of document
+            <select name="kind" required>
+              <option value="" disabled selected>Choose one</option>
+              <option v-for="kind in PROOF_KINDS" :key="kind" :value="kind">{{ kind }}</option>
+            </select>
+          </label>
+          <label>
+            File
+            <input name="file" type="file" accept="application/pdf,image/jpeg,image/png,image/webp" />
+          </label>
+          <label class="form-span">
+            Note, if you need one
+            <textarea name="note" rows="2" placeholder="City of Harare, Sept 2026" />
+          </label>
+          <p class="muted form-span">
+            PDF, JPEG, PNG, or WebP. Tenants never see the file, only that Kumba checked it.
           </p>
           <div class="row">
-            <button type="button" @click="confirmPending">
-              {{ pending.action === "mark-let" ? "Yes, it's let" : "Yes, withdraw it" }}
-            </button>
-            <button type="button" class="secondary" @click="pending = null">Keep it listed</button>
+            <button type="submit">Submit proof</button>
           </div>
-        </template>
-        <div v-else class="row">
+        </form>
+      </section>
+      <details v-else-if="item.status === 'OPEN' && item.proof !== 'VERIFIED'" class="mine-fold">
+        <summary>Proof</summary>
+        <p v-if="item.proof === 'PENDING'" class="muted">Waiting for Kumba to check it. This page updates by itself.</p>
+        <form v-else class="form-grid" @submit.prevent="submitProof(item.listing, $event)">
+          <label>
+            Type of document
+            <select name="kind" required>
+              <option value="" disabled selected>Choose one</option>
+              <option v-for="kind in PROOF_KINDS" :key="kind" :value="kind">{{ kind }}</option>
+            </select>
+          </label>
+          <label>
+            File
+            <input name="file" type="file" accept="application/pdf,image/jpeg,image/png,image/webp" />
+          </label>
+          <label class="form-span">
+            Note, if you need one
+            <textarea name="note" rows="2" placeholder="City of Harare, Sept 2026" />
+          </label>
+          <p class="muted form-span">
+            PDF, JPEG, PNG, or WebP. Tenants never see the file, only that Kumba checked it.
+          </p>
+          <div class="row">
+            <button type="submit">Submit proof</button>
+          </div>
+        </form>
+      </details>
+      <details v-else-if="item.proof === 'VERIFIED'" class="mine-fold">
+        <summary>Proof</summary>
+        <p class="muted">
+          {{
+            item.decidedAt
+              ? `This listing was verified on ${onDay(item.decidedAt)}. Tenants never see the file.`
+              : "This listing is verified. Tenants never see the file."
+          }}
+        </p>
+      </details>
+
+      <details class="mine-fold mine-requests">
+        <summary>
+          Requests
+          <span v-if="waitingOn(item) > 0">
+            ({{ waitingOn(item) === 1 ? "1 waiting" : `${waitingOn(item)} waiting` }})
+          </span>
+        </summary>
+        <p v-if="item.requests.length === 0" class="muted">
+          There are no pending requests yet. If someone requests to see your property, they will appear here.
+        </p>
+        <ul v-else class="requests">
+          <li v-for="request in item.requests" :key="request.introduction" class="request-row">
+            <strong class="request-name">{{ request.requester }}</strong>
+            <span v-if="request.status !== 'PENDING'" class="status" :class="request.status">{{ request.status }}</span>
+            <template v-else>
+              <button
+                type="button"
+                class="status-action accept"
+                @click="prompt = { kind: 'accept', introduction: request.introduction, requester: request.requester }"
+              >
+                ACCEPT
+              </button>
+              <button
+                type="button"
+                class="status-action decline"
+                @click="prompt = { kind: 'decline', introduction: request.introduction, requester: request.requester }"
+              >
+                DECLINE
+              </button>
+            </template>
+          </li>
+        </ul>
+      </details>
+
+      <p v-if="editing !== item.listing" class="muted">Contact given to accepted tenants: {{ item.contact }}</p>
+
+      <section class="mine-section">
+        <div class="row">
           <button
             v-if="item.status === 'OPEN' && item.current"
             type="button"
@@ -514,7 +702,7 @@ function nextStep(item: Mine[number]) {
             v-if="item.status === 'OPEN'"
             type="button"
             class="secondary"
-            @click="askChange('mark-let', item.listing)"
+            @click="prompt = { kind: 'let', listing: item.listing }"
           >
             Mark as let
           </button>
@@ -522,92 +710,37 @@ function nextStep(item: Mine[number]) {
             v-if="item.status === 'OPEN'"
             type="button"
             class="secondary"
-            @click="askChange('withdraw', item.listing)"
+            @click="prompt = { kind: 'withdraw', listing: item.listing }"
           >
             Withdraw
           </button>
-          <button v-if="item.status !== 'OPEN'" type="button" class="secondary" @click="change('relist', item.listing)">
+          <button
+            v-if="item.status !== 'OPEN'"
+            type="button"
+            @click="prompt = { kind: 'relist', listing: item.listing }"
+          >
             Relist
           </button>
         </div>
-      </section>
-
-      <section class="mine-section">
-        <h4>Proof</h4>
-        <p v-if="item.proof === 'PENDING'" class="muted">
-          Waiting for Kumba to check it. This page updates by itself.
-        </p>
-        <p v-else-if="item.proof === 'VERIFIED'" class="muted">Verified. Tenants never see the file.</p>
-        <form
-          v-else-if="item.status === 'OPEN'"
-          class="form-grid"
-          @submit.prevent="submitProof(item.listing, $event)"
-        >
-          <label>
-            Type of document
-            <select name="kind" required>
-              <option value="" disabled selected>Choose one</option>
-              <option v-for="kind in PROOF_KINDS" :key="kind" :value="kind">{{ kind }}</option>
-            </select>
-          </label>
-          <label>
-            File
-            <input name="file" type="file" accept="application/pdf,image/jpeg,image/png,image/webp" />
-          </label>
-          <label style="grid-column: 1 / -1">
-            Note, if you need one
-            <textarea name="note" rows="2" placeholder="City of Harare, Sept 2026" />
-          </label>
-          <p class="muted" style="grid-column: 1 / -1">
-            PDF, JPEG, PNG, or WebP. Tenants never see the file, only that Kumba checked it.
-          </p>
-          <div class="row">
-            <button type="submit">Submit proof</button>
-          </div>
-        </form>
-        <p v-else class="muted">Proof can be submitted while the listing is open.</p>
-      </section>
-
-      <section class="mine-section">
-        <h4>Photos</h4>
-        <p class="muted">Show the rooms. Pick one as the display photo people see first.</p>
-        <div v-if="(item.photos?.length ?? 0) > 0" class="photo-grid">
-          <figure v-for="shot in item.photos" :key="shot.photo" class="photo-tile" :class="{ on: shot.display }">
-            <img :src="shot.url" :alt="shot.filename || 'Listing photo'" />
-            <div v-if="item.status === 'OPEN'" class="row">
-              <button v-if="!shot.display" type="button" class="secondary" @click="setDisplay(item.listing, shot.photo)">
-                Use as display photo
-              </button>
-              <span v-else class="status display-shot">Display photo</span>
-              <button type="button" class="secondary" @click="removePhoto(item.listing, shot.photo)">Remove</button>
-            </div>
-            <p v-else-if="shot.display" class="muted">Display photo</p>
-          </figure>
-        </div>
-        <label v-if="item.status === 'OPEN' && (item.photos?.length ?? 0) < MAX_PHOTOS" class="photo-add as-button">
-          Upload a photo
-          <input type="file" accept="image/jpeg,image/png,image/webp" @change="uploadPhoto(item.listing, $event)" />
-        </label>
-        <p v-else-if="item.status === 'OPEN'" class="muted">Eight photos is the maximum.</p>
-      </section>
-
-      <section class="mine-section" :class="{ hot: waitingOn(item) > 0 }">
-        <h4>Requests</h4>
-        <p v-if="item.requests.length === 0" class="muted">No requests yet.</p>
-        <ul v-else class="requests">
-          <li v-for="request in item.requests" :key="request.introduction" class="row">
-            <strong>{{ request.requester }}</strong>
-            <span class="status" :class="request.status">{{ request.status }}</span>
-            <template v-if="request.status === 'PENDING'">
-              <button type="button" @click="answer('accept', request.introduction)">Accept and share my number</button>
-              <button type="button" class="secondary" @click="answer('decline', request.introduction)">Decline</button>
-            </template>
-          </li>
-        </ul>
       </section>
       </div>
     </article>
     </template>
     <p v-else class="muted">Your listings appear here once you are in.</p>
+    <ConfirmDialog
+      v-if="prompt"
+      v-bind="promptCopy(prompt)"
+      @confirm="runPrompt"
+      @abort="prompt = null"
+    />
+    <ConfirmDialog
+      v-else-if="toast"
+      :title="toast.tone === 'error' ? 'Could not do that' : 'Done'"
+      :body="toast.text"
+      confirm-label="OK"
+      :confirm-kind="toast.tone === 'error' ? 'danger' : 'brand'"
+      @confirm="toast = null"
+      @abort="toast = null"
+    />
   </div>
 </template>

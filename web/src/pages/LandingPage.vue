@@ -27,20 +27,20 @@ const tenantSteps = [
   {
     title: "See what it costs, first",
     body: "Rent, deposit, extras, move-in. You can walk away before anyone asks for a viewing fee, or a US$20 agent fee.",
-    src: "/stand-ins/room.jpg",
-    alt: "A quiet room, the kind of place you might come home to",
+    src: "/homes/bedroom.jpg",
+    alt: "A bedroom in a house that is actually to let",
   },
   {
     title: "We look at who is behind the advert",
     body: "A rates bill, a ZESA bill, a title deed. You never see the file. VERIFIED means someone here looked.",
-    src: "/stand-ins/cottage.jpg",
-    alt: "A small house with its own door",
+    src: "/homes/lounge-hearth.png",
+    alt: "A sitting room with doors out to the garden",
   },
   {
     title: "Only live rooms stay in search",
     body: "If it is let, or the owner does not confirm it is still available, it leaves. You spend time on places you can actually have.",
-    src: "/stand-ins/flat.jpg",
-    alt: "A flat looking out on the city",
+    src: "/homes/lounge-desk.png",
+    alt: "A furnished sitting room with a fireplace and desk",
   },
 ];
 
@@ -48,20 +48,20 @@ const landlordSteps = [
   {
     title: "You decide who gets the number",
     body: "People ask for an introduction. You accept the ones you want. Until then, your phone stays yours.",
-    src: "/stand-ins/house.jpg",
-    alt: "A house that feels like home",
+    src: "/homes/townhouses.png",
+    alt: "A cluster of brick houses photographed from above",
   },
   {
     title: "Serious interest, not a flood of calls",
     body: "They already know the terms. They have seen the photos. Fewer tyre-kickers at the gate, more people who are ready.",
-    src: "/harare/hero.jpg",
-    alt: "Harare in good light",
+    src: "/homes/lounge-tv.png",
+    alt: "A sitting room with a television, as a tenant would see it",
   },
   {
     title: "When it is let, the chase stops",
     body: "Mark it let, and other people stop knocking. Confirm it is still open when you want it seen. You stay in charge of the listing.",
-    src: "/harare/dawn.jpg",
-    alt: "Morning over the city",
+    src: "/homes/solar.png",
+    alt: "A house on a new street, photographed from above",
   },
 ];
 

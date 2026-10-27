@@ -55,9 +55,9 @@ Listings.Advertising.SubmitProof at /listings/submit-proof
 [My listings](reaction:Listings.Advertising.Mine) shows the signed-in owner
 [their own listings](former:Listings.Advertising.OwnListings), newest first,
 with each listing's contact, status, proof status (none, pending, or verified),
-whether it is current, and the confirm-by deadline when a timer exists, and the
-introduction requests that tenants have made about it. The evidence itself is
-not in this former.
+the date it was verified when there is one, whether it is current, and the
+confirm-by deadline when a timer exists, and the introduction requests that
+tenants have made about it. The evidence itself is not in this former.
 
 ```endpoints
 Listings.Advertising.Mine at /listings/mine

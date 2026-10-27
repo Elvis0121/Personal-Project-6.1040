@@ -22,13 +22,17 @@ interface VerificationDoc {
   evidence: string;
   status: Status;
   decidedBy?: string;
+  decidedAt?: Date;
 }
 
 export class VerifyingConcept {
   private readonly appointed: Collection<Appointed>;
   private readonly verifications: Collection<VerificationDoc>;
 
-  constructor(db: Db) {
+  constructor(
+    db: Db,
+    private readonly clock: () => Date = () => new Date(),
+  ) {
     this.appointed = db.collection<Appointed>("verifying.appointed");
     this.verifications = db.collection<VerificationDoc>("verifying.verifications");
   }
@@ -78,7 +82,7 @@ export class VerifyingConcept {
     const found = await this.#pending(verification);
     await this.verifications.updateOne(
       { _id: verification, status: "PENDING" },
-      { $set: { status: "VERIFIED", decidedBy: reviewer } },
+      { $set: { status: "VERIFIED", decidedBy: reviewer, decidedAt: this.clock() } },
     );
     return { verification: found._id };
   }
@@ -88,7 +92,7 @@ export class VerifyingConcept {
     const found = await this.#pending(verification);
     await this.verifications.updateOne(
       { _id: verification, status: "PENDING" },
-      { $set: { status: "REJECTED", decidedBy: reviewer } },
+      { $set: { status: "REJECTED", decidedBy: reviewer, decidedAt: this.clock() } },
     );
     return { verification: found._id };
   }
@@ -128,6 +132,7 @@ export class VerifyingConcept {
         verification: found._id,
         status: found.status,
         decidedBy: found.decidedBy ?? null,
+        decidedAt: found.decidedAt ?? null,
       },
     ];
   }
@@ -150,6 +155,7 @@ export class VerifyingConcept {
         subject: found.subject,
         status: found.status,
         decidedBy: found.decidedBy ?? null,
+        decidedAt: found.decidedAt ?? null,
       },
     ];
   }

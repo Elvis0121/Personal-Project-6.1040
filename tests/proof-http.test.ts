@@ -139,6 +139,51 @@ test("an advertiser can upload a classified document; only the reviewer can open
   expect(new Uint8Array(await afterDiskGone.arrayBuffer())).toEqual(bytes);
 });
 
+test("multipart proof is refused after mark-let, same as the json door", async () => {
+  await new VerifyingConcept(testDb.db).appoint({ reviewer: "kumba" });
+  const dube = await register("mrsdube", "avondale-cottage");
+  const { listing } = (await post("/listings/publish", cottage, dube)).body;
+  expect((await post("/listings/mark-let", { listing }, dube)).status).toBe(200);
+
+  const form = new FormData();
+  form.set("listing", listing);
+  form.set("kind", "Electricity bill");
+  form.set("file", new File([new Uint8Array([0xff, 0xd8, 0xff, 0xd9])], "zesa.jpg", { type: "image/jpeg" }));
+  const response = await handle(
+    new Request("http://127.0.0.1:3000/api/listings/submit-proof", {
+      method: "POST",
+      headers: { Origin: ORIGIN, Cookie: dube },
+      body: form,
+    }),
+  );
+  expect(response.status).toBe(409);
+  expect(await response.json()).toEqual({ error: "CONFLICT" });
+});
+
+test("a guest cannot download proof", async () => {
+  const kumba = await register("kumba", "kumba-lets-2026");
+  await new VerifyingConcept(testDb.db).appoint({ reviewer: "kumba" });
+  const dube = await register("mrsdube", "avondale-cottage");
+  const { listing } = (await post("/listings/publish", cottage, dube)).body;
+  const form = new FormData();
+  form.set("listing", listing);
+  form.set("kind", "Electricity bill");
+  form.set("file", new File([new Uint8Array([0xff, 0xd8, 0xff, 0xd9])], "zesa.jpg", { type: "image/jpeg" }));
+  const uploaded = await handle(
+    new Request("http://127.0.0.1:3000/api/listings/submit-proof", {
+      method: "POST",
+      headers: { Origin: ORIGIN, Cookie: dube },
+      body: form,
+    }),
+  );
+  const { verification } = (await uploaded.json()) as { verification: string };
+  expect(uploaded.status).toBe(200);
+
+  const anon = await handle(new Request(`http://127.0.0.1:3000/api/review/proof/${verification}`));
+  expect(anon.status).toBe(401);
+  expect((await post("/review/queue", {}, kumba)).body.queue.items[0].verification).toBe(verification);
+});
+
 test("a text file is not proof", async () => {
   await new VerifyingConcept(testDb.db).appoint({ reviewer: "kumba" });
   const dube = await register("mrsdube", "avondale-cottage");

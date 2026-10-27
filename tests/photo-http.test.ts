@@ -180,3 +180,24 @@ test("a let listing cannot take photo writes; a foreign Origin is refused on the
   expect(foreign.status).toBe(403);
   expect((await foreign.json() as { error: string }).error).toBe("FORBIDDEN");
 });
+
+test("a photo still serves after the disk file is gone", async () => {
+  const dube = await register("mrsdube", "avondale-cottage");
+  const { listing } = (await post("/listings/publish", cottage, dube)).body;
+  const uploaded = await upload(listing, dube);
+  expect(uploaded.status).toBe(200);
+
+  await rm(path.join(photoDir, listing, uploaded.body.photo), { force: true });
+  const bytes = await handle(new Request(`http://127.0.0.1:3000${uploaded.body.url}`));
+  expect(bytes.status).toBe(200);
+  expect(new Uint8Array(await bytes.arrayBuffer())).toEqual(new Uint8Array([0xff, 0xd8, 0xff, 0xd9]));
+});
+
+test("a withdrawn listing cannot take photo writes", async () => {
+  const dube = await register("mrsdube", "avondale-cottage");
+  const { listing } = (await post("/listings/publish", cottage, dube)).body;
+  expect((await post("/listings/withdraw", { listing }, dube)).status).toBe(200);
+  const after = await upload(listing, dube);
+  expect(after.status).toBe(409);
+  expect(after.body.error).toBe("CONFLICT");
+});

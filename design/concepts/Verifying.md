@@ -41,8 +41,9 @@ a set of Verifications with
   an evidence String
   a status Status
   an optional decidedBy User
-  Rule: a verification has a decidedBy exactly when its status is not PENDING
-  Rule: revoke must not clear decidedBy
+  an optional decidedAt DateTime
+  Rule: a verification has a decidedBy and a decidedAt exactly when its status is not PENDING
+  Rule: revoke must not clear decidedBy or decidedAt
   Rule: evidence is the classified note (kind, optional filename, optional text). File bytes are not concept state.
 ```
 
@@ -85,7 +86,7 @@ verify (reviewer: User, verification: Verification) : returns (verification: Ver
     refuses NOT_PENDING "This proof has already been decided."
   where reviewer is the appointed reviewer and the verification is pending
   then
-    set the verification's status to VERIFIED and its decidedBy to reviewer
+    set the verification's status to VERIFIED, its decidedBy to reviewer, and its decidedAt to now
     returns verification
 
 reject (reviewer: User, verification: Verification) : returns (verification: Verification)
@@ -100,7 +101,7 @@ reject (reviewer: User, verification: Verification) : returns (verification: Ver
     refuses NOT_PENDING "This proof has already been decided."
   where reviewer is the appointed reviewer and the verification is pending
   then
-    set the verification's status to REJECTED and its decidedBy to reviewer
+    set the verification's status to REJECTED, its decidedBy to reviewer, and its decidedAt to now
     returns verification
 
 revoke (subject: Subject) : returns ()
@@ -109,7 +110,7 @@ revoke (subject: Subject) : returns ()
     refuses NOT_VERIFIED "This is not verified."
   where subject has a VERIFIED verification
   then
-    set that verification's status to REJECTED, leaving decidedBy unchanged
+    set that verification's status to REJECTED, leaving decidedBy and decidedAt unchanged
     returns
 ```
 
@@ -120,14 +121,14 @@ _isReviewer (user: User) : one (appointed: Flag)
   answers true only when user is the appointed reviewer
 _isVerified (subject: Subject) : one (verified: Flag)
   answers true only when subject has a verification whose status is VERIFIED
-_forSubject (subject: Subject) : optional (verification: Verification, status: Status, decidedBy: User)
+_forSubject (subject: Subject) : optional (verification: Verification, status: Status, decidedBy: User, decidedAt: DateTime)
   answers the PENDING or VERIFIED verification about subject, if there is one
   answers no row when the subject has only REJECTED verifications, or none
   never answers evidence
 _pending () : many (verification: Verification, advertiser: User, subject: Subject)
   answers every PENDING verification, oldest first
   never answers evidence
-_get (verification: Verification) : optional (advertiser: User, subject: Subject, status: Status, decidedBy: User)
+_get (verification: Verification) : optional (advertiser: User, subject: Subject, status: Status, decidedBy: User, decidedAt: DateTime)
   answers no row for an unknown verification
   never answers evidence
 _evidence (reviewer: User, verification: Verification) : optional (evidence: String)

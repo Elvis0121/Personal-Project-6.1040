@@ -48,14 +48,14 @@ test("principle: only the reviewer sees the evidence, and decidedBy survives rev
   await verifying.verify({ reviewer: "kumba", verification });
   expect(await verifying._isVerified({ subject: "cottage" })).toEqual({ verified: true });
   expect(await verifying._forSubject({ subject: "cottage" })).toEqual([
-    { verification, status: "VERIFIED", decidedBy: "kumba" },
+    { verification, status: "VERIFIED", decidedBy: "kumba", decidedAt: expect.any(Date) },
   ]);
 
   await verifying.revoke({ subject: "cottage" });
   expect(await verifying._isVerified({ subject: "cottage" })).toEqual({ verified: false });
   expect(await verifying._forSubject({ subject: "cottage" })).toEqual([]);
   expect(await verifying._get({ verification })).toEqual([
-    { advertiser: "mrsdube", subject: "cottage", status: "REJECTED", decidedBy: "kumba" },
+    { advertiser: "mrsdube", subject: "cottage", status: "REJECTED", decidedBy: "kumba", decidedAt: expect.any(Date) },
   ]);
 });
 
@@ -115,7 +115,13 @@ test("reject records decidedBy and then allows a fresh submit", async () => {
   await verifying.reject({ reviewer: "kumba", verification: first.verification });
 
   expect(await verifying._get({ verification: first.verification })).toEqual([
-    { advertiser: "mrsdube", subject: "cottage", status: "REJECTED", decidedBy: "kumba" },
+    {
+      advertiser: "mrsdube",
+      subject: "cottage",
+      status: "REJECTED",
+      decidedBy: "kumba",
+      decidedAt: expect.any(Date),
+    },
   ]);
   expect(await verifying._forSubject({ subject: "cottage" })).toEqual([]);
   expect(await verifying._pending({})).toEqual([]);
@@ -129,7 +135,7 @@ test("reject records decidedBy and then allows a fresh submit", async () => {
     { verification: second.verification, advertiser: "mrsdube", subject: "cottage" },
   ]);
   expect(await verifying._forSubject({ subject: "cottage" })).toEqual([
-    { verification: second.verification, status: "PENDING", decidedBy: null },
+    { verification: second.verification, status: "PENDING", decidedBy: null, decidedAt: null },
   ]);
 });
 
@@ -147,7 +153,7 @@ test("revoke refuses an unverified subject and does not clear decidedBy", async 
   await verifying.verify({ reviewer: "kumba", verification });
   await verifying.revoke({ subject: "cottage" });
   expect(await verifying._get({ verification })).toEqual([
-    { advertiser: "mrsdube", subject: "cottage", status: "REJECTED", decidedBy: "kumba" },
+    { advertiser: "mrsdube", subject: "cottage", status: "REJECTED", decidedBy: "kumba", decidedAt: expect.any(Date) },
   ]);
   expect(await verifying._evidence({ reviewer: "kumba", verification })).toEqual([{ evidence: bill }]);
 });

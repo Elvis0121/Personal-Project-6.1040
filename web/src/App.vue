@@ -24,13 +24,15 @@ const headerPage = computed(() =>
 );
 
 watch(
-  [account, page, ready],
+  [account, reviewer, page, ready],
   () => {
     if (!ready.value) return;
-    if (account.value && page.value.name === "landing") location.hash = "#/homes";
-    // Sign-out already sends people to `#/`. Guests still need `#/mine` so
-    // "List a place" can show the form and the log-in buttons.
     if (!account.value && page.value.name === "review") location.hash = "#/";
+    if (reviewer.value && (page.value.name === "landing" || page.value.name === "search" || page.value.name === "mine" || page.value.name === "liked" || page.value.name === "listing")) {
+      location.hash = "#/review";
+      return;
+    }
+    if (account.value && page.value.name === "landing") location.hash = "#/homes";
   },
 );
 

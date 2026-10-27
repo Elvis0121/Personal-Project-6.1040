@@ -111,6 +111,13 @@ test("confirm renews the deadline; a lapsed listing leaves search and is withdra
   });
 });
 
+test("the owner cannot confirm a listing after it is let", async () => {
+  const dube = await register("mrsdube", "avondale-cottage");
+  const { listing } = (await post("/listings/publish", cottage, dube)).body;
+  expect((await post("/listings/mark-let", { listing }, dube)).status).toBe(200);
+  expect((await post("/listings/confirm", { listing }, dube)).body).toEqual({ error: "CONFLICT" });
+});
+
 test("a let listing is not withdrawn when its timer expires; relist starts a fresh timer", async () => {
   const dube = await register("mrsdube", "avondale-cottage");
   const { listing } = (await post("/listings/publish", cottage, dube)).body;
