@@ -1,8 +1,8 @@
 # p4 design
 
-in this design ddoc, i'm comparing the changes that I move dthrough across the milestones
+In this design ddoc, i'm comparing the changes that I move dthrough across the milestones
 
-how this ended up vs p1, and the one join that was still messy.
+How this ended up vs p1, and the one join that was still messy.
 
 ## vs p1
 
@@ -11,25 +11,25 @@ Listing / Introducing / Verifying / Expiring are still the same. What changed:
 - `disclose` is a query (`_disclosed`), not an action. the page can only read through queries.
 - Verifying is on the listing, not the person. `examine` became `_evidence`. files are not in the concept.
 - `decidedBy` stays after revoke. moving a verified place drops VERIFIED, rent change does not.
-- Expiring does not know what a listing is. withdraw on lapse, not mark-let.
+- Expiring does not know what a listing is. withdraw automatically if not reconfirmed.
 - no Photographing concept. photos sit next to Listing the same way proof files sit next to Verifying.
-- likes are `localStorage`. not a concept.
+- Likes are `localStorage` and we don't make them a a concept.
 
 current specs: `[design/concepts/](https://github.com/Elvis0121/Personal-Project-6.1040/tree/412e61d3f92c926dba49e53985c1e0a70be8aa9a/design/concepts)`. vs p3 visual
 
-## p4 change
+## p4 changes
 
-multipart cannot go through the json policy. so photos and proof uploads had their own origin / session / owner / OPEN checks. same rules, second copy. that's how you could still swap photos after mark-let.
+Multipart cannot go through the json policy. so photos and proof uploads had their own origin / session / owner / OPEN checks. same rules, second copy. That's how you could still swap photos after mark-let.
 
 now there is one view, `OwnedOpen` (`the owner of open (listing)`).
 
 - confirm uses it
-- json submit-proof uses it
+- json submit-proof as well
 - multipart photos / proof call `requireOwnedOpen` in `src/access.ts`, which is the same predicate, same origin list as the policy, same public error codes
 
-Introductions still uses `OpenOwner` (open AND current). asking about a lapsed place should fail even before it is withdrawn. confirm / photos / proof only need OPEN.
+Introductions still uses `OpenOwner` (open AND current). Asking about a lapsed place should fail even before it is withdrawn. confirm / photos / proof only need OPEN.
 
-bytes are not in Verifying. they go in a `files.blobs` collection (and disk if it writes). so a new deploy machine still has the bill. search still cannot see it.
+Bytes are not in Verifying. they go in a `files.blobs` collection (and disk if it writes). So a new deploy machine still has the bill. search still cannot see it.
 
 ## access (what i checked)
 
@@ -43,15 +43,12 @@ reviewer is a username (`kumba`), not a flag. queue / `_evidence` / proof downlo
 
 sign out goes to `#/`. guests can still open List a place; the form tells them to log in. `#/review` without an account goes home.
 
-## tests for the extra door
-
-happy path already had "let, then no more photos". the live bugs were the cases that path doesn't hit, so those are in bun test now:
+## tests for the additional door
 
 - photo still serves after the disk file is gone. that's the reviewer `NOT_FOUND`. `tests/photo-http.test.ts`
 - withdrawn listing cannot take photo writes. same `OwnedOpen` as let. `tests/photo-http.test.ts`
 - owner cannot confirm after mark-let. confirm uses the view too. `tests/expire-http.test.ts`
-- multipart proof after mark-let is CONFLICT, same as json. if access.ts only wrapped json, this fails. `tests/proof-http.test.ts`
+- multipart proof after mark-let is CONFLICT, same as json. if access.ts only wrapped json, this should fails. `tests/proof-http.test.ts`
 - guest cannot download proof. `tests/proof-http.test.ts`
 
 if bytes only live on disk, the first one fails. if the extra http door still has its own owner check, the multipart one fails.
-
