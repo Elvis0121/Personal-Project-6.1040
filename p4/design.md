@@ -1,6 +1,6 @@
 # p4 design
 
-Tenants keep getting scammed, landlords keep receiving calls for a house they have already let. I'm here to eliminate that, and here's how my approah to that has changed since the first milestone. I'm simply creating trust as a service (TaaS). Tenants trust landlords because Kumba says they are trustworthy. Landlords trust potential tenants because Kumba says they are trustworthy. And it is the duty of Kumba to make sure that both invariants will always hold, that's the chip.
+Tenants keep getting scammed, landlords keep receiving calls for a house they have already let. My aim is to eliminate that, and here's how my approah to that has changed since the first milestone.
 
 ## vs p1
 

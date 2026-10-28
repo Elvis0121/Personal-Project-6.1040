@@ -69,35 +69,35 @@ const landlordSteps = [
 const faqs = [
   {
     q: "Can I look around before signing up?",
-    a: "Of course. Have a look around, compare places, and check the costs before committing to anything. No account needed. When you find somewhere you like, sign in to request an introduction or manage your listings."
+    a: "Yes. Search and open a listing with no account. Sign in only to ask for a number, or to list a place.",
   },
   {
     q: "Is Kumba free for people looking for a home?",
-    a: "Yes. Searching is free, and we'll never ask you to pay just to view a place, get a contact number, or reserve a room. Rent and deposit are arranged directly with the landlord, outside Kumba."
+    a: "Yes. You do not pay Kumba to search, to see a listing, or to get a number. Rent and deposit go to the landlord, outside the app.",
   },
   {
     q: "How does Kumba help me avoid scams?",
-    a: "Finding a home takes enough effort already. We show the full advertised cost upfront, check supporting documents submitted by advertisers, and ask owners to reconfirm that a place is still available. You can also see whether an advertiser has been verified, so you have more information before deciding who to contact. VERIFIED means we've completed our stated document check, not that every detail of a listing is guaranteed."
+    a: "Full cost is on the card before anyone has your money. VERIFIED means someone here looked at the advertiser's proof; you never see the file. If it is let, or the owner does not confirm it is still available, it leaves search. VERIFIED is that document check, not a guarantee of every detail.",
   },
   {
     q: "What does the VERIFIED badge mean?",
-    a: "It's an extra bit of reassurance. We've reviewed supporting documents to check that the advertiser has evidence they can let the property. We keep those documents private, so you won't see someone's personal paperwork. Places without the badge can still appear in search, clearly labelled so you can make your own informed choice."
+    a: "Someone here looked at a rates bill, ZESA bill, title deed, or similar. Tenants never see the file. Unverified listings still appear, labelled.",
   },
   {
     q: "How do I get in touch with a landlord?",
-    a: "We help landlords keep track of who's interested, so your request doesn't get lost in a sea of calls and messages. Send a request for an introduction, and if the advertiser accepts, we'll share their contact number with you. It's a more organised way to connect, while giving both sides a little more breathing room."
+    a: "Ask for an introduction. If they accept, you get their number. Until then, the number stays off the page.",
   },
   {
     q: "How do I know a place is still available?",
-    a: "We know how disappointing it is to find a place you love, only to discover it's already taken. That's why owners are asked to confirm that their listings are still available. If a place is marked as let or isn't reconfirmed, it leaves search. We're working to help you spend more time finding your next home and less time chasing old adverts."
+    a: "Owners have to confirm it is still open. Mark it let, or miss the confirm, and it leaves search.",
   },
   {
-    q: "I'd like to advertise a place. How do I get started?",
-    a: "Welcome! Create an account, add your property's details, and make the rental terms clear so people know what to expect. Keep the listing up to date by confirming availability, and you can submit supporting documents if you'd like your advert to display the VERIFIED badge."
+    q: "How do I list a place?",
+    a: "Sign in and publish the terms: rent, deposit, extras, move-in. Add photos if you have them. Submit proof if you want VERIFIED. Confirm it is still available, or mark it let when it is gone.",
   },
   {
     q: "What documents can I submit for verification?",
-    a: "You can submit a rates bill, water bill, electricity bill, title deed, lease, or a short note as supporting evidence. We accept a PDF or a photo. Your documents are kept private and aren't shown to prospective tenants. We'll review the evidence as part of our verification process."
+    a: "A rates bill, water bill, electricity bill, title deed, lease, or a short note. PDF or a photo. Tenants never see it.",
   },
 ];
 

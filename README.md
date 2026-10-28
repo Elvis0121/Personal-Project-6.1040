@@ -1,8 +1,8 @@
 # Personal-Project-6.1040
 
-A rental platform for Zimbabwe that takes a tenant from search to tenancy: find a place with its full costs shown up front, connect directly with the landlord, and rent it, without paying middlemen for access along the way.
+A rental platform for Zimbabwe that takes a tenant from search to getting placed in a home: find a place with its full costs shown up front, connect directly with the landlord, and rent it, without paying middlemen for access.
 
-This is being built as a real product for real tenants and landlords, starting in Harare.
+This is tool will be piloted starting in Harare, teh capital.
 
 Live app: [https://kumba.mit-sdg.dev](https://kumba.mit-sdg.dev)
 
@@ -101,8 +101,6 @@ every concept has a principle test + the refusals. also http tests for edit, exp
 `bun run check` = specs, code, generated types agree.
 
 [tests/journey.test.ts](tests/journey.test.ts) is the long path (endpoints + cookie + mongo). clicks are in [p3/user-journey.md](p3/user-journey.md). vue isnt in bun test.
-
-
 
 future improvements:
 
