@@ -12,24 +12,20 @@ defineProps<{
 
 <template>
   <header>
-    <a :href="reviewer ? '#/review' : account ? '#/homes' : '#/'" class="brand">
+    <a :href="account ? '#/homes' : '#/'" class="brand">
       <BrandMark />
       <span class="brand-name">Kumba</span>
     </a>
     <nav>
-      <template v-if="reviewer">
-        <a href="#/review" :class="{ current: page === 'review' }">Review</a>
-      </template>
-      <template v-else>
-        <a href="#/homes" :class="{ current: page === 'search' || page === 'listing' }">Find your home</a>
-        <a
-          href="#/mine"
-          :class="{ current: page === 'mine' }"
-          @click="account ? undefined : rememberNext('#/mine')"
-        >
-          {{ account ? "My homes" : "List a place" }}
-        </a>
-      </template>
+      <a href="#/homes" :class="{ current: page === 'search' || page === 'listing' }">Find your home</a>
+      <a
+        href="#/mine"
+        :class="{ current: page === 'mine' }"
+        @click="account ? undefined : rememberNext('#/mine')"
+      >
+        {{ account ? "My homes" : "List a place" }}
+      </a>
+      <a v-if="reviewer" href="#/review" :class="{ current: page === 'review' }">Review</a>
     </nav>
     <AccountPanel />
     <div v-if="!account && page !== 'sign-in' && page !== 'sign-up'" class="header-auth">

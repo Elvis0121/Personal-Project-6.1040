@@ -1,1 +1,88 @@
 bun test v1.4.2 (744846f84)
+
+tests/expire-http.test.ts:
+(pass) confirm renews the deadline; a lapsed listing leaves search and is withdrawn, not let [365.38ms]
+(pass) the owner cannot confirm a listing after it is let [149.28ms]
+(pass) a let listing is not withdrawn when its timer expires; relist starts a fresh timer [155.48ms]
+
+tests/photo-http.test.ts:
+(pass) the advertiser can upload a photo; search and view point at it as the display photo [164.15ms]
+(pass) a stranger cannot upload or pick the display photo; a second photo can become the display [280.88ms]
+(pass) unsigned visitors cannot upload, and a missing photo is not found [138.23ms]
+(pass) a let listing cannot take photo writes; a foreign Origin is refused on the multipart door [147.62ms]
+(pass) a photo still serves after the disk file is gone [148.35ms]
+(pass) a withdrawn listing cannot take photo writes [158.96ms]
+
+tests/proof.test.ts:
+(pass) old free-text proof stays a note, with no kind or file [0.11ms]
+(pass) kind, file, and note round-trip [0.05ms]
+(pass) rejects a document that is not a PDF or image [0.08ms]
+
+tests/review-http.test.ts:
+(pass) kumba verifies a listing; tenants see VERIFIED and never the evidence [427.70ms]
+(pass) a let listing cannot take new proof, and reject lets the owner submit again [301.39ms]
+
+tests/proof-http.test.ts:
+(pass) JSON submit-proof still works when the upload routes are wrapped in [155.28ms]
+(pass) an advertiser can upload a classified document; only the reviewer can open it [388.23ms]
+(pass) multipart proof is refused after mark-let, same as the json door [177.18ms]
+(pass) a guest cannot download proof [296.80ms]
+(pass) a text file is not proof [172.16ms]
+
+tests/listings-edit-http.test.ts:
+(pass) the owner can edit terms and withdraw; a stranger cannot [266.74ms]
+(pass) moving a verified listing revokes VERIFIED; changing the rent does not [298.03ms]
+
+tests/journey.test.ts:
+(pass) journey: a tenant finds a verified place, is introduced, and the landlord marks it let [543.55ms]
+(pass) access control: the session decides who acts, and only the right person can [447.39ms]
+(pass) errors: bad input and unknown things answer with a clear category [444.03ms]
+(pass) relisting clears pending and declined requests but keeps accepted ones [403.36ms]
+(pass) a listing that is not confirmed in time leaves search and is withdrawn, not let [263.64ms]
+
+tests/concepts/Introducing.test.ts:
+(pass) principle: the contact is disclosed only after the holder accepts, and only to the requester [17.67ms]
+(pass) a declined requester never sees the contact and cannot ask again [15.25ms]
+(pass) only the holder can answer, and only with a contact [15.23ms]
+(pass) nobody can ask to be introduced to themselves, and duplicate requests race safely [26.84ms]
+(pass) the holder sees requests in order, and reset clears all but accepted ones [16.68ms]
+
+tests/concepts/Sessioning.test.ts:
+(pass) principle: a session resolves to its subject until it is ended [10.86ms]
+(pass) an invented or missing session is refused [0.96ms]
+(pass) a session stops working once it expires [5.66ms]
+(pass) two sessions for one subject are independent [9.24ms]
+
+tests/concepts/Expiring.test.ts:
+(pass) principle: current until the deadline, renew keeps it, expire deletes the timer [18.11ms]
+(pass) duration must be a positive number of milliseconds [0.85ms]
+(pass) reschedule works on an existing timer even after the deadline [12.60ms]
+(pass) expire refuses a missing or still-current timer [7.52ms]
+(pass) due lists oldest deadline first, and a deadline exactly now is due [10.36ms]
+
+tests/concepts/Verifying.test.ts:
+(pass) principle: only the reviewer sees the evidence, and decidedBy survives revoke [20.52ms]
+(pass) appoint succeeds once, and blank names are refused [7.29ms]
+(pass) submit refuses empty evidence and a second current proof [14.29ms]
+(pass) only the appointed reviewer can verify or reject, and only while pending [19.61ms]
+(pass) reject records decidedBy and then allows a fresh submit [18.98ms]
+(pass) revoke refuses an unverified subject and does not clear decidedBy [20.38ms]
+(pass) pending lists oldest first and never includes evidence [15.84ms]
+
+tests/concepts/Listing.test.ts:
+(pass) principle: terms are visible while open, the contact never is, and only the owner closes it [10.90ms]
+(pass) search filters by area and maximum rent, cheapest first [12.04ms]
+(pass) incomplete or negative terms are refused [0.97ms]
+(pass) the owner sees their own listings with contacts, newest first [10.19ms]
+(pass) only an open listing can be updated, let, or withdrawn, and only a closed one relisted [8.95ms]
+
+tests/concepts/Authenticating.test.ts:
+(pass) principle: a registered user authenticates with the right password only [404.37ms]
+(pass) an unknown username is refused the same way as a wrong password [4.35ms]
+(pass) usernames and passwords outside the allowed shape are refused [111.39ms]
+(pass) the password is not stored as written [107.98ms]
+
+ 56 pass
+ 0 fail
+ 390 expect() calls
+Ran 56 tests across 13 files. [7.63s]

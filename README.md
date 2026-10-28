@@ -40,8 +40,7 @@ slides were from looking at spice markets and old print, not at kumba. then i to
 
 - [design document](p4/design.md)
 - live app: [https://kumba.mit-sdg.dev](https://kumba.mit-sdg.dev)
-- demo video 
-- 
+- demo video: [https://youtu.be/K8YaDxiBabE](https://youtu.be/K8YaDxiBabE) 
 
 - teal on buttons / links
 - paprika only on errors
