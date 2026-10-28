@@ -1,4 +1,4 @@
-Photographs from Wikimedia Commons. Used in the two visual-study slides.
+Photographs from Wikimedia Commons(used them in the slides) 
 
 Colour
 
@@ -21,3 +21,4 @@ Type
 - [Letterpress type case.jpg](https://commons.wikimedia.org/wiki/File:Letterpress_type_case.jpg)
 - [Ditto Newsletter 1978.jpg](https://commons.wikimedia.org/wiki/File:Ditto_Newsletter_1978.jpg)
 - [Weldon Spring letterpress (Unsplash).jpg](https://commons.wikimedia.org/wiki/File:Weldon_Spring_letterpress_(Unsplash).jpg)
+

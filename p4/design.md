@@ -1,8 +1,6 @@
 # p4 design
 
-In this design doc, I'm comparing the changes that I moved through across the milestones.
-
-How this ended up vs P1, and the one join that was still messy.
+Tenants keep getting scammed, landlords keep receiving calls for a house they have already let. I'm here to eliminate that, and here's how my approah to that has changed since the first milestone. I'm simply creating trust as a service (TaaS). Tenants trust landlords because Kumba says they are trustworthy. Landlords trust potential tenants because Kumba says they are trustworthy. And it is the duty of Kumba to make sure that both invariants will always hold, that's the chip.
 
 ## vs p1
 
@@ -15,7 +13,7 @@ Listing / Introducing / Verifying / Expiring are still the same. What changed:
 - no Photographing concept. photos sit next to Listing the same way proof files sit next to Verifying.
 - Likes are `localStorage` and we don't make them a a concept.
 
-Current specs: `[design/concepts/](https://github.com/Elvis0121/Personal-Project-6.1040/tree/412e61d3f92c926dba49e53985c1e0a70be8aa9a/design/concepts)`
+Current specs: [design/concepts/](https://github.com/Elvis0121/Personal-Project-6.1040/tree/412e61d3f92c926dba49e53985c1e0a70be8aa9a/design/concepts)
 
 ## vs p3 visual
 
@@ -23,12 +21,14 @@ P3 slides were spice markets and old print, not a housing site. Type and colour 
 
 In P4, mostly changed the hierarchy:
 
-- We put one loud action, such that confirm stays teal even if someone is waiting. Accept / decline are the same small status font as PENDING used to be, green and paprika
+- we put one loud action, such that confirm stays teal even if someone is waiting. Accept / decline are the same small status font as PENDING used to be, green and paprika
 - Photos are beneath Move in so the fold is not hidden under proof
-- Requests is always a dropdown, empty or waiting, using mint green.
-- Warnings are popups before every major action like mark let, withdraw, relist, remove photo, share your number. You can go ahead with an actioin that modifies the listing, or change its state.
+- requests is always a dropdown, empty or waiting, using mint green.
+- warnings are popups before every major action like mark let, withdraw, relist, remove photo, share your number. You can go ahead with an actioin that modifies the listing, or change its state.
 - Landing safety uses real houses, not generated rooms
 - Kumba still has Find your home and My homes. A reviewer needs to see the listing the way a tenant sees it, not only the bill in the queue.
+
+
 
 ## p4 changes
 

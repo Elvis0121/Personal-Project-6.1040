@@ -6,6 +6,26 @@ This is being built as a real product for real tenants and landlords, starting i
 
 Live app: [https://kumba.mit-sdg.dev](https://kumba.mit-sdg.dev)
 
+## Design notes
+
+For the reflection notes in seprate repo: [6.1040-Software-Design](https://github.com/Elvis0121/6.1040-Software-Design), under `reflections/`:
+
+- P1: [design-scribb.md](https://github.com/Elvis0121/6.1040-Software-Design/blob/main/reflections/design-scribb.md)
+- P2: [p2-design-notes.md](https://github.com/Elvis0121/6.1040-Software-Design/blob/main/reflections/p2-design-notes.md)
+- P3: [p3-design-notes.md](https://github.com/Elvis0121/6.1040-Software-Design/blob/main/reflections/p3-design-notes.md)
+- P4: [p4-design-notes.md](https://github.com/Elvis0121/6.1040-Software-Design/blob/main/reflections/p4-design-notes.md)
+
+My P4 writeup is [p4/design.md](p4/design.md).
+
+## Some relevant files:
+
+- UI sketches[design/sketches/](design/sketches/)
+- Visual design: [design/visual-study/SOURCES.md](design/visual-study/SOURCES.md)
+- P3 specs: [Verifying](design/concepts/Verifying.md), [Expiring](design/concepts/Expiring.md), [Review](design/compositions/Review.md), [Availability](design/compositions/Availability.md)
+- Test cases output : [tests/bun-test-output.txt](tests/bun-test-output.txt)
+
+
+
 ## P1: Design
 
 - [Problem framing](design/problem-framing.md)
@@ -32,27 +52,19 @@ Live app: [https://kumba.mit-sdg.dev](https://kumba.mit-sdg.dev)
 - [user journey testing](p3/user-journey.md)
 - demo video: [https://youtu.be/AgoNLDelj1g?si=Qr14E2q150i2Sgq6](https://youtu.be/AgoNLDelj1g?si=Qr14E2q150i2Sgq6)
 
-note: it is virtually IMPOSSIBLE to show the functionality of the app in under 2 minutes because of cookie sessions and the need to sign in to 3 different accounts, as can be attested from the video.
+```
+TA Note: it is virtually IMPOSSIBLE to show the functionality of the app in under 2 minutes because of cookie sessions and the need to sign in to 3 different accounts, as can be attested from the video.
+```
 
-slides were from looking at spice markets and old print, not at kumba. then i took some of that into the ui:
+
 
 ## P4: Code complete
 
 - [design document](p4/design.md)
 - live app: [https://kumba.mit-sdg.dev](https://kumba.mit-sdg.dev)
-- demo video: [https://youtu.be/K8YaDxiBabE](https://youtu.be/K8YaDxiBabE) 
+- demo video: [https://youtu.be/K8YaDxiBabE](https://youtu.be/K8YaDxiBabE)
 
-- teal on buttons / links
-- paprika only on errors
-- oregano for VERIFIED, turmeric for pending
-- cream page, dark type
-- Newsreader for headings, Source Sans 3 for the rest
 
-didn't make a Photographing concept. a photo just sits on a listing. if proof files lived in Verifying they'd show up on search the second a query leaked.
-
-bytes go in `files.blobs` (and disk if it writes). Verifying only stores a string (kind / filename / note). reviewer opens the file through `_evidence`. tenants see VERIFIED, not the rates bill.
-
-photos: extra http next to Listing. max 8. first one is the display photo.
 
 ### Running locally
 
@@ -89,6 +101,8 @@ every concept has a principle test + the refusals. also http tests for edit, exp
 `bun run check` = specs, code, generated types agree.
 
 [tests/journey.test.ts](tests/journey.test.ts) is the long path (endpoints + cookie + mongo). clicks are in [p3/user-journey.md](p3/user-journey.md). vue isnt in bun test.
+
+
 
 future improvements:
 
