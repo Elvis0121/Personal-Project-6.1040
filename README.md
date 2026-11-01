@@ -66,6 +66,13 @@ TA Note: it is virtually IMPOSSIBLE to show the functionality of the app in unde
 
 
 
+## P5: User testing
+
+- [task list](p5/tasks.md)
+- live app: [https://kumba.mit-sdg.dev](https://kumba.mit-sdg.dev)
+
+
+
 ### Running locally
 
 Needs Bun and Podman.
