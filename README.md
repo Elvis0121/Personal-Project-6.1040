@@ -2,27 +2,28 @@
 
 A rental platform for Zimbabwe that takes a tenant from search to getting placed in a home: find a place with its full costs shown up front, connect directly with the landlord, and rent it, without paying middlemen for access.
 
-This is tool will be piloted starting in Harare, teh capital.
+This tool will be piloted starting in Harare, the capital.
 
 Live app: [https://kumba.mit-sdg.dev](https://kumba.mit-sdg.dev)
 
 ## Design notes
 
-For the reflection notes in seprate repo: [6.1040-Software-Design](https://github.com/Elvis0121/6.1040-Software-Design), under `reflections/`:
+For the reflection notes in a separate repo: [6.1040-Software-Design](https://github.com/Elvis0121/6.1040-Software-Design), under `reflections/`:
 
 - P1: [design-scribb.md](https://github.com/Elvis0121/6.1040-Software-Design/blob/main/reflections/design-scribb.md)
 - P2: [p2-design-notes.md](https://github.com/Elvis0121/6.1040-Software-Design/blob/main/reflections/p2-design-notes.md)
 - P3: [p3-design-notes.md](https://github.com/Elvis0121/6.1040-Software-Design/blob/main/reflections/p3-design-notes.md)
 - P4: [p4-design-notes.md](https://github.com/Elvis0121/6.1040-Software-Design/blob/main/reflections/p4-design-notes.md)
+- P5: [p5-personal-reflection.md](https://github.com/Elvis0121/6.1040-Software-Design/blob/main/reflections/p5-personal-reflection.md)
 
 My P4 writeup is [p4/design.md](p4/design.md).
 
 ## Some relevant files:
 
-- UI sketches[design/sketches/](design/sketches/)
+- UI sketches: [design/sketches/](design/sketches/)
 - Visual design: [design/visual-study/SOURCES.md](design/visual-study/SOURCES.md)
 - P3 specs: [Verifying](design/concepts/Verifying.md), [Expiring](design/concepts/Expiring.md), [Review](design/compositions/Review.md), [Availability](design/compositions/Availability.md)
-- Test cases output : [tests/bun-test-output.txt](tests/bun-test-output.txt)
+- Test cases output: [tests/bun-test-output.txt](tests/bun-test-output.txt)
 
 
 
@@ -68,7 +69,8 @@ TA Note: it is virtually IMPOSSIBLE to show the functionality of the app in unde
 
 ## P5: User testing
 
-- [task list](p5/tasks.md)
+- [task list, reports, and flaws](p5/tasks.md)
+- [reflection](https://github.com/Elvis0121/6.1040-Software-Design/blob/main/reflections/p5-personal-reflection.md)
 - live app: [https://kumba.mit-sdg.dev](https://kumba.mit-sdg.dev)
 
 

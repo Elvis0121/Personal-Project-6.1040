@@ -1,4 +1,4 @@
-# p5
+# p5 tasks (user testing)
 
 
 | Title                       | Instruction                                                                                                                                                                                            | Rationale                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
@@ -11,3 +11,130 @@
 | Let, then they fall through | You have agreed with one of them. The house is let. A week later they fall through. You want it seen again.                                                                                            | Mark let is how a place leaves search (unless withdrawn). Relist is how it comes back when the tenant falls through. Both sit on the same card as confirm and withdraw. A walkthrough already knows the order and the warning popups. A user may withdraw instead of let, confirm instead of relist, or type the house in again. Relist should keep the terms and the photo. If they cannot find that path, it means the design could be better, especially for the fall-through case.                                                                                                                                                                          |
 
 
+
+
+## notes
+
+
+
+### Jordan
+
+Avondale / Belvedere loc. Asked if real places. thinks Avondale is a street
+
+Max rent 500 and a 400 + 400 deposit house still in the list. treated the box as whole move-in, not just rent
+
+Left area blank, dump of every listing. Typed Harare and Avondale, Harare came back.
+
+"ale" hit Avondale, Borrowdale which are at the end of the names of the neighborhoods
+
+Verified / not verified on the photo. Asked if that means the picture is real. User seemed to skip most of the not-verified ones, thought it was fake and should not be up
+
+likes that stand-in photos look like the actual house when uploading house
+
+Ticked house only and the cottages / flats vanished. Did not realise room, cottage, flat, house are all there if you leave type alone.
+
+Long extras on one card stretch the metadata block. Huge gap, then "See this home" sits at the bottom while the other cards have it tight under move-in. Three cards in a row, heights do not match
+
+Heart on two Avondale places that are both about US$400. Wanted to compare them side by side, not just save each. Like is less useful if you cannot pick between similar ones.
+
+### Lance
+
+Logged in and nothing says you are Lance. Tiny name in the header. Two windows both say Kumba. wants it to feell more personal
+
+List jumped. Thought he misclicked. Search polling every 4s, other window had just published.
+
+did not really care about the like feature
+
+Signed up with a gmail. Invalid request. Thought they had to use phone or email, not a username. Needs 3 to 32 characters, password 8+.
+
+List a place as guest, filled the whole form, then login / signup. Came back and never hit publish. Thought it was already listed.
+
+Opened his own house in find your home and tried to ask for an intro. Error. wanted to know why his listing is in his search. Wants search personalized so his homes won't appear if he is also looking to rent
+
+Put their number in extra charges. Box is huge and says extras so that is where the number went.
+
+Asked about currencies. Us dollars and ZiG in the form, no rate. In Zimbabwe people use an official rate and a black market rate. informal deals use black market rate. Thinsk it may need to show a rate that would be acceptable to everyone, or which rate the listing means.
+
+
+
+## Report
+
+Tried not to explain the UI unless they were stuck with no next move
+
+### Jordan
+
+Jordan searched with no account and got a grid of places. He treated max rent as the whole move-in budget, so a US$400 rent plus a US$400 deposit still sat inside a US$500 cap. He could see the numbers clearly, but the filter only bound to just rent, not the total (mainly because that would be the recurring amount one pays to the landlord).
+
+When inputting specific locations, Harare matched Avondale and Harare. When Jordan tried "ale" it matched Avondale and Borrowdale, which both end like that. He also asked if Avondale and Belvedere were real, and thought Avondale was a street. This was because Jordan has never been to Harare, and tested names the product treats as obvious.
+
+Verified sits on the photograph. He wanted to know if it meant the picture was real, then skipped most not-verified cards as if assuming they were fake and not worth looking over (Jordan generally graviated to places with more than jsut the display photo, too). Two readings fit: the badge is on the image, so it attaches to the image; or he never heard that unverified listings stay up on purpose. He seemed to point at the first. He also likes that stand-in photos look like a real house when you upload. Verified looks like a photo check.
+
+When he ticked House only under "Type", cottages and flats vanished. He had not seen that leaving type empty keeps all four kinds.
+
+![Search cards during Jordan's session. Long extras on the Avondale house push See this home down, so the three cards do not line up.](jordan-search.jpg)
+
+Long extras on the right-hand Avondale house stretch the metadata. See this home drops to the bottom while the neighbours sit tight under move-in. He also hearted two Avondale places both around US$400 and wanted to compare them side by side. Like turned out a bit unhelfpul for him.
+
+### Lance
+
+Lance typed in his email to signup, got invalid request, and said he expected a phone or an email, not just a username. The field is labelled username. Apparently, other housing sites he knows want an email. 
+
+He browsed as a guest, filled List a place, signed in, came back, and did not press Publish. He thought the house was already up because of the sign in step. The form looks finished before you have an account, so login felt like the last step rather than a redirect.
+
+His own house then showed up in Find your home. He tried to ask for an introduction, got an error, and wanted search not to include his listings if he is also looking to rent. The listing page already says this is your home. That sentence never ran, because the issue is with the search grid design. He also put his number in extra charges. The box is large and labelled extras, so that is where his contact went.
+
+While he looked, the list jumped. He thought he had misclicked. It was because a different window had just published. Search is designed to refresh every 4 seconds. 
+
+After login, only a small header name said he was lance (username). He wanted it to feel more personal.
+
+He wanted to know about the currencies (US dollars and ZiG, the country uses both) because there is no exchange rate displayed. In the country, people use an official rate and a black market rate; informal deals use the black market one. He thought a listing should say which rate it means, or a rate both sides would accept. Jordan on the other hand did not question currencies.
+
+## Flaws
+
+### 1. Verified sits on the photo
+
+**Physical, Major**
+
+The badge is drawn on the image, so Jordan read it as a check on the picture. He asked if verified meant the photo was real, then skipped most not-verified cards as fake. Unverified listings are searchable, just that the landlord has not confirmed they own the place. Tenants would need to use their discretion.
+
+It is happening because HomePhoto puts the mark on the figure, next to the heart, not next to the advertiser. Stand-in photos looking like real houses made it worse. He did liked that realism when uploading though.
+
+One way to address it would be to move it off the photo, next to kind / location. We keep unverified listings in search.
+
+### 2. Own house is in Find your home
+
+**Conceptual, Minor**
+
+Landlord opened his listing from search and wanted to ask for an introduction, but they couldn'. He wanted to know why his house was in the tenant grid, and thinks search should not show his homes if he is also looking to rent.
+
+Find your home is one list of open places. The same account can advertise and search. The listing page does say “this is your home,”
+
+We can drop the current owner’s listings from `/listings/search,` although this is not a high priority refinement. 
+
+### 3. Login feels like publishing
+
+**Conceptual, Major**
+
+When a user fills the form on List a place as a guest, signs in, comes back, and never hits Publish, the temporary information on the form is lost. One user (Lance) thought the house was already up. The form looks finished before there is an account, so the sign-in step is taken like the publish action, even though they are distinct, and frankly mean different things.
+
+It happened because My homes shows the full form to guests, then swaps in Log in / Create an account. After auth, the form still needs to be published.
+
+We can either hide the fields until they are signed in, or keep the draft and publish after login (maybe using a popup as soon as they sign in).
+
+### 4. Max rent is not the money to move in
+
+**Conceptual, Moderate**
+
+Setting max rent to 500$ also shows a place with US$400 rent plus a US$400 deposit. The rent filter text-box is seen as the total move-in amount, inclusive of fees and levies. Filter is binding to monthly rent only.
+
+Reading the card gives more information about what the actual total would be.
+
+In our implementation, we can keep the rent as is, and maybe have another filter that looks at total for first move-in so renters are aware of other charges even before clicking each listing's card.
+
+### 5. Contact goes in extras
+
+**Linguistic, Moderate**
+
+Landlord might put their contact in the Extras textbox, which gives everyone access to it (even guest users), and defeats the purpose of asking for an introduction.
+
+A soulution might be to shrink the extras. We can have a pre-filled form that has common items like levies / water / conditions. Alternatively, we can parse the Extras and flag any potential contact numbers appearing, then prompt the landlord to check again before publishing.
