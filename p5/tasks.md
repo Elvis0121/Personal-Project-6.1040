@@ -3,19 +3,15 @@
 
 | Title                       | Instruction                                                                                                                                                                                            | Rationale                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Browsing without account    | You have two weeks left on your lease. Without making an account, look up places you could stay if your budget is US$500 a month.                                                                      | Here we test searching for a listing, and see how the tenant judges a place from the advert, without needing an account. It is worth testing because the whole product fails if they cannot tell the real cost, or if they hit a sign-in wall before they have seen a house. A cognitive walkthrough already knows rent, deposit, and extras are on the card, and that Find your home needs no login, so doing the task ourselves would not fail. What we cannot see is whether someone on a US$500 budget uses deposit and extras, or only the rent filter, or starts looking for a phone number as soon as they landj on page.                                |
+| Browsing without account    | You have two weeks left on your lease. Without making an account, look up places you could stay if your budget is US$500 a month.                                                                      | Here we test searching for a listing, and see how the tenant judges a place from the advert, without needing an account. It is worth testing because the whole product fails if they cannot tell the real cost, or if they hit a sign-in wall before they have seen a house. A cognitive walkthrough already knows rent, deposit, and extras are on the card, and that Find your home needs no login, so doing the task ourselves would not fail. What we cannot see is whether someone on a US$500 budget uses deposit and extras, or only the rent filter, or starts looking for a phone number as soon as they land on the page.                             |
 | Get an introduction         | You like and want to view a VERIFIED Avondale cottage or flat around US$400. Then get an introduction to the landlord.                                                                                 | This is Introducing from the tenant side, plus the VERIFIED label from Verifying. It is worth testing because the number is supposed to stay off the page until the landlord accepts, and because VERIFIED is what admins at Kumba check, not a document the tenant accesses. A walkthrough already knows to sign up, open the listing, and request an introduction, then wait for the other window to accept. A user may look for a phone on the card, try to message from the landing page, or not notice they need an account. After the landlord accepts, the evaluation gulf is whether they notice the number, sit on PENDING, or think nothing happened. |
 | Put a house up              | You have a house in Belvedere that is unoccupied: US$400 rent, US$200 deposit, water billed, no other levy, move-in 15 November, your phone number. Put it up. People should be able to see the rooms. | This is Listing from the advertiser side, including a photo. It is worth testing because My homes is the most dense page, and putting a house up is a long form plus a file, not just a single click. A walkthrough already knows List a place, the listing form, and uploading a photo. A user may not find where to list, may put the phone in the public extras text box, skip the photo, or think the house is up before they have published. That is the testing point of the execution we cannot simulate by doing it ourselves.                                                                                                                          |
 | Change your mind            | You listed the wrong extras (and mistakenly included a US$20 security levy). Fix the listing.                                                                                                          | Landlords fix terms after they publish. Edit is worth testing because the wrong levy is exactly the extra charge tenants were supposed to see up front; if they cannot change it, the listing is not truthful. A walkthrough goes to My homes and edits the open house. A user may publish a second listing, withdraw and start over, or not see that this house can still change. If they make a duplicate, search shows two houses and the first one still has the wrong levy.                                                                                                                                                                                |
-| Two people asked            | Two people have asked about your house. How to deal with these requests.                                                                                                                               | This is Introducing from the landlord side, with two PENDING requests added after the house is listed. It is worth testing because a walkthrough with one request never hits two people wanting the same number. We already know (from teh walkthrough videos) the ACCEPT/DECLINE work if we click them ourselves. What we do not know is whether a user can tell the two people apart, whether they accept both, and whether the popup before sharing the number helps or just gets in the way.                                                                                                                                                                |
+| Two people asked            | Two people have asked about your house. How to deal with these requests.                                                                                                                               | This is Introducing from the landlord side, with two PENDING requests added after the house is listed. It is worth testing because a walkthrough with one request never hits two people wanting the same number. We already know (from the walkthrough videos) the ACCEPT/DECLINE work if we click them ourselves. What we do not know is whether a user can tell the two people apart, whether they accept both, and whether the popup before sharing the number helps or just gets in the way.                                                                                                                                                                |
 | Let, then they fall through | You have agreed with one of them. The house is let. A week later they fall through. You want it seen again.                                                                                            | Mark let is how a place leaves search (unless withdrawn). Relist is how it comes back when the tenant falls through. Both sit on the same card as confirm and withdraw. A walkthrough already knows the order and the warning popups. A user may withdraw instead of let, confirm instead of relist, or type the house in again. Relist should keep the terms and the photo. If they cannot find that path, it means the design could be better, especially for the fall-through case.                                                                                                                                                                          |
 
 
-
-
 ## notes
-
-
 
 ### Jordan
 
@@ -39,7 +35,7 @@ Heart on two Avondale places that are both about US$400. Wanted to compare them 
 
 ### Lance
 
-Logged in and nothing says you are Lance. Tiny name in the header. Two windows both say Kumba. wants it to feell more personal
+Logged in and nothing says you are Lance. Tiny name in the header. Two windows both say Kumba. wants it to feel more personal
 
 List jumped. Thought he misclicked. Search polling every 4s, other window had just published.
 
@@ -53,43 +49,43 @@ Opened his own house in find your home and tried to ask for an intro. Error. wan
 
 Put their number in extra charges. Box is huge and says extras so that is where the number went.
 
-Asked about currencies. Us dollars and ZiG in the form, no rate. In Zimbabwe people use an official rate and a black market rate. informal deals use black market rate. Thinsk it may need to show a rate that would be acceptable to everyone, or which rate the listing means.
-
-
+Asked about currencies. Us dollars and ZiG in the form, no rate. In Zimbabwe people use an official rate and a black market rate. informal deals use black market rate. Thinks it may need to show a rate that would be acceptable to everyone, or which rate the listing means.
 
 ## Report
 
-Tried not to explain the UI unless they were stuck with no next move
+Tried not to explain the UI unless they were stuck with no next move. I aso tried not to disturb as much as possible
 
 ### Jordan
 
-Jordan searched with no account and got a grid of places. He treated max rent as the whole move-in budget, so a US$400 rent plus a US$400 deposit still sat inside a US$500 cap. He could see the numbers clearly, but the filter only bound to just rent, not the total (mainly because that would be the recurring amount one pays to the landlord).
+Jordan searched with no account and got a grid of places. Rent, deposit, extras, and VERIFIED were already on the cards. It wasn't exactly intuitive how to use those facts though. He thought max rent was the whole move-in budget because a house with US$400 rent plus a US$400 deposit was returned for US$500 max rent. He could see the numbers but my design binds the box to (recurring) rent only not the total at move-in.
 
-When inputting specific locations, Harare matched Avondale and Harare. When Jordan tried "ale" it matched Avondale and Borrowdale, which both end like that. He also asked if Avondale and Belvedere were real, and thought Avondale was a street. This was because Jordan has never been to Harare, and tested names the product treats as obvious.
+When inputting specific locations, Harare matched Avondale and Harare. When Jordan tried "ale" it matched Avondale and Borrowdale, which both end like that. He also asked if Avondale and Belvedere were real, and thought Avondale was a street. Jordan has never been to Harare, and in my design, these names in the product looked obvious.
 
-Verified sits on the photograph. He wanted to know if it meant the picture was real, then skipped most not-verified cards as if assuming they were fake and not worth looking over (Jordan generally graviated to places with more than jsut the display photo, too). Two readings fit: the badge is on the image, so it attaches to the image; or he never heard that unverified listings stay up on purpose. He seemed to point at the first. He also likes that stand-in photos look like a real house when you upload. Verified looks like a photo check.
+Verified sits on the photograph. He wanted to know if it meant the picture was real, then skipped most unverified cards as if they were fake (he also gravitated to places with more than just the display photo on the listing). In the debrief, he liked that stand-in photos look like a real house when you upload, which is nice, but then verified starts looking like a photo check, not a check on the property.
 
-When he ticked House only under "Type", cottages and flats vanished. He had not seen that leaving type empty keeps all four kinds.
+When he ticked House only under "Type", cottages and flats vanished. It was diffcult to realize that leaving type empty keeps all four kinds of properties.
 
 ![Search cards during Jordan's session. Long extras on the Avondale house push See this home down, so the three cards do not line up.](jordan-search.jpg)
 
-Long extras on the right-hand Avondale house stretch the metadata. See this home drops to the bottom while the neighbours sit tight under move-in. He also hearted two Avondale places both around US$400 and wanted to compare them side by side. Like turned out a bit unhelfpul for him.
+Long extras on the right-hand Avondale house stretch the metadata. See this home drops to the bottom while the neighbours sit tight under move-in. He hearted two Avondale places both around US$400 and expected to compare them side by side. Like turned out to be unhelpful for that.
 
 ### Lance
 
-Lance typed in his email to signup, got invalid request, and said he expected a phone or an email, not just a username. The field is labelled username. Apparently, other housing sites he knows want an email. 
+Lance typed in his email to sign up, got invalid request, and said he expected a phone or an email, not just a username. The field however, is clearly labelled username. Apparently other housing sites he knows use an email.
 
-He browsed as a guest, filled List a place, signed in, came back, and did not press Publish. He thought the house was already up because of the sign in step. The form looks finished before you have an account, so login felt like the last step rather than a redirect.
+He browsed as a guest, and attempted to List a place, signed in, came back, and did not press Publish. He thought the house was already up because of the sign in step. The form looks finished before you have an account, so login felt like the last step rather than a redirect.
 
-His own house then showed up in Find your home. He tried to ask for an introduction, got an error, and wanted search not to include his listings if he is also looking to rent. The listing page already says this is your home. That sentence never ran, because the issue is with the search grid design. He also put his number in extra charges. The box is large and labelled extras, so that is where his contact went.
+His own house showed up in Find your home. He wanted to ask for an introduction, but couldn't and wanted search not to include his listings if he is also looking to rent. The listing page already says this is your home. He also put his number in extra charges. The box is large and labelled extras, so that is where he put his contact went.
 
-While he looked, the list jumped. He thought he had misclicked. It was because a different window had just published. Search is designed to refresh every 4 seconds. 
+While he scrolled, the list jumped. He thought he had misclicked but it was because in a different window had just published a new listing. Search is designed to refresh every 4 seconds.
 
-After login, only a small header name said he was lance (username). He wanted it to feel more personal.
+After login, only a small header name said he was Lance. He wanted it to feel more personal.
 
-He wanted to know about the currencies (US dollars and ZiG, the country uses both) because there is no exchange rate displayed. In the country, people use an official rate and a black market rate; informal deals use the black market one. He thought a listing should say which rate it means, or a rate both sides would accept. Jordan on the other hand did not question currencies.
+The currencies (US dollars and ZiG, the country uses both)were also a concern because there is no exchange rate displayed. In the country, people use an official rate and a black market rate, and informal deals use the black market one. He preferred a listing that says which rate it means, or a rate both sides would accept. Jordan on the other hand did not question currencies. Lance also did not really care about the like feature.
 
 ## Flaws
+
+I'd fix verified first, because Jordan started skipping those listings, which we meant to keep in search (when designing, I meant that unverified just means Kumba hasn't checked it but users might think it means scammers or something else). Login vs publish would be next since Lance thought the house was already up and never hit Publish. The other flaws would not be as consequential.
 
 ### 1. Verified sits on the photo
 
@@ -109,7 +105,7 @@ Landlord opened his listing from search and wanted to ask for an introduction, b
 
 Find your home is one list of open places. The same account can advertise and search. The listing page does say “this is your home,”
 
-We can drop the current owner’s listings from `/listings/search,` although this is not a high priority refinement. 
+We can drop the current owner’s listings from `/listings/search,` although this is not a high priority refinement.
 
 ### 3. Login feels like publishing
 
